@@ -1,8 +1,8 @@
-CREATE DATABASE DOCBOX
+CREATE DATABASE DX_DOCBOX
 ON
-PRIMARY (NAME=DocBox_Data, FILENAME='E:\Projects\Databases\DocBox_Data.MDF'),
-FILEGROUP DBFS CONTAINS FILESTREAM (NAME=DOCBOX_FS, FILENAME='E:\Projects\DOCBOX_FS')
-LOG ON (NAME=DB_LOG,FILENAME='E:\Projects\Databases\Docbox_Log.ldf')
+PRIMARY (NAME=DocBox_Data, FILENAME='C:\Projects\Databases\DocBox_Data.MDF'),
+FILEGROUP DBFS CONTAINS FILESTREAM (NAME=DOCBOX_FS, FILENAME='C:\Projects\DOCBOX_FS')
+LOG ON (NAME=DB_LOG,FILENAME='C:\Projects\Databases\Docbox_Log.ldf')
 GO
 
 USE DOCBOX
@@ -13,18 +13,20 @@ CREATE TABLE [dbo].[DX_USER](
 [fname] varchar(100) NOT NULL,
 [lname] varchar(100) NOT NULL,
 [role] varchar(40) NOT NULL,
-[pwdhash] varchar(100) NOT NULL,
+[pwdhash] varchar(200) NOT NULL,
 [questionid] int NOT NULL,
 [phone] varchar(30) NOT NULL,
-[anshash] varchar(100) NOT NULL,
-[actcodehash] varchar(100) DEFAULT NULL,
-[accesslevel] int NOT NULL
+[anshash] varchar(200) NOT NULL,
+[actcodehash] varchar(200) DEFAULT NULL,
+[accesslevel] varchar(100) NOT NULL,
+[salt] varchar(200) NOT NULL
 )
 
 IF OBJECT_ID('DX_FILES','U') IS NOT NULL
 	DROP TABLE [DX_FILES];
 CREATE TABLE [dbo].[DX_FILES](
  [fileid] bigint NOT NULL PRIMARY KEY IDENTITY(100000,1),
+ 
  [filename] varchar(100) NOT NULL,
  [parentpath] varchar(300) NOT NULL,
  [ownerid] varchar(100) NOT NULL,
@@ -56,6 +58,7 @@ CREATE TABLE [dbo].[DX_FILES](
  IF OBJECT_ID('DX_FILEVERSION','U') IS NOT NULL
 	DROP TABLE [DX_FILEVERSION];
 CREATE TABLE [dbo].[DX_FILEVERSION](
+ [version] bigint NOT NULL PRIMARY KEY IDENTITY(500000,1), 
  [fileid] bigint NOT NULL,
  [versionid] UNIQUEIDENTIFIER ROWGUIDCOL NOT NULL UNIQUE,
  [versionnumber] int NOT NULL,
@@ -78,6 +81,7 @@ CREATE TABLE [dbo].[DX_DEPARTMENT](
  IF OBJECT_ID('DX_USERDEPT','U') IS NOT NULL
 	DROP TABLE [DX_USERDEPT];
 CREATE TABLE [dbo].[DX_USERDEPT](
+[userdeptid] bigint NOT NULL PRIMARY KEY IDENTITY(500000,1), 
 [userid] varchar(100) NOT NULL,
 [deptid] int NOT NULL,
 FOREIGN KEY (userid) REFERENCES DX_USER(userid) ON DELETE CASCADE ON UPDATE CASCADE,
