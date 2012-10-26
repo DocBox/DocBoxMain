@@ -17,45 +17,18 @@ namespace docbox.Controllers
 
         dx_docboxEntities database = new dx_docboxEntities();
 
-        protected override void Dispose(bool disposing)
-        {
-            database.Dispose();
-            base.Dispose(disposing);
-        }
-
-        //
         // GET: /Account/LogOn
-
+        
         public ActionResult LogOn()
         {
             return View();
         }
 
-        private static string generateSalt()
+        public ActionResult Invalid()
         {
-            byte[] randomSalt = new byte[64];
-            RNGCryptoServiceProvider qualityRandom = new RNGCryptoServiceProvider();
-            qualityRandom.GetBytes(randomSalt);
-            return Convert.ToBase64String(randomSalt);
+            return View();
         }
-        private static string generateHash(string SaltValue, string InputPwd)
-        {
 
-            string SaltedPassword = String.Concat(InputPwd, SaltValue);
-            HashAlgorithm algorithm = new SHA256CryptoServiceProvider();
-            byte[] quickHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(SaltedPassword));
-            string hash = Convert.ToBase64String(quickHash);
-            return hash;
-        }
-        private static string generateHash(string answer)
-        {
-
-
-            HashAlgorithm algorithm = new SHA256CryptoServiceProvider();
-            byte[] quickHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(answer));
-            string hash = Convert.ToBase64String(quickHash);
-            return hash;
-        }
         //
         // POST: /Account/LogOn
 
@@ -65,7 +38,7 @@ namespace docbox.Controllers
 
             if (ModelState.IsValid)
             {
-                
+
 
                 var allusers = from usertabel in database.DX_USER where usertabel.userid == model.UserName select usertabel;
                 if (allusers.ToList().Count == 1)
@@ -75,6 +48,7 @@ namespace docbox.Controllers
                     if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
                     {
                         FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
+                        //Security checkpoint for preventing open redirect attack
                         if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                             && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
                         {
@@ -82,7 +56,7 @@ namespace docbox.Controllers
                         }
                         else
                         {
-                            return RedirectToAction("Index", "Home");
+                            return RedirectToAction("RespectiveHome");
                         }
                     }
                     else
@@ -105,9 +79,43 @@ namespace docbox.Controllers
             return View(model);
         }
 
+        // This will take each user to its home depending upon its role!!
+        public ActionResult RespectiveHome()
+        {
+            String[] roles = Roles.GetRolesForUser();
+            if (roles.Contains(Constants.TEMP_USER))
+            {
+                return RedirectToAction("Index", "TempUser");
+            }
+            else if (roles.Contains(Constants.EMPLOYEE_USER))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else if (roles.Contains(Constants.MANAGER_USER))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else if (roles.Contains(Constants.VP_USER))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else if (roles.Contains(Constants.CEO_USER))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else if (roles.Contains(Constants.GUEST_USER))
+            {
+                return RedirectToAction("Index", "TempUser");
+            }
+            else
+            {
+                return RedirectToAction("Invalid", "Account");
+            }
+
+        }
+
         //
         // GET: /Account/LogOff
-
         public ActionResult LogOff()
         {
             FormsAuthentication.SignOut();
@@ -155,10 +163,10 @@ namespace docbox.Controllers
                 user.role = model.Position;
                 user.userid = model.Email;
                 user.anshash = generateHash(model.Answer);
-                user.accesslevel = Constants.TEMP_USER; // 
+                user.accesslevel = Constants.TEMP_USER;
                 user.salt = generateSalt();
                 user.pwdhash = generateHash(user.salt, model.Password);
-                user.actcodehash = "111";
+                user.actcodehash = "dummycode";
 
                 database.DX_USER.AddObject(user);
                 int success = database.SaveChanges();
@@ -233,6 +241,33 @@ namespace docbox.Controllers
             return View();
         }
 
+        private static string generateSalt()
+        {
+            byte[] randomSalt = new byte[64];
+            RNGCryptoServiceProvider qualityRandom = new RNGCryptoServiceProvider();
+            qualityRandom.GetBytes(randomSalt);
+            return Convert.ToBase64String(randomSalt);
+        }
+        private static string generateHash(string SaltValue, string InputPwd)
+        {
+
+            string SaltedPassword = String.Concat(InputPwd, SaltValue);
+            HashAlgorithm algorithm = new SHA256CryptoServiceProvider();
+            byte[] quickHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(SaltedPassword));
+            string hash = Convert.ToBase64String(quickHash);
+            return hash;
+        }
+        private static string generateHash(string answer)
+        {
+
+
+            HashAlgorithm algorithm = new SHA256CryptoServiceProvider();
+            byte[] quickHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(answer));
+            string hash = Convert.ToBase64String(quickHash);
+            return hash;
+        }
+        
+
         //To do: add our error codes
         #region Status Codes
         private static string ErrorCodeToString(MembershipCreateStatus createStatus)
@@ -273,6 +308,12 @@ namespace docbox.Controllers
             }
         }
         #endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            database.Dispose();
+            base.Dispose(disposing);
+        }
 
 
     }

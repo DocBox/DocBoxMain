@@ -12,6 +12,7 @@ namespace docbox.Controllers
         public static  String VP_USER = "vp";
         public static  String MANAGER_USER = "manager";
         public static  String CEO_USER = "ceo";
+        public static String GUEST_USER = "guest";
 
     }
 }

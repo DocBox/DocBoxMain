@@ -6,8 +6,10 @@ using System.Web.Mvc;
 
 namespace docbox.Controllers
 {
+    
     public class HomeController : Controller
     {
+        [Authorize (Roles="employee,manager,ceo,vp")]  
         public ActionResult Index()
         {
             ViewBag.Message = "";
@@ -15,6 +17,8 @@ namespace docbox.Controllers
             return View();
         }
 
+       
+        [HttpGet]
         public ActionResult About()
         {
             return View();
