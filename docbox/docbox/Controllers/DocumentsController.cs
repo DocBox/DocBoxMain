@@ -25,10 +25,28 @@ namespace docbox.Controllers
         //
         // GET: /Documents/Details/5
 
-        public ViewResult Details(long id)
+        public void Details(long id)
         {
             DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-            return View(dx_files);
+            DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==dx_files.fileid);
+
+            byte[] FileData = fileversion.filedata;
+
+            string fullname = dx_files.filename + dx_files.type;
+
+            Response.Clear();
+            // Add a HTTP header to the output stream that specifies the default filename
+            // for the browser's download dialog
+            Response.AddHeader("Content-Disposition", "attachment; filename=" + fullname);
+            // Add a HTTP header to the output stream that contains the 
+            // content length(File Size). This lets the browser know how much data is being transfered
+            Response.AddHeader("Content-Length", FileData.Length.ToString());
+            // Set the HTTP MIME type of the output stream
+            Response.ContentType = "application/octet-stream";
+
+            Response.BinaryWrite(FileData);
+            Response.Flush();
+
         }
 
         //
@@ -47,15 +65,56 @@ namespace docbox.Controllers
         [HttpPost]
         public ActionResult Create(DX_FILES dx_files)
         {
+            //if (ModelState.IsValid)
+            //{
+            //    db.DX_FILES.AddObject(dx_files);
+            //    db.SaveChanges();
+            //    return RedirectToAction("Index");  
+            //}
+
+            //ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
+            //ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
+
             if (ModelState.IsValid)
             {
+                HttpPostedFileBase file = Request.Files[0];
+                System.IO.Stream stream = file.InputStream;
+                dx_files.creationdate = System.DateTime.Now;
+                dx_files.filename = Request.Params.Get("filename");
+// // // // //
+                // HARDCODED HERE
+// // // // // 
+                dx_files.ownerid = "emkishan@yahoo.com";
+                dx_files.isarchived = "false";
+                dx_files.parentpath = "samplepath";
+                dx_files.isencrypted = "false";
+                dx_files.islocked = "false";
+                dx_files.size = (int)stream.Length;
+                dx_files.type = System.IO.Path.GetExtension(file.FileName);
+
                 db.DX_FILES.AddObject(dx_files);
                 db.SaveChanges();
-                return RedirectToAction("Index");  
+
+                DX_FILEVERSION fileversion = new DX_FILEVERSION();
+                fileversion.fileid = dx_files.fileid;
+                fileversion.versionid = Guid.NewGuid();
+                // // // // //
+                // HARDCODED HERE
+                // // // // // 
+                fileversion.versionnumber = 1;
+                fileversion.updatedate = System.DateTime.Now;
+                fileversion.description = Request.Params.Get("filename");
+                fileversion.size = (int)stream.Length;
+                fileversion.updatedby = "emkishan@yahoo.com";
+
+                byte[] fileData = new byte[stream.Length];
+                stream.Read(fileData, 0, (int)stream.Length);
+                fileversion.filedata = fileData;
+                db.AddToDX_FILEVERSION(fileversion);
+                db.SaveChanges();
             }
 
-            ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
-            ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
+
             return View(dx_files);
         }
         

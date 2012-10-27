@@ -12,34 +12,25 @@
 <table>
     <tr>
         <th>
-            filename
+            Filename
         </th>
         <th>
-            parentpath
+            Owner
         </th>
         <th>
-            DX_USER1
+            Size
         </th>
         <th>
-            size
+            Encrypted?
         </th>
         <th>
-            isencrypted
+            Locked
         </th>
         <th>
-            isarchived
+            Format
         </th>
         <th>
-            islocked
-        </th>
-        <th>
-            DX_USER
-        </th>
-        <th>
-            type
-        </th>
-        <th>
-            creationdate
+            Created
         </th>
         <th></th>
     </tr>
@@ -48,9 +39,6 @@
     <tr>
         <td>
             @Html.DisplayFor(modelItem => item.filename)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.parentpath)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.DX_USER1.fname)
@@ -62,13 +50,7 @@
             @Html.DisplayFor(modelItem => item.isencrypted)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.isarchived)
-        </td>
-        <td>
             @Html.DisplayFor(modelItem => item.islocked)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DX_USER.fname)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.type)
@@ -78,7 +60,7 @@
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.fileid }) |
-            @Html.ActionLink("Details", "Details", new { id=item.fileid }) |
+            @Html.ActionLink("Download", "Details", new { id=item.fileid }) |
             @Html.ActionLink("Delete", "Delete", new { id=item.fileid })
         </td>
     </tr>
