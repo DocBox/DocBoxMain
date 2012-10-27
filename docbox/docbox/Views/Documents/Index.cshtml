@@ -1,0 +1,87 @@
+﻿@model IEnumerable<docbox.Models.DX_FILES>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            filename
+        </th>
+        <th>
+            parentpath
+        </th>
+        <th>
+            DX_USER1
+        </th>
+        <th>
+            size
+        </th>
+        <th>
+            isencrypted
+        </th>
+        <th>
+            isarchived
+        </th>
+        <th>
+            islocked
+        </th>
+        <th>
+            DX_USER
+        </th>
+        <th>
+            type
+        </th>
+        <th>
+            creationdate
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.filename)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.parentpath)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DX_USER1.fname)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.size)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isencrypted)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.isarchived)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.islocked)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DX_USER.fname)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.type)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.creationdate)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.fileid }) |
+            @Html.ActionLink("Details", "Details", new { id=item.fileid }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.fileid })
+        </td>
+    </tr>
+}
+
+</table>
