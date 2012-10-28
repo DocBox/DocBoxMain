@@ -27,6 +27,59 @@ namespace docbox.Models
         public string ConfirmPassword { get; set; }
     }
 
+    public class ForgetPasswordModel
+    {
+        [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
+        [Display(Name = "First name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
+        [Display(Name = "Last name")]
+        public string LastName { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage = "Not valid email address (Criteria is minimum length 10, atleast one special character from !@#$% and atleast one digit)")]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email address")]
+        public string Email { get; set; }
+
+        [Required]
+        [RegularExpression(@"^(\d{10})$", ErrorMessage = "Not a correct phone number!")]
+        [DataType(DataType.PhoneNumber)]
+        [Display(Name = "Phone")]
+        public string Phone { get; set; }
+
+        [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
+        [Display(Name = "Position")]
+        public string Position { get; set; }
+
+        [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
+        [Display(Name = "Department")]
+        public string Department { get; set; }
+
+        [Required]
+        [Display(Name = "Enter Characters")]
+        public string Captcha { get; set; }
+
+
+        [Required]
+        [Display(Name = "Secret Question")]
+        public string Squestion { get; set;}
+
+        [Required]
+        [Display(Name = "Answer")]
+        public string Answer { get; set; }
+
+        [Required]
+        [Display(Name = "Notification Method")]
+        public bool NotificationChoice { get; set; }
+
+    }
+
     public class LogOnModel
     {
         [Required]
