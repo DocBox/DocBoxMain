@@ -6,12 +6,54 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using docbox.Models;
+using System.Web.Security;
 
 namespace docbox.Controllers
 { 
     public class DocumentsController : Controller
     {
         private dx_docboxEntities db = new dx_docboxEntities();
+
+
+        //GET : //Documents/ListDocuments
+
+        public ActionResult ListDocuments()
+        {
+            List<FileModel> model;
+            model = new List<FileModel>();
+            if (ModelState.IsValid)
+            {
+                var allFiles = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
+                if (allFiles.ToList().Count >= 1)
+                {
+                    foreach (DX_FILES file in allFiles)
+                    {
+                        //what is ur strategy to get the latest version of the files
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==file.fileid);
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileSize = file.size.ToString();
+                        model.Add(filemodel);
+                    }
+                    
+                    return View(model);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No Files available for view");
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        //ActionResult subm(List)
+        //{
+        //}
 
         //
         // GET: /Documents/
@@ -20,6 +62,31 @@ namespace docbox.Controllers
         {
             var dx_files = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
             return View(dx_files.ToList());
+        }
+
+        public void CheckInOut(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
+                var text = "";
+
+                if (dx_files.islocked.Equals(true))
+                {
+                    var lockedBy = dx_files.lockedby;
+                    text = "The file is currently locked by" + lockedBy + ". Please try again later";
+                }
+                else
+                {
+                    //MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true);
+                    dx_files.islocked = "true";
+                    dx_files.lockedby = "shtripat@asu.edu";
+                        //currentUser.UserName.ToString();
+                    db.DX_FILES.Attach(dx_files);
+                    db.ObjectStateManager.ChangeObjectState(dx_files, EntityState.Modified);
+                    db.SaveChanges();
+                }
+            }
         }
 
         //
@@ -81,10 +148,10 @@ namespace docbox.Controllers
                 System.IO.Stream stream = file.InputStream;
                 dx_files.creationdate = System.DateTime.Now;
                 dx_files.filename = Request.Params.Get("filename");
-// // // // //
-                // HARDCODED HERE
-// // // // // 
-                dx_files.ownerid = "emkishan@yahoo.com";
+
+                //MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true /* userIsOnline */);
+                dx_files.ownerid = "shtripat@asu.edu";
+                    //currentUser.UserName;
                 dx_files.isarchived = "false";
                 dx_files.parentpath = "samplepath";
                 dx_files.isencrypted = "false";
@@ -105,7 +172,8 @@ namespace docbox.Controllers
                 fileversion.updatedate = System.DateTime.Now;
                 fileversion.description = Request.Params.Get("filename");
                 fileversion.size = (int)stream.Length;
-                fileversion.updatedby = "emkishan@yahoo.com";
+                fileversion.updatedby = "shtripat@asu.edu";
+                    //currentUser.UserName;
 
                 byte[] fileData = new byte[stream.Length];
                 stream.Read(fileData, 0, (int)stream.Length);
@@ -140,7 +208,7 @@ namespace docbox.Controllers
                 db.DX_FILES.Attach(dx_files);
                 db.ObjectStateManager.ChangeObjectState(dx_files, EntityState.Modified);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("ListDocuments");
             }
             ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
             ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
@@ -165,7 +233,7 @@ namespace docbox.Controllers
             DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
             db.DX_FILES.DeleteObject(dx_files);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("ListDocuments");
         }
 
         protected override void Dispose(bool disposing)
