@@ -1,0 +1,90 @@
+﻿/* 
+-------------------------------*/​
+.webgrid
+    {
+        width: 100%;
+        border: 0px;
+        border-collapse: collapse;
+    }
+     
+    .webgrid a
+    {
+       color: #000;
+   }
+   
+    a:link {
+        COLOR: Gray;
+    }
+    a:visited {
+        COLOR: GrayText;
+    }
+    a:hover {
+        COLOR: Gray;
+    }
+    a:active {
+        COLOR: Gray;
+    }
+
+    .webgrid th, .webgrid td
+    {
+        border-bottom: 1px solid #666699;
+        padding: 5px;
+        color: Brown;
+    }
+    
+   .webgrid-header
+   {
+       padding: 6px 5px;
+       text-align: center;
+       background-color: ThreeDLightShadow;
+       color: ThreeDLightShadow;
+       /*#e8eef4;*/
+       border-bottom: 2px solid #3966A2;
+       height: 40px;
+    
+       /*border-top: 2px solid #D6E8FF;
+       border-left: 2px solid #D6E8FF;
+       border-right: 2px solid #D6E8FF;*/
+   }
+   
+  /* .webgrid-header a:link, .webgrid-header a:link,.webgrid-header a:link,.webgrid-header a:link
+    {
+        
+    }*/
+    
+   .webgrid-footer
+   {
+       padding: 6px 5px;
+       text-align: center;
+       /*background-color: #f2f2f2;*/
+       border-top: 2px solid #3966A2;
+       height: 30px;
+    
+       /*border-bottom: 2px solid #D6E8FF;
+       border-left: 2px solid #D6E8FF;
+       border-right: 2px solid #D6E8FF;*/
+   }
+    
+   .webgrid-alternating-row
+   {
+       height: 30px;
+       background-color: #f2f2f2;
+       border-bottom: 1px solid #d2d2d2;
+    
+       /*border-left: 2px solid #D6E8FF;
+       border-right: 2px solid #D6E8FF;*/
+   }
+    
+   .webgrid-row-style
+   {
+       height: 30px;
+       border-bottom: 1px solid #d2d2d2;
+    
+       /*border-left: 2px solid #D6E8FF;
+       border-right: 2px solid #D6E8FF;*/
+   }
+    
+   .webgrid-selected-row
+   {
+       font-weight: bold;
+   }

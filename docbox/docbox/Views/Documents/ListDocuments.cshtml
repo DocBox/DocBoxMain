@@ -4,28 +4,31 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>MyDocs</h2>
-<script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap.min.js")" type="text/javascript"></script>
-<script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap.js")" type="text/javascript"></script>
-<script src="@Url.Content("~/css/bootstrap-responsive.css")" type="text/css" />
-<script src="@Url.Content("~/Scripts/doxbox-jquery.js")" type="text/javascript"></script>
-@{  
-    <div class="sidebar-nav">
-    <div class="well" style="width:200px; padding: 8px 0;">
-    <ul class="nav nav-list">
-    <li>@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
-    <li>@Html.ActionButton("Share", "Share", "Documents", "icon-share", null)</li>
-    <li>@Html.ActionButton("Archive", "Archive", "Documents", "icon-envelope", null)</li>
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 2);
+   grid.Pager(WebGridPagerModes.NextPrevious); 
+   }
+<div class="navbar">
+
+@{  <div class="navbar-inner">
+    <div class="container">
+    <ul class="nav">  
+      <li class="active">  
+        <a class="brand" href="#">MyDocs</a>  
+      </li>  
+    <li class="divider-vertical">@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
+    <li class="divider-vertical">@Html.ActionButton("Share", "Share", "Documents", "icon-share", null)</li>
+    <li class="divider-vertical">@Html.ActionButton("Archive", "Archive", "Documents", "icon-envelope", null)</li>
     </ul>
     </div>
     </div>
     
-    var grid = new WebGrid(Model, canPage: true, rowsPerPage: 5);
-    grid.Pager(WebGridPagerModes.NextPrevious);
     @grid.GetHtml(tableStyle: "webGrid",
+          headerStyle: "webgrid-header",
+        footerStyle: "webgrid-footer",
+         alternatingRowStyle: "webgrid-alternating-row",
+         selectedRowStyle: "webgrid-selected-row",
+         rowStyle: "webgrid-row-style",
                 htmlAttributes: new { id = "DataTable" },
-                headerStyle: "header",
-                alternatingRowStyle: "alt",
                 columns: grid.Columns(
                              grid.Column(format: (item) => { return new HtmlString("<input type='checkbox' name='Select'/>"); }),
                                       grid.Column("FileName"),
@@ -33,13 +36,15 @@
                                       grid.Column("FileSize"),
                                       grid.Column("Owner"),
                                       grid.Column("CreationDate"),
-                             //grid.Column(format: (item) => { return new HtmlString("<div id='callback-toggle-button'><input type='checkbox' checked='checked'></div>"); }),
-                             grid.Column(format: (item) => Html.ActionButton("", "CheckInOut", "Documents", "icon-lock", new { id = item.FileID })),
-                             //grid.Column(format: (item) => { return new HtmlString("<input type='checkbox' class='hidden' id='single_checkbox' /><label class='btn' for='single_checkbox'>CheckOut</label>"); }),
-                             grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-                             grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
-                             grid.Column(format: (item) => Html.ActionButton("", "Details", "Documents","icon-download", new { id = item.FileID }))
-                                     
+            grid.Column(format: (item) => { return new HtmlString("<div class='toggle basic' data-enabled='CHECK-OUT' data-disabled='CHECK-IN' data-toggle='toggle'><input type='checkbox' value='1' name='myCheckbox' class='checkbox' checked='checked' /><label class='check' for='myCheckbox'></label></div>"); }),
+            grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "Details", "Documents", "icon-download", new { id = item.FileID }))
+
         ));
+
     //@: <li class="btn btn-mini btn-inverse"> @Html.ActionButton(lLink.LinkText, lLink.ActionName, lLink.ControllerName, lLink.IconClass)</li>
+
 }
+</div>

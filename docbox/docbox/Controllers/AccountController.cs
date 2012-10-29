@@ -427,18 +427,9 @@ namespace docbox.Controllers
             if (ModelState.IsValid)
             {
                 var allFiles = database.DX_FILES.Include("DX_USER").Include("DX_USER1");
-                return View(allFiles.ToList());
-                //var allFiles = from filetabel in database.DX_FILES select filetabel;
-                //List<dx_files> allFiles = new List<dx_files>{
-                //    new dx_files() {fileid = 1, filename = "Jack", size = 30},
-                //    new dx_files() {fileid = 2, filename = "Riley", size = 40},
-                //    new dx_files() {fileid = 3, filename = "William", size = 17},
-                //};
-                //List<dx_files> allFiles = files.ToList<dx_files>();
                 if (allFiles.ToList().Count >= 1)
                 {
                     return View(allFiles.ToList());
-                    //return RedirectToAction("MainDashboard", "Account");
                 }
                 else
                 {
