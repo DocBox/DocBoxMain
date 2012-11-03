@@ -28,6 +28,6 @@ namespace docbox.Models
 
     public class TemporaryUsers
     {
-        List<UserNeedingApproval> TemporaryUsers;
+        List<UserNeedingApproval> AllTemporaryUsers;
     }
 }

@@ -25,17 +25,17 @@ namespace docbox.Controllers
             if (ModelState.IsValid)
             {
 
-                var allTempUsers = from usertable in database.DX_USER where usertable.accesslevel.Equals(Constants.TEMP_USER_ACCESS) select new { usertable.fname, usertable.lname, usertable.userid, usertable.role};
+                var allTempUsers = from usertable in database.DX_USER where usertable.accesslevel.Equals(Constants.TEMP_USER_ACCESS) select usertable;
 
                 if (allTempUsers!=null&&allTempUsers.ToList().Count >= 1)
                 {
 
-                    List<DX_USER> users = (List<DX_USER>)allTempUsers;
+                    List<DX_USER> users = (List<DX_USER>)allTempUsers.ToList();
 
-                    //foreach (DX_USER tempuser in users)
-                    //{
-                    //    Console.WriteLine("gautham : {0}",tempuser.fname);
-                    //}
+                    foreach (DX_USER tempuser in users)
+                    {
+                        Console.WriteLine("gautham : {0}",tempuser.fname);
+                    }
 
                     foreach (DX_USER tempuser in users)
                     { 
