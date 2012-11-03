@@ -25,7 +25,8 @@ namespace docbox.Controllers
             List<FileModel> model;
             model = new List<FileModel>();
 
-                var allFiles = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
+                string currentUserId = SessionKeyMgmt.UserId;
+                var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
                 if (allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
@@ -153,7 +154,7 @@ namespace docbox.Controllers
                     HttpPostedFileBase file = Request.Files[0];
                     System.IO.Stream stream = file.InputStream;
                     byte[] fileData = new byte[stream.Length];
-                    stream.Read(fileData, 0, (int)stream.Length);
+                    stream.Read(fileData, 0, fileData.Length);
 
                     string userid = SessionKeyMgmt.UserId;
 
