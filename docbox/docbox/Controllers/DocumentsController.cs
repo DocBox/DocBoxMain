@@ -17,57 +17,57 @@ namespace docbox.Controllers
     {
         private dx_docboxEntities db = new dx_docboxEntities();
 
-
         //GET : //Documents/ListDocuments
         public ActionResult ListDocuments()
         {
             List<FileModel> model = new List<FileModel>();
-
-            // Get the current logged in userid
-            string currentUserId = SessionKeyMgmt.UserId;
-
-            // Select all files for whom current user is the owner
-            var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
-
-            // Iterate through the files list and
-            if (allFiles.ToList().Count >= 1)
+            try
             {
-                foreach (DX_FILES file in allFiles)
+                // Get the current logged in userid
+
+                // TODO: Showing document list for guest users?
+                string currentUserId = SessionKeyMgmt.UserId;
+
+                // Select all files for whom current user is the owner
+                var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
+
+                // Iterate through the files list and
+                if (allFiles.ToList().Count >= 1)
                 {
-                    //what is ur strategy to get the latest version of the files
-                    DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==file.fileid);
-                    FileModel filemodel = new FileModel();
-                    filemodel.FileID = file.fileid.ToString();
-                    filemodel.FileName = file.filename;
-                    filemodel.Owner = file.ownerid;
-                    filemodel.CreationDate = file.creationdate.ToString();
-                    filemodel.Description = fileversion.description;
-                    filemodel.FileSize = file.size.ToString();
-                    model.Add(filemodel);
+                    foreach (DX_FILES file in allFiles)
+                    {
+                        //what is ur strategy to get the latest version of the files
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid == file.fileid);
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileSize = file.size.ToString();
+                        model.Add(filemodel);
+                    }
                 }
-                    
-                return View(model);
+                else
+                {
+                    ModelState.AddModelError("", "No Files available for view");
+                }
+                return View("ListDocuments", model);
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "No Files available for view");
+                ModelState.AddModelError("", "Error getting the document list " + ex.Message);
             }
 
-            return View(model);
+            return View("ListDocuments", model);
         }
-
-        [HttpPost]
-        //ActionResult subm(List)
-        //{
-        //}
 
         //
         // GET: /Documents/
-
-        public ViewResult Index()
+        [HttpGet]
+        public ActionResult Index()
         {
-            var dx_files = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
-            return View(dx_files.ToList());
+            return ListDocuments();
         }
 
         public void CheckInOut(long id)

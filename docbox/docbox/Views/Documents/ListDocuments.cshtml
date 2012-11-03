@@ -4,6 +4,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@Html.ValidationSummary(true)
+
 @{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
    grid.Pager(WebGridPagerModes.NextPrevious); 
    }
