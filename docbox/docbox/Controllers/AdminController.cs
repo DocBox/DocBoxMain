@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using docbox.Models;
-
+ 
 namespace docbox.Controllers
 {
     public class AdminController : Controller
@@ -20,8 +20,8 @@ namespace docbox.Controllers
 
 
         public ActionResult TempUsers() {
-            List<UserNeedingApproval> model;
-            model = new List<UserNeedingApproval>();
+            List<UserNeedingApproval> AllUsersNeedingApproval;
+            AllUsersNeedingApproval = new List<UserNeedingApproval>();
             if (ModelState.IsValid)
             {
 
@@ -32,6 +32,11 @@ namespace docbox.Controllers
 
                     List<DX_USER> users = (List<DX_USER>)allTempUsers;
 
+                    //foreach (DX_USER tempuser in users)
+                    //{
+                    //    Console.WriteLine("gautham : {0}",tempuser.fname);
+                    //}
+
                     foreach (DX_USER tempuser in users)
                     { 
                         UserNeedingApproval tempUserNeedingApproval= new UserNeedingApproval();
@@ -39,12 +44,12 @@ namespace docbox.Controllers
                         tempUserNeedingApproval.FirstName = tempuser.fname;
                         tempUserNeedingApproval.LastName = tempuser.lname;
                         tempUserNeedingApproval.Position = tempuser.role;
-                        model.Add(tempUserNeedingApproval);
-
+                        AllUsersNeedingApproval.Add(tempUserNeedingApproval);
                     }
+
                 }
             }
-            return View();
+            return View(AllUsersNeedingApproval);
         }
     }
 }

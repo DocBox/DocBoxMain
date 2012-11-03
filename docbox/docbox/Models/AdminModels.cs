@@ -23,8 +23,11 @@ namespace docbox.Models
 
         [Display(Name = "Department")]
         public List<string> Department { get; set; }
+
     }
 
-    public class Users
-    { List<Users> UserNeedingApproval; }
+    public class TemporaryUsers
+    {
+        List<UserNeedingApproval> TemporaryUsers;
+    }
 }
