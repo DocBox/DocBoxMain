@@ -2,60 +2,35 @@
 
 @{
     ViewBag.Title = "Delete";
+     Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
 <h2>Delete</h2>
 
 <h3>Are you sure you want to delete this?</h3>
 <fieldset>
-    <legend>DX_FILES</legend>
-
-    <div class="display-label">filename</div>
+    <div class="control-group">
+    <div class="display-label">File Name</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.filename)
     </div>
-
-    <div class="display-label">parentpath</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.parentpath)
     </div>
-
-    <div class="display-label">DX_USER1</div>
+    <div class="display-label">Owner</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.DX_USER1.fname)
     </div>
 
-    <div class="display-label">size</div>
+    <div class="display-label">Size</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.size)
     </div>
 
-    <div class="display-label">isencrypted</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.isencrypted)
-    </div>
-
-    <div class="display-label">isarchived</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.isarchived)
-    </div>
-
-    <div class="display-label">islocked</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.islocked)
-    </div>
-
-    <div class="display-label">DX_USER</div>
+    <div class="display-label">Locked By</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.DX_USER.fname)
     </div>
 
-    <div class="display-label">type</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.type)
-    </div>
-
-    <div class="display-label">creationdate</div>
+    <div class="display-label">Created on </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.creationdate)
     </div>

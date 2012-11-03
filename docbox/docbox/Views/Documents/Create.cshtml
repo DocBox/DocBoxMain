@@ -2,50 +2,70 @@
 
 @{
     ViewBag.Title = "Upload";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DocumentLayout.cshtml";
+    
 }
 
-<h2>Create</h2>
+<h2>Upload</h2>
 
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 
-<script type="text/javascript">
-    function update() {
-        if (document.getElementById("encCheck").checked) {
-            document.getElementById("keyFile").disabled = false;
+    <script type="text/javascript">
+        function update() {
+            if (document.getElementById("encCheck").checked) {
+                document.getElementById("keyFile").disabled = false;
+            }
+            else
+                document.getElementById("keyFile").disabled = true;
+            document.getElementById("keyFile").value = "";
         }
-        else
-            document.getElementById("keyFile").disabled = true;
-        document.getElementById("keyFile").value = "";
-    }
 
 </script>
 
 @*@using (Html.BeginForm()) {*@
+    
     @Html.ValidationSummary(true)
-    <fieldset>
 
-
-  <form action="" method="post" enctype="multipart/form-data">
-  <table>
-  <tr>
-  <td><label for="file">Select File</label></td>
-  <td><input type="file" name="file" id="file" /></td></tr>
-  <tr><td><label for"filename">File name</td></label>
-  <td><input type="text" name="filename" /></td></tr>
-  <tr><td><input type="checkbox" name="encrypted" onchange="update()" id="encCheck"> Encrypt? </input></td>
-  <td><input type="file" id="keyFile" name="keyfile" disabled/></td></tr>
-
-        <tr>
-        <td><p>
-            <input type="submit" value="Create" />
-        </p></td>
-        </tr>
-        </table>
-        </form>
-    </fieldset>
-
-<div>
-    @Html.ActionLink("Back to List", "ListDocuments")
+  <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+ <fieldset>
+<div class="control-group">
+    <label class="control-label"  for="file">Select File</label>
+    <div class="controls">
+            <input type="file" name="file" id="file"/>
+    </div>
 </div>
+<div class="control-group">
+    <label class="control-label"  for="filename">File Name</label>
+    <div class="controls">
+            <input type="text" id="filename" name="filename" placeholder="" class="input-xlarge"/>
+    </div>
+</div>
+<div class="control-group">
+ <label class="checkbox">
+            <div class="controls">
+                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"> Encrypt? </input>
+                <input type="file" name="keyFile" id="keyFile" disabled/>
+                </div>
+            </label>
+           
+            </div>
+            
+            <div class="control-group">
+            <div class="controls">
+                        <input type="submit" value="Upload" class="btn btn-primary"/>
+                        </div>
+                        </div>
+
+ </fieldset>
+ <div>
+ <div class="control-group">
+            <div class="controls">
+    @Html.ActionLink("Back to List", "ListDocuments")
+    </div>
+</div>
+        </form>
+
+    
+    
+    </div>

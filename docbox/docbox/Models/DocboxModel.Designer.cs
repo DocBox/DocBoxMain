@@ -8,12 +8,13 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -174,6 +175,7 @@ namespace docbox.Models
         private ObjectSet<DX_USERDEPT> _DX_USERDEPT;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -225,11 +227,11 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -256,6 +258,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -310,6 +313,7 @@ namespace docbox.Models
         partial void OnnameChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -336,6 +340,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -376,6 +381,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -622,6 +628,7 @@ namespace docbox.Models
         partial void OncreationdateChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -746,6 +753,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -769,8 +777,7 @@ namespace docbox.Models
         /// <param name="description">Initial value of the description property.</param>
         /// <param name="size">Initial value of the size property.</param>
         /// <param name="updatedby">Initial value of the updatedby property.</param>
-        /// <param name="isencrypted">Initial value of the isencrypted property.</param>
-        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby, global::System.String isencrypted)
+        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby)
         {
             DX_FILEVERSION dX_FILEVERSION = new DX_FILEVERSION();
             dX_FILEVERSION.version = version;
@@ -781,11 +788,11 @@ namespace docbox.Models
             dX_FILEVERSION.description = description;
             dX_FILEVERSION.size = size;
             dX_FILEVERSION.updatedby = updatedby;
-            dX_FILEVERSION.isencrypted = isencrypted;
             return dX_FILEVERSION;
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1010,9 +1017,9 @@ namespace docbox.Models
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public global::System.String isencrypted
+        public Nullable<global::System.Boolean> isencrypted
         {
             get
             {
@@ -1022,16 +1029,17 @@ namespace docbox.Models
             {
                 OnisencryptedChanging(value);
                 ReportPropertyChanging("isencrypted");
-                _isencrypted = StructuralObject.SetValidValue(value, false);
+                _isencrypted = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("isencrypted");
                 OnisencryptedChanged();
             }
         }
-        private global::System.String _isencrypted;
-        partial void OnisencryptedChanging(global::System.String value);
+        private Nullable<global::System.Boolean> _isencrypted;
+        partial void OnisencryptedChanging(Nullable<global::System.Boolean> value);
         partial void OnisencryptedChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1112,6 +1120,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1148,6 +1157,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1322,6 +1332,7 @@ namespace docbox.Models
         partial void OncheckChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1402,6 +1413,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1444,6 +1456,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1714,6 +1727,7 @@ namespace docbox.Models
         partial void OnsaltChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1828,6 +1842,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1856,6 +1871,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1934,6 +1950,7 @@ namespace docbox.Models
         partial void OndeptidChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -2014,8 +2031,10 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
 
     #endregion
+
     
 }

@@ -105,7 +105,7 @@ namespace docbox.Controllers
 
             byte[] FileData = fileversion.filedata;
 
-            string fullname = dx_files.filename + dx_files.type;
+            string fullname = dx_files.filename;
 
             Response.Clear();
             // Add a HTTP header to the output stream that specifies the default filename
@@ -136,6 +136,7 @@ namespace docbox.Controllers
         // POST: /Documents/Create
 
         [HttpPost]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Create(DX_FILES dx_files)
         {
             //if (ModelState.IsValid)
@@ -151,9 +152,9 @@ namespace docbox.Controllers
             try
             {
 
-                if (Request.Files[0].InputStream != null)
+                if (Request.Files[0].InputStream.Length != 0)
                 {
-
+                    string[] supportedFileTypes = { ".doc", ".docx", ".dotx", ".dot", ".xls", ".xlsx", ".xlt",".xltx",".ppt",".pptx",".potx",".pot",".pdf",".txt",".jpeg",".jpg",".png",".bmp",".tiff",".tif" };
                     HttpPostedFileBase file = Request.Files[0];
                     System.IO.Stream stream = file.InputStream;
                     byte[] fileData = new byte[stream.Length];
@@ -163,62 +164,75 @@ namespace docbox.Controllers
 
                     //Setting properties of the file object
                     dx_files.creationdate = System.DateTime.Now;
-                    dx_files.filename = Request.Params.Get("filename");
-                    //dx_files.isencrypted = "false";
-
-                    dx_files.ownerid = userid;
-                    dx_files.isarchived = "false";
-                    dx_files.parentpath = "/" + userid;
-                    //dx_files.isencrypted = "false";
-                    dx_files.islocked = "false";
-
-                    dx_files.size = (int)stream.Length;
-                    dx_files.type = System.IO.Path.GetExtension(file.FileName);
-
-                    db.DX_FILES.AddObject(dx_files);
-                    db.SaveChanges();
-
-                    DX_FILEVERSION fileversion = new DX_FILEVERSION();
-                    fileversion.fileid = dx_files.fileid;
-                    fileversion.versionid = Guid.NewGuid();
-                    // // // // //
-                    // HARDCODED HERE
-                    // // // // // 
-                    fileversion.versionnumber = 1;
-                    fileversion.updatedate = System.DateTime.Now;
-                    fileversion.description = Request.Params.Get("filename");
-                    fileversion.size = (int)stream.Length;
-                    fileversion.updatedby = userid;
-                    //currentUser.UserName;
-
-                    string encrypted = Request.Params.Get("encrypted");
-                    if (encrypted == "on")
+                    string filename = Request.Params.Get("filename");
+                    if (filename.Length != 0)
                     {
-                        HttpPostedFileBase keyFile = Request.Files[1];
-                        System.IO.Stream keyStream = keyFile.InputStream;
-                        byte[] keyData = new byte[keyStream.Length];
-                        keyStream.Read(keyData, 0, (int)keyStream.Length);
-                        //dx_files.isencrypted = "true";
+                        
+                        dx_files.ownerid = userid;
+                        dx_files.isarchived = "false";
+                        dx_files.parentpath = "/" + userid;
 
-                        RijndaelManaged Crypto = new RijndaelManaged();
-                        Crypto.BlockSize = 128;
-                        Crypto.KeySize = 256;
-                        Crypto.Mode = CipherMode.CBC;
-                        Crypto.Padding = PaddingMode.PKCS7;
-                        Crypto.Key = keyData;
-                        //Crypto.IV=keyData;
+                        dx_files.islocked = "false";
 
-                        ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
+                        dx_files.size = (int)stream.Length;
+                        string filetype = System.IO.Path.GetExtension(file.FileName);
+                        if(supportedFileTypes.Contains(filetype))
+                        {
+                            dx_files.type = filetype;
+                            dx_files.filename = filename + filetype;
+                            db.DX_FILES.AddObject(dx_files);
+                            db.SaveChanges();
 
-                        byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+                            DX_FILEVERSION fileversion = new DX_FILEVERSION();
+                            fileversion.fileid = dx_files.fileid;
+                            fileversion.versionid = Guid.NewGuid();
+                            fileversion.versionnumber = 1;
+                            fileversion.updatedate = System.DateTime.Now;
+                            fileversion.description = Request.Params.Get("filename");
+                            fileversion.size = (int)stream.Length;
+                            fileversion.updatedby = userid;
+                            fileversion.isencrypted = false;
+                            //currentUser.UserName;
 
-                        fileData = cipherText;
+                            string encrypted = Request.Params.Get("encrypted");
+                            if (encrypted == "on")
+                            {
+                                HttpPostedFileBase keyFile = Request.Files[1];
+                                System.IO.Stream keyStream = keyFile.InputStream;
+                                byte[] keyData = new byte[keyStream.Length];
+                                keyStream.Read(keyData, 0, (int)keyStream.Length);
+                                fileversion.isencrypted = true;
+
+                                RijndaelManaged Crypto = new RijndaelManaged();
+                                Crypto.BlockSize = 128;
+                                Crypto.KeySize = 256;
+                                Crypto.Mode = CipherMode.CBC;
+                                Crypto.Padding = PaddingMode.PKCS7;
+                                Crypto.Key = keyData;
+                                //Crypto.IV=keyData;
+
+                                ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
+
+                                byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+
+                                fileData = cipherText;
+                            }
+
+                            fileversion.filedata = fileData;
+                            db.AddToDX_FILEVERSION(fileversion);
+                            db.SaveChanges();
+                            return RedirectToAction("ListDocuments");
+                        }
+                        else{
+                            ModelState.AddModelError("","Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
+                        }
                     }
-
-                    fileversion.filedata = fileData;
-                    db.AddToDX_FILEVERSION(fileversion);
-                    db.SaveChanges();
+                    else
+                    {
+                        ModelState.AddModelError("", "Please enter a valid filename");
+                    }
                 }
+                
                 else
                 {
                     ModelState.AddModelError("", "Please select the file to be uploaded");
@@ -229,8 +243,8 @@ namespace docbox.Controllers
             {
                 ModelState.AddModelError("","There is an exception while uploading the document");
             }
-
-            return View(dx_files);
+            return View();
+            
         }
         
         //
