@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Create</h2>
@@ -21,8 +22,8 @@
 
 </script>
 
-@*@using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)*@
+@*@using (Html.BeginForm()) {*@
+    @Html.ValidationSummary(true)
     <fieldset>
 
 
@@ -34,7 +35,7 @@
   <tr><td><label for"filename">File name</td></label>
   <td><input type="text" name="filename" /></td></tr>
   <tr><td><input type="checkbox" name="encrypted" onchange="update()" id="encCheck"> Encrypt? </input></td>
-  <td><input type="file" id="keyFile" disabled/></td></tr>
+  <td><input type="file" id="keyFile" name="keyfile" disabled/></td></tr>
 
         <tr>
         <td><p>

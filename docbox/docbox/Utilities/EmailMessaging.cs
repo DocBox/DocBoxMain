@@ -11,7 +11,7 @@ namespace docbox.Utilities
     public class EmailMessaging
     {
 
-        static bool mailSent = false;
+        
         static System.Configuration.Configuration webConfig =
                 System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/docbox/web.config");
         static System.Configuration.KeyValueConfigurationElement hostEmailId =
@@ -37,7 +37,7 @@ namespace docbox.Utilities
             {
                 Console.WriteLine("Message sent.");
             }
-            mailSent = true;
+         
         }
         public static void sendMessage(string toEmialId, string emailBody, string emailSubject)
         {

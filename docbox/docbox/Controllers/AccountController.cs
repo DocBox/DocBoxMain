@@ -19,14 +19,13 @@ namespace docbox.Controllers
         dx_docboxEntities database = new dx_docboxEntities();
 
         // GET: /Account/LogOn
-
+        //[RequireHttps]
         public ActionResult LogOn()
         {
 
-
             return View();
         }
-
+        //[RequireHttps]
         public ActionResult Invalid()
         {
 
@@ -37,6 +36,7 @@ namespace docbox.Controllers
         // POST: /Account/LogOn
 
         [HttpPost]
+        // [RequireHttps]
         public ActionResult LogOn(LogOnModel model, string returnUrl)
         {
 
@@ -51,7 +51,15 @@ namespace docbox.Controllers
                     var UserRecord = allusers.First();
                     if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
                     {
-                        FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
+                       
+                        FormsAuthentication.SetAuthCookie(model.UserName,model.RememberMe);
+
+                        //Set userid in session
+                        SessionKeyMgmt.UserId=model.UserName;
+
+                        //Get the department
+                        SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName,database);
+                       
                         //Security checkpoint for preventing open redirect attack
                         if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                             && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
@@ -144,6 +152,7 @@ namespace docbox.Controllers
         {
             if (ModelState.IsValid)
             {
+                FormsAuthentication.SignOut();
                 string captchaid = Request.Form["CaptchaGuid"];
                 string captchaValue = Request.Form["Captcha"];
 
@@ -228,6 +237,7 @@ namespace docbox.Controllers
         }
 
         //GET : /Account/ForgetPassword
+
         public ActionResult ForgetPassword()
         {
             ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
@@ -235,62 +245,86 @@ namespace docbox.Controllers
 
         }
 
-        //Post : /Account/FoegetPassword
+        private bool isUserInfoCorrect(ForgetPasswordModel model)
+        {
 
-        [Authorize]
+            var allusers = from usertabel in database.DX_USER
+                           where
+                               usertabel.fname == model.FirstName
+                               && usertabel.lname == model.LastName
+                               && usertabel.role == model.Position
+                               && usertabel.userid == model.Email
+                           select usertabel;
+
+            var allDepartments = from departmentuser in database.DX_USERDEPT
+                                 join department in database.DX_DEPARTMENT
+                                     on departmentuser.deptid equals department.deptid
+                                 where departmentuser.userid == model.Email
+                                 select departmentuser;
+            string sQuestion = "";
+               //ok if one user and more than one dept
+            if (allusers.ToList().Count == 1 && allDepartments.ToList().Count >=1)
+                Constants.secrateQuestionList.TryGetValue(allusers.ToList().First().questionid, out sQuestion);
+            model.Squestion = sQuestion;
+            return allusers.ToList().Count == 1 && allDepartments.ToList().Count == 1;
+        }
+
+
+        //Post : /Account/FoegetPassword       
+        [HttpPost]
         public ActionResult ForgetPassword(ForgetPasswordModel model)
         {
-            /*  if (ModelState.IsValid)
-              {
-
-                  var allusers = from usertabel in database.DX_USER where 
-                                     usertabel.fname == model.FirstName
-                                     && usertabel.lname== model.LastName
-                                     && usertabel.phone== model.Phone
-                                     && usertabel.userid == model.Email
-                                     && usertabel.role == model.Position
-                                     && usertabel.
+            if (ModelState.IsValid)
+            {
 
 
-                                 select usertabel;
-                  if (allusers.ToList().Count == 1)
-                  {
+                if (isUserInfoCorrect(model))
+                {
+                    return RedirectToAction("VerifySecret", "Account", model);
 
-                      var UserRecord = allusers.First();
-                      if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
-                      {
-                          FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
-                          //Security checkpoint for preventing open redirect attack
-                          if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
-                              && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
-                          {
-                              return Redirect(returnUrl);
-                          }
-                          else
-                          {
-                              return RedirectToAction("RespectiveHome");
-                          }
-                      }
-                      else
-                      {
-                          ModelState.AddModelError("", "The user name or password provided is incorrect.");
-                      }
-                  }
-                  else
-                  {
-                      ModelState.AddModelError("", "The user name or password provided is incorrect.");
-                  }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "User information incorrect, you can not proceed!");
+                }
 
+            }
+            else
+            {
+                ModelState.AddModelError("", "User information incorrect, you can not proceed!");
+            }
 
-              }
-              else
-              {
-                  ModelState.AddModelError("", "The user name or password provided is incorrect.");
-              }*/
-
-            // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+
+
+        //
+        // GET:/Account/VerifySecret
+
+        public ActionResult VerifySecret()
+        {
+            return View();
+        }
+
+
+        //
+        //POST: /Account/SendActivationCode
+
+        [HttpPost]
+        public ActionResult SendActivationCode(ForgetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+
+
+
+            }
+
+            return View();
+        }
+
+
 
         //
         // GET: /Account/ChangePassword

@@ -80,6 +80,10 @@ namespace docbox.Models
 
     }
 
+    public class generateActivationCode{
+    
+    }
+
     public class LogOnModel
     {
         [Required]
