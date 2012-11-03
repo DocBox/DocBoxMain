@@ -1,0 +1,25 @@
+﻿@model List<docbox.Models.FileModel>
+
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 2, ajaxUpdateContainerId: "myGrid");
+   grid.Pager(WebGridPagerModes.NextPrevious); 
+   }
+@grid.GetHtml(tableStyle: "webGrid",
+          headerStyle: "webgrid-header",
+        footerStyle: "webgrid-footer",
+         alternatingRowStyle: "webgrid-alternating-row",
+         selectedRowStyle: "webgrid-selected-row",
+         rowStyle: "webgrid-row-style",
+                htmlAttributes: new { id = "myGrid" },
+                columns: grid.Columns(
+                             grid.Column(format: (item) => { return new HtmlString("<input type='checkbox' name='Select'/>"); }),
+                                      grid.Column("FileName"),
+                                      grid.Column("Description"),
+                                      grid.Column("FileSize"),
+                                      grid.Column("Owner"),
+                                      grid.Column("CreationDate"),
+            grid.Column(format: (item) => { return new HtmlString("<div class='toggle basic' data-enabled='CHECK-OUT' data-disabled='CHECK-IN' data-toggle='toggle'><input type='checkbox' value='1' name='myCheckbox' class='checkbox' checked='checked' /><label class='check' for='myCheckbox'></label></div>"); }),
+            grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "Details", "Documents", "icon-download", new { id = item.FileID }))
+        ));
