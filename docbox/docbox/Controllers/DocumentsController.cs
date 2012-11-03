@@ -19,36 +19,39 @@ namespace docbox.Controllers
 
 
         //GET : //Documents/ListDocuments
-
         public ActionResult ListDocuments()
         {
-            List<FileModel> model;
-            model = new List<FileModel>();
+            List<FileModel> model = new List<FileModel>();
 
-                string currentUserId = SessionKeyMgmt.UserId;
-                var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
-                if (allFiles.ToList().Count >= 1)
+            // Get the current logged in userid
+            string currentUserId = SessionKeyMgmt.UserId;
+
+            // Select all files for whom current user is the owner
+            var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
+
+            // Iterate through the files list and
+            if (allFiles.ToList().Count >= 1)
+            {
+                foreach (DX_FILES file in allFiles)
                 {
-                    foreach (DX_FILES file in allFiles)
-                    {
-                        //what is ur strategy to get the latest version of the files
-                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==file.fileid);
-                        FileModel filemodel = new FileModel();
-                        filemodel.FileID = file.fileid.ToString();
-                        filemodel.FileName = file.filename;
-                        filemodel.Owner = file.ownerid;
-                        filemodel.CreationDate = file.creationdate.ToString();
-                        filemodel.Description = fileversion.description;
-                        filemodel.FileSize = file.size.ToString();
-                        model.Add(filemodel);
-                    }
+                    //what is ur strategy to get the latest version of the files
+                    DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==file.fileid);
+                    FileModel filemodel = new FileModel();
+                    filemodel.FileID = file.fileid.ToString();
+                    filemodel.FileName = file.filename;
+                    filemodel.Owner = file.ownerid;
+                    filemodel.CreationDate = file.creationdate.ToString();
+                    filemodel.Description = fileversion.description;
+                    filemodel.FileSize = file.size.ToString();
+                    model.Add(filemodel);
+                }
                     
-                    return View(model);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "No Files available for view");
-                }
+                return View(model);
+            }
+            else
+            {
+                ModelState.AddModelError("", "No Files available for view");
+            }
 
             return View(model);
         }
@@ -161,12 +164,12 @@ namespace docbox.Controllers
                     //Setting properties of the file object
                     dx_files.creationdate = System.DateTime.Now;
                     dx_files.filename = Request.Params.Get("filename");
-                    dx_files.isencrypted = "false";
+                    //dx_files.isencrypted = "false";
 
                     dx_files.ownerid = userid;
                     dx_files.isarchived = "false";
                     dx_files.parentpath = "/" + userid;
-                    dx_files.isencrypted = "false";
+                    //dx_files.isencrypted = "false";
                     dx_files.islocked = "false";
 
                     dx_files.size = (int)stream.Length;
@@ -195,7 +198,7 @@ namespace docbox.Controllers
                         System.IO.Stream keyStream = keyFile.InputStream;
                         byte[] keyData = new byte[keyStream.Length];
                         keyStream.Read(keyData, 0, (int)keyStream.Length);
-                        dx_files.isencrypted = "true";
+                        //dx_files.isencrypted = "true";
 
                         RijndaelManaged Crypto = new RijndaelManaged();
                         Crypto.BlockSize = 128;
