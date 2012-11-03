@@ -8,13 +8,10 @@
 <p>
     Use the form below to create a new account.
 </p>
-<p>
-    Passwords are required to be a minimum of 10
-    characters in length.
-</p>
+
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
-<script src="@Url.Content("~/Scripts/doxbox-jquery.js")" type="text/javascript"></script>
+
 @using (Html.BeginForm())
 {
     
@@ -83,23 +80,16 @@
                 @Html.LabelFor(m => m.Department)
             </div>
             <div class="editor-field">
-                @Html.DropDownListFor(m => m.Department, new[] {
-                new SelectListItem() {Text = "HR", Value = "HR"},
-                new SelectListItem() {Text = "IT Support", Value = "IT"},
-                new SelectListItem() {Text = "Logistic and Supply", Value = "LOGISTIC"},
-                new SelectListItem() {Text = "Sales and Promotion", Value = "SALES"},
-                new SelectListItem() {Text = "Research and Development", Value = "RESEARCH"},
-                new SelectListItem() {Text = "FINANCE", Value = "FINANCE"},
-                new SelectListItem() {Text = "Company Management", Value = "COMPANYMANAGEMENT"}
-                   }, "Pick a Department")
+            
+               @Html.ListBoxFor(m => m.Department, new MultiSelectList(ViewBag.Departments, "deptid", "name",Model.Department))
             </div>
             <div class="editor-label">
-            CAPTCHA
-            </div>
+            Captcha
+            </div>      
             <div class="editor-field">
             <img src = @Url.Content("http://www.opencaptcha.com/img/"
                   + ViewBag.CaptchaGuid + ".jpgx") alt="Captcha" />
-                  @Html.Hidden("CaptchaGuid",ViewData["CaptchaGuid"])
+                  @Html.Hidden("CaptchaGuid", ViewData["CaptchaGuid"])
             </div>
 
             <div class="editor-label">

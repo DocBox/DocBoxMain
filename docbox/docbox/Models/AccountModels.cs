@@ -40,7 +40,7 @@ namespace docbox.Models
         public string LastName { get; set; }
 
         [Required]
-        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage = "Not valid email address (Criteria is minimum length 10, atleast one special character from !@#$% and atleast one digit)")]
+        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage = "Not valid email address ")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }
@@ -101,8 +101,21 @@ namespace docbox.Models
         public bool RememberMe { get; set; }
     }
 
+
+   
+
+    
+
+    
     public class RegisterModel
+
+
     {
+
+       public RegisterModel()
+        {
+            Department = new List<int>();
+        }
         [Required]
         [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage="Not a valid name")]
         [Display(Name = "First name")]
@@ -114,7 +127,7 @@ namespace docbox.Models
         public string LastName { get; set; }
 
         [Required]
-        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage="Not valid email address")]
+        [RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Not valid email address")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }
@@ -127,8 +140,8 @@ namespace docbox.Models
 
 
         [Required]
-        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [RegularExpression(@"^.*(?=.{6,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements")]
+        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
@@ -145,9 +158,8 @@ namespace docbox.Models
         public string Position { get; set; }
 
         [Required]
-        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
         [Display(Name = "Department")]
-        public string Department { get; set; }
+        public ICollection<int> Department { get; set; }
 
         [Required]
         [Display(Name = "Enter Characters")]

@@ -22,7 +22,7 @@ namespace docbox.Controllers
         //[RequireHttps]
         public ActionResult LogOn()
         {
-
+            FormsAuthentication.SignOut();
             return View();
         }
         //[RequireHttps]
@@ -51,15 +51,15 @@ namespace docbox.Controllers
                     var UserRecord = allusers.First();
                     if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
                     {
-                       
-                        FormsAuthentication.SetAuthCookie(model.UserName,model.RememberMe);
+
+                        FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
 
                         //Set userid in session
-                        SessionKeyMgmt.UserId=model.UserName;
+                        SessionKeyMgmt.UserId = model.UserName;
 
                         //Get the department
-                        SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName,database);
-                       
+                        SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName, database);
+
                         //Security checkpoint for preventing open redirect attack
                         if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                             && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
@@ -95,38 +95,40 @@ namespace docbox.Controllers
         public ActionResult RespectiveHome()
         {
             String[] roles = Roles.GetRolesForUser();
-            if (roles.Contains(Constants.ADMIN_USER))
+
+            if (roles.Contains(Constants.ADMIN_USER_ACCESS))
             {
                 return RedirectToAction("Index", "Admin");
-            }else
-            if (roles.Contains(Constants.TEMP_USER))
-            {
-                return RedirectToAction("Index", "TempUser");
-            }
-            else if (roles.Contains(Constants.EMPLOYEE_USER))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            else if (roles.Contains(Constants.MANAGER_USER))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            else if (roles.Contains(Constants.VP_USER))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            else if (roles.Contains(Constants.CEO_USER))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            else if (roles.Contains(Constants.GUEST_USER))
-            {
-                return RedirectToAction("Index", "TempUser");
             }
             else
-            {
-                return RedirectToAction("Invalid", "Account");
-            }
+                if (roles.Contains(Constants.TEMP_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "TempUser");
+                }
+                else if (roles.Contains(Constants.EMPLOYEE_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (roles.Contains(Constants.MANAGER_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (roles.Contains(Constants.VP_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (roles.Contains(Constants.CEO_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (roles.Contains(Constants.GUEST_USER_ACCESS))
+                {
+                    return RedirectToAction("Index", "TempUser");
+                }
+                else
+                {
+                    return RedirectToAction("Invalid", "Account");
+                }
 
         }
 
@@ -139,27 +141,46 @@ namespace docbox.Controllers
             return RedirectToAction("About", "Home");
         }
 
+        private void populateDepartmenetsList()
+        {
+            var departments = (from departmenttable in database.DX_DEPARTMENT select departmenttable);
+            List<DX_DEPARTMENT> depList = departments == null ? new List<DX_DEPARTMENT>() : departments.ToList();
+            ViewBag.Departments = depList;
+        }
         //
         // GET: /Account/Register
 
         public ActionResult Register()
         {
             ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
-            return View();
+            RegisterModel model = new RegisterModel();
+            model.Department = new List<int>();
+            populateDepartmenetsList();
+            return View(model);
         }
 
-        //
-        // POST: /Account/Register
 
-        [HttpPost]
-        public ActionResult Register(RegisterModel model)
+        private bool validateModelRegister(RegisterModel model)
         {
-            if (ModelState.IsValid)
+            bool isValid = true;
+            try
             {
-                FormsAuthentication.SignOut();
+
                 string captchaid = Request.Form["CaptchaGuid"];
                 string captchaValue = Request.Form["Captcha"];
 
+
+                if (model.FirstName == null || model.LastName == null
+                    || model.Phone == null || model.Password == null || model.Position == null
+                    || model.Squestion == null || model.Email == null || model.ConfirmPassword == null
+                    || model.Captcha == null || model.Answer == null)
+                {
+
+                    ModelState.AddModelError("", "Invalid Values!");
+                    return false;
+                }
+
+                //Validate captcha
 
                 WebClient captchaCliden = new WebClient();
                 string reponseCaptchaService = captchaCliden.DownloadString(
@@ -169,71 +190,130 @@ namespace docbox.Controllers
                 if (!"pass".Equals(reponseCaptchaService))
                 {
                     ModelState.AddModelError("", "Captcha didn't match, please try again!");
-                    return View(model);
+                    return false;
                 }
 
-                var allusers = from usertabel in database.DX_USER where usertabel.userid == model.Email select usertabel;
-                if (allusers.ToList().Count == 1)
-                {
-                    ModelState.AddModelError("", "A user with this email already present in teh system please use correct email id!");
-                    return View(model);
 
+
+                if ((Constants.POSITION_MANAGER_USER.Equals(model.Position) && Constants.POSITION_EMPLOYEE_USER.Equals(model.Position)) && model.Department.ToList().Count > 1)
+                {
+                    ModelState.AddModelError("", "Your position can not have multiple departments!");
+                    return false;
                 }
-                var alldepartment = from usertabel in database.DX_DEPARTMENT where usertabel.name == model.Department select usertabel;
 
-                if (alldepartment.ToList().Count == 1)
+            }
+            catch (Exception e)
+            {
+                isValid = false;
+                ModelState.AddModelError("", "Invalid request Please try after some time!");
+
+            }
+            return isValid;
+        }
+        //
+        // POST: /Account/Register
+
+
+        [HttpPost]
+        public ActionResult Register(RegisterModel model)
+        {
+            try
+            {
+                populateDepartmenetsList();
+
+                if (ModelState.IsValid)
                 {
 
-                    var DepartmentRecord = alldepartment.First();
 
-
-                    DX_USER user = new DX_USER();
-                    user.fname = model.FirstName;
-                    user.lname = model.LastName;
-                    user.phone = model.Phone;
-                    user.questionid = Int32.Parse(model.Squestion);
-                    user.role = model.Position;
-                    user.userid = model.Email;
-                    user.anshash = generateHash(model.Answer);
-                    user.accesslevel = Constants.TEMP_USER;
-                    user.salt = generateSalt();
-                    user.pwdhash = generateHash(user.salt, model.Password);
-                    user.actcodehash = "dummycode";
-                    database.DX_USER.AddObject(user);//Add user
-
-                    DX_USERDEPT userDept = new DX_USERDEPT();
-                    userDept.deptid = DepartmentRecord.deptid;
-                    userDept.userid = model.Email;
-                    database.DX_USERDEPT.AddObject(userDept);//Add department
-
-                    int success = database.SaveChanges();
-                    if (success > 0)
+                    FormsAuthentication.SignOut();
+                    if (validateModelRegister(model) == false)
                     {
-                        String message = Environment.NewLine + "Hi " + model.FirstName + "," + Environment.NewLine
-                            + "Thank you for registering with Docbox!" + Environment.NewLine
-                            + "You will soon get notification, once you are been approved by Docbox Administrator" + Environment.NewLine
-                                + "- Docbox Team";
-                        EmailMessaging.sendMessage(model.Email, message, "Notification");
-                        FormsAuthentication.SetAuthCookie(model.Email, false);
-                        return RedirectToAction("Index", "TempUser");
+                        ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+                        return View(model);
+                    }
+
+                    ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+
+                    var allusers = from usertabel in database.DX_USER where usertabel.userid == model.Email select usertabel;
+                    if (allusers.ToList().Count == 1)
+                    {
+                        ModelState.AddModelError("", "A user with this email already present in teh system please use correct email id!");
+                        return View(model);
+
+                    }
+
+                    var alldepartment = from usertabel in database.DX_DEPARTMENT where model.Department.Contains(usertabel.deptid) select usertabel;
+                    //var alldepartment = from usertabel in database.DX_DEPARTMENT where usertabel.name == model.Department select usertabel;
+
+                    if (alldepartment.ToList().Count >= 1)
+                    {
+
+                        var DepartmentRecord = alldepartment.First();
+
+
+                        DX_USER user = new DX_USER();
+                        user.fname = model.FirstName;
+                        user.lname = model.LastName;
+                        user.phone = model.Phone;
+                        user.questionid = Int32.Parse(model.Squestion);
+                        user.role = model.Position;
+                        user.userid = model.Email;
+                        user.anshash = generateHash(model.Answer);
+                        user.accesslevel = Constants.TEMP_USER_ACCESS;
+                        user.salt = generateSalt();
+                        user.pwdhash = generateHash(user.salt, model.Password);
+                        user.actcodehash = "dummycode";
+                        database.DX_USER.AddObject(user);//Add user
+                        foreach (DX_DEPARTMENT dept in alldepartment.ToList())
+                        {
+                            DX_USERDEPT userDept = new DX_USERDEPT();
+                            userDept.deptid = dept.deptid;
+                            userDept.userid = model.Email;
+                            database.DX_USERDEPT.AddObject(userDept);//Add department
+                        }
+
+                        int success = database.SaveChanges();
+                        if (success > 0)
+                        {
+                            String message = Environment.NewLine + "Hi " + model.FirstName + "," + Environment.NewLine
+                                + "Thank you for registering with Docbox!" + Environment.NewLine
+                                + "You will soon get notification, once you are been approved by Docbox Administrator" + Environment.NewLine
+                                    + "- Docbox Team";
+                            try
+                            {
+                                EmailMessaging.sendMessage(model.Email, message, "Notification");
+                            }
+                            catch
+                            {
+                                ModelState.AddModelError("", "User created but unabe to log in at this point of time try logging in after some time!");
+
+                                return View(model);
+                            }
+
+                            FormsAuthentication.SetAuthCookie(model.Email, false);
+                            return RedirectToAction("Index", "TempUser");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "User can not be registered, Please try after some time!");
+                            return View(model);
+                        }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "User can not be registered, Please try after some time!");
+                        ModelState.AddModelError("", "Invalid Department Select Correct Department");
                         return View(model);
                     }
+
+
+
+
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid Department Select Correct Department");
-                    return View(model);
-                }
-
-
-
-
             }
-
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", "Invalid request please try after some time! ");
+            }
             // If we got this far, something failed, redisplay form
             return View(model);
 
@@ -266,11 +346,13 @@ namespace docbox.Controllers
                                  where departmentuser.userid == model.Email
                                  select departmentuser;
             string sQuestion = "";
-               //ok if one user and more than one dept
-            if (allusers.ToList().Count == 1 && allDepartments.ToList().Count >=1)
+            //ok if one user and more than one dept
+            if (allusers != null && allDepartments != null && allusers.ToList().Count == 1 && allDepartments.ToList().Count >= 1)
                 Constants.secrateQuestionList.TryGetValue(allusers.ToList().First().questionid, out sQuestion);
+            else
+                return false;
             model.Squestion = sQuestion;
-            return allusers.ToList().Count == 1 && allDepartments.ToList().Count == 1;
+            return allusers.ToList().Count == 1 && allDepartments.ToList().Count >= 1;
         }
 
 

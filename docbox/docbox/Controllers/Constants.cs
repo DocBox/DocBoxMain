@@ -7,13 +7,24 @@ namespace docbox.Controllers
 {
     public class Constants
     {
-        public static String TEMP_USER = "temp";
-        public static String EMPLOYEE_USER = "employee";
-        public static String VP_USER = "vp";
-        public static String MANAGER_USER = "manager";
-        public static String CEO_USER = "ceo";
-        public static String GUEST_USER = "guest";
-        public static String ADMIN_USER = "admin";
+
+       
+        public static readonly String ADMIN_USER_ACCESS = "admin";
+
+        public static readonly String TEMP_USER_ACCESS = "temp";
+        public static readonly String EMPLOYEE_USER_ACCESS = "employee";
+        public static readonly String VP_USER_ACCESS = "vp";
+        public static readonly String MANAGER_USER_ACCESS = "manager";
+        public static readonly String CEO_USER_ACCESS = "ceo";
+        public static readonly String GUEST_USER_ACCESS = "guest";
+
+     
+        public static String POSITION_EMPLOYEE_USER= "employee";
+        public static String POSITION_VP_USER = "vp";
+        public static String POSITION_MANAGER_USER = "manager";
+        public static String POSITION_CEO_USER = "ceo";
+        
+
 
 
         public static Dictionary<int, string> secrateQuestionList = new Dictionary<int, string>()
