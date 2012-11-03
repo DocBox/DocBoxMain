@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "GenerateKey";
+}
+
+<h2>GenerateKey</h2>
+
+   <fieldset>
+
+
+  <form action="" method="post" enctype="multipart/form-data">
+  <table>
+  <tr>
+  <td>Passphrase</td>
+  <td><input type="password" name="passph" id="pass" /></td></tr>
+    <tr><td><input type="submit" value="Generate Key" /> |</td><td>@Html.ActionLink("Back to List", "Index")</td></tr>     
+
+    </table>
+        </form>
+    </fieldset>

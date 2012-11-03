@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 2);
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
    grid.Pager(WebGridPagerModes.NextPrevious); 
    }
 <div class="navbar">

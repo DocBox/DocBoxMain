@@ -7,6 +7,9 @@ using System.Web;
 using System.Web.Mvc;
 using docbox.Models;
 using System.Web.Security;
+using System.Security.Cryptography;
+using System.IO;
+using docbox.Utilities;
 
 namespace docbox.Controllers
 { 
@@ -21,8 +24,7 @@ namespace docbox.Controllers
         {
             List<FileModel> model;
             model = new List<FileModel>();
-            if (ModelState.IsValid)
-            {
+
                 var allFiles = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
                 if (allFiles.ToList().Count >= 1)
                 {
@@ -46,7 +48,7 @@ namespace docbox.Controllers
                 {
                     ModelState.AddModelError("", "No Files available for view");
                 }
-            }
+
             return View(model);
         }
 
@@ -80,7 +82,7 @@ namespace docbox.Controllers
                 {
                     //MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true);
                     dx_files.islocked = "true";
-                    dx_files.lockedby = "shtripat@asu.edu";
+                    dx_files.lockedby = "emkishan@yahoo.com";
                         //currentUser.UserName.ToString();
                     db.DX_FILES.Attach(dx_files);
                     db.ObjectStateManager.ChangeObjectState(dx_files, EntityState.Modified);
@@ -142,46 +144,87 @@ namespace docbox.Controllers
             //ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
             //ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
 
-            if (ModelState.IsValid)
+            try
             {
-                HttpPostedFileBase file = Request.Files[0];
-                System.IO.Stream stream = file.InputStream;
-                dx_files.creationdate = System.DateTime.Now;
-                dx_files.filename = Request.Params.Get("filename");
 
-                //MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true /* userIsOnline */);
-                dx_files.ownerid = "shtripat@asu.edu";
+                if (Request.Files[0].InputStream != null)
+                {
+
+                    HttpPostedFileBase file = Request.Files[0];
+                    System.IO.Stream stream = file.InputStream;
+                    byte[] fileData = new byte[stream.Length];
+                    stream.Read(fileData, 0, (int)stream.Length);
+
+                    string userid = SessionKeyMgmt.UserId;
+
+                    //Setting properties of the file object
+                    dx_files.creationdate = System.DateTime.Now;
+                    dx_files.filename = Request.Params.Get("filename");
+                    dx_files.isencrypted = "false";
+
+                    dx_files.ownerid = userid;
+                    dx_files.isarchived = "false";
+                    dx_files.parentpath = "/" + userid;
+                    dx_files.isencrypted = "false";
+                    dx_files.islocked = "false";
+
+                    dx_files.size = (int)stream.Length;
+                    dx_files.type = System.IO.Path.GetExtension(file.FileName);
+
+                    db.DX_FILES.AddObject(dx_files);
+                    db.SaveChanges();
+
+                    DX_FILEVERSION fileversion = new DX_FILEVERSION();
+                    fileversion.fileid = dx_files.fileid;
+                    fileversion.versionid = Guid.NewGuid();
+                    // // // // //
+                    // HARDCODED HERE
+                    // // // // // 
+                    fileversion.versionnumber = 1;
+                    fileversion.updatedate = System.DateTime.Now;
+                    fileversion.description = Request.Params.Get("filename");
+                    fileversion.size = (int)stream.Length;
+                    fileversion.updatedby = userid;
                     //currentUser.UserName;
-                dx_files.isarchived = "false";
-                dx_files.parentpath = "samplepath";
-                dx_files.isencrypted = "false";
-                dx_files.islocked = "false";
-                dx_files.size = (int)stream.Length;
-                dx_files.type = System.IO.Path.GetExtension(file.FileName);
 
-                db.DX_FILES.AddObject(dx_files);
-                db.SaveChanges();
+                    string encrypted = Request.Params.Get("encrypted");
+                    if (encrypted == "on")
+                    {
+                        HttpPostedFileBase keyFile = Request.Files[1];
+                        System.IO.Stream keyStream = keyFile.InputStream;
+                        byte[] keyData = new byte[keyStream.Length];
+                        keyStream.Read(keyData, 0, (int)keyStream.Length);
+                        dx_files.isencrypted = "true";
 
-                DX_FILEVERSION fileversion = new DX_FILEVERSION();
-                fileversion.fileid = dx_files.fileid;
-                fileversion.versionid = Guid.NewGuid();
-                // // // // //
-                // HARDCODED HERE
-                // // // // // 
-                fileversion.versionnumber = 1;
-                fileversion.updatedate = System.DateTime.Now;
-                fileversion.description = Request.Params.Get("filename");
-                fileversion.size = (int)stream.Length;
-                fileversion.updatedby = "shtripat@asu.edu";
-                    //currentUser.UserName;
+                        RijndaelManaged Crypto = new RijndaelManaged();
+                        Crypto.BlockSize = 128;
+                        Crypto.KeySize = 256;
+                        Crypto.Mode = CipherMode.CBC;
+                        Crypto.Padding = PaddingMode.PKCS7;
+                        Crypto.Key = keyData;
+                        //Crypto.IV=keyData;
 
-                byte[] fileData = new byte[stream.Length];
-                stream.Read(fileData, 0, (int)stream.Length);
-                fileversion.filedata = fileData;
-                db.AddToDX_FILEVERSION(fileversion);
-                db.SaveChanges();
+                        ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
+
+                        byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+
+                        fileData = cipherText;
+                    }
+
+                    fileversion.filedata = fileData;
+                    db.AddToDX_FILEVERSION(fileversion);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Please select the file to be uploaded");
+                }
             }
 
+            catch (Exception e)
+            {
+                ModelState.AddModelError("","There is an exception while uploading the document");
+            }
 
             return View(dx_files);
         }
