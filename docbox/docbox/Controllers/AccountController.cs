@@ -95,6 +95,10 @@ namespace docbox.Controllers
         public ActionResult RespectiveHome()
         {
             String[] roles = Roles.GetRolesForUser();
+            if (roles.Contains(Constants.ADMIN_USER))
+            {
+                return RedirectToAction("Index", "Admin");
+            }else
             if (roles.Contains(Constants.TEMP_USER))
             {
                 return RedirectToAction("Index", "TempUser");

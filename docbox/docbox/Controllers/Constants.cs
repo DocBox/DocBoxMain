@@ -13,6 +13,8 @@ namespace docbox.Controllers
         public static String MANAGER_USER = "manager";
         public static String CEO_USER = "ceo";
         public static String GUEST_USER = "guest";
+        public static String ADMIN_USER = "admin";
+
 
         public static Dictionary<int, string> secrateQuestionList = new Dictionary<int, string>()
     {
