@@ -164,8 +164,8 @@ namespace docbox.Controllers
 
                     //Setting properties of the file object
                     dx_files.creationdate = System.DateTime.Now;
-                    string filename = Request.Params.Get("filename");
-                    if (filename.Length != 0)
+                    string description = Request.Params.Get("filename");
+                    if (description.Length != 0)
                     {
                         
                         dx_files.ownerid = userid;
@@ -176,6 +176,7 @@ namespace docbox.Controllers
 
                         dx_files.size = (int)stream.Length;
                         string filetype = System.IO.Path.GetExtension(file.FileName);
+                        string filename = System.IO.Path.GetFileName(file.FileName);
                         if(supportedFileTypes.Contains(filetype))
                         {
                             dx_files.type = filetype;
@@ -229,7 +230,7 @@ namespace docbox.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Please enter a valid filename");
+                        ModelState.AddModelError("", "Please enter a valid description");
                     }
                 }
                 
@@ -289,9 +290,12 @@ namespace docbox.Controllers
         // POST: /Documents/Delete/5
 
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = ( "employee,manager,ceo,vp")]
         public ActionResult DeleteConfirmed(long id)
-        {            
+        {
+            string user = SessionKeyMgmt.UserId;
             DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
+            
             db.DX_FILES.DeleteObject(dx_files);
             db.SaveChanges();
             return RedirectToAction("ListDocuments");

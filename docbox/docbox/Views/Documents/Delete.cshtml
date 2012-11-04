@@ -6,38 +6,45 @@
 }
 
 <h2>Delete</h2>
-
 <h3>Are you sure you want to delete this?</h3>
-<fieldset>
-    <div class="control-group">
-    <div class="display-label">File Name</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.filename)
-    </div>
-    </div>
-    <div class="display-label">Owner</div>
-    <div class="display-field">
+<form class="form-horizontal">
+<div class="control-group">
+<label class="control-label">File Name</label>
+    
+  <div class="controls">   @Html.DisplayFor(model => model.filename)</div>
+  </div>
+  <div class="control-group">
+        <label class="control-label">Owner</label>
+    <div class="controls">
         @Html.DisplayFor(model => model.DX_USER1.fname)
     </div>
-
-    <div class="display-label">Size</div>
-    <div class="display-field">
+    </div>
+    <div class="control-group">
+        <label class="control-label">Size</label>
+   <div class="controls">
         @Html.DisplayFor(model => model.size)
     </div>
+    </div>
 
-    <div class="display-label">Locked By</div>
-    <div class="display-field">
+    <div class="control-group">
+        <label class="control-label">Locked By</label>
+    <div class="controls">
         @Html.DisplayFor(model => model.DX_USER.fname)
     </div>
-
-    <div class="display-label">Created on </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.creationdate)
     </div>
-</fieldset>
-@using (Html.BeginForm()) {
-    <p>
-        <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", "ListDocuments")
-    </p>
+
+    <div class="control-group">
+        <label class="control-label">Created on </label>
+    <div class="controls">
+        @Html.DisplayFor(model => model.creationdate)
+ </div>
+    </div>
+</form>
+@using (Html.BeginForm())
+{
+  <div class="control-group">
+            <div class="controls">
+        <input type="submit" value="Delete" class="btn btn-primary"/>
+</div>
+                        </div>
 }
