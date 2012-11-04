@@ -290,7 +290,7 @@ namespace docbox.Controllers
         // POST: /Documents/Delete/5
 
         [HttpPost, ActionName("Delete")]
-        [Authorize(Roles = ( "employee,manager,ceo,vp")]
+        
         public ActionResult DeleteConfirmed(long id)
         {
             string user = SessionKeyMgmt.UserId;
