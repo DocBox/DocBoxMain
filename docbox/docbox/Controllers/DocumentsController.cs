@@ -16,6 +16,7 @@ namespace docbox.Controllers
     public class DocumentsController : Controller
     {
         private dx_docboxEntities db = new dx_docboxEntities();
+        private static string ivStringConstant = "RkAS_AGth1s4dbka";
 
         //GET : //Documents/ListDocuments
         public ActionResult ListDocuments()
@@ -67,7 +68,7 @@ namespace docbox.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            return ListDocuments();
+            return RedirectToAction("ListDocuments");
         }
 
         public void CheckInOut(long id)
@@ -139,16 +140,6 @@ namespace docbox.Controllers
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Create(DX_FILES dx_files)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    db.DX_FILES.AddObject(dx_files);
-            //    db.SaveChanges();
-            //    return RedirectToAction("Index");  
-            //}
-
-            //ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
-            //ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
-
             try
             {
 
@@ -164,23 +155,22 @@ namespace docbox.Controllers
 
                     //Setting properties of the file object
                     dx_files.creationdate = System.DateTime.Now;
-                    string description = Request.Params.Get("filename");
+                    string description = Request.Params.Get("description");
                     if (description.Length != 0)
                     {
-                        
                         dx_files.ownerid = userid;
                         dx_files.isarchived = "false";
                         dx_files.parentpath = "/" + userid;
 
                         dx_files.islocked = "false";
 
-                        dx_files.size = (int)stream.Length;
+                        dx_files.size = fileData.Length;
                         string filetype = System.IO.Path.GetExtension(file.FileName);
                         string filename = System.IO.Path.GetFileName(file.FileName);
                         if(supportedFileTypes.Contains(filetype))
                         {
                             dx_files.type = filetype;
-                            dx_files.filename = filename + filetype;
+                            dx_files.filename = filename;
                             db.DX_FILES.AddObject(dx_files);
                             db.SaveChanges();
 
@@ -189,8 +179,8 @@ namespace docbox.Controllers
                             fileversion.versionid = Guid.NewGuid();
                             fileversion.versionnumber = 1;
                             fileversion.updatedate = System.DateTime.Now;
-                            fileversion.description = Request.Params.Get("filename");
-                            fileversion.size = (int)stream.Length;
+                            fileversion.description = description;
+                            fileversion.size = fileData.Length;
                             fileversion.updatedby = userid;
                             fileversion.isencrypted = false;
                             //currentUser.UserName;
@@ -210,13 +200,21 @@ namespace docbox.Controllers
                                 Crypto.Mode = CipherMode.CBC;
                                 Crypto.Padding = PaddingMode.PKCS7;
                                 Crypto.Key = keyData;
-                                //Crypto.IV=keyData;
+
+                                // Convert the ivString to a byte array
+                                byte[] ivArray = new byte[16];
+                                System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
+                                    ivArray, 0, ivArray.Length);
+                                Crypto.IV = ivArray;
 
                                 ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
 
                                 byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
 
-                                fileData = cipherText;
+                                // Copy the encrypted data to the file data buffer
+                                Array.Clear(fileData, 0, fileData.Length);
+                                Array.Resize(ref fileData, cipherText.Length);
+                                Array.Copy(cipherText, fileData, cipherText.Length);
                             }
 
                             fileversion.filedata = fileData;
