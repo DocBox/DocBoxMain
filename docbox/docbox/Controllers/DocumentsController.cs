@@ -17,6 +17,16 @@ namespace docbox.Controllers
     {
         private dx_docboxEntities db = new dx_docboxEntities();
         private static string ivStringConstant = "RkAS_AGth1s4dbka";
+        public static string[] supportedFileTypes = { ".doc", ".docx", 
+                                                        ".dotx", ".dot", 
+                                                        ".xls", ".xlsx", 
+                                                        ".xlt", ".xltx", 
+                                                        ".ppt", ".pptx", 
+                                                        ".potx", ".pot", 
+                                                        ".pdf", ".txt", 
+                                                        ".jpeg", ".jpg", 
+                                                        ".png", ".bmp", 
+                                                        ".tiff", ".tif" };
 
         //GET : //Documents/ListDocuments
         public ActionResult ListDocuments()
@@ -37,15 +47,17 @@ namespace docbox.Controllers
                 {
                     foreach (DX_FILES file in allFiles)
                     {
-                        //what is ur strategy to get the latest version of the files
-                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid == file.fileid);
+                        // For the current file, get details about the latest version
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
+                            && versionObj.versionnumber == file.latestversion);
+
                         FileModel filemodel = new FileModel();
                         filemodel.FileID = file.fileid.ToString();
                         filemodel.FileName = file.filename;
                         filemodel.Owner = file.ownerid;
                         filemodel.CreationDate = file.creationdate.ToString();
                         filemodel.Description = fileversion.description;
-                        filemodel.FileSize = file.size.ToString();
+                        filemodel.FileVersion = file.latestversion;
                         model.Add(filemodel);
                     }
                 }
@@ -142,10 +154,8 @@ namespace docbox.Controllers
         {
             try
             {
-
                 if (Request.Files[0].InputStream.Length != 0)
                 {
-                    string[] supportedFileTypes = { ".doc", ".docx", ".dotx", ".dot", ".xls", ".xlsx", ".xlt",".xltx",".ppt",".pptx",".potx",".pot",".pdf",".txt",".jpeg",".jpg",".png",".bmp",".tiff",".tif" };
                     HttpPostedFileBase file = Request.Files[0];
                     System.IO.Stream stream = file.InputStream;
                     byte[] fileData = new byte[stream.Length];
@@ -161,33 +171,48 @@ namespace docbox.Controllers
                         dx_files.ownerid = userid;
                         dx_files.isarchived = "false";
                         dx_files.parentpath = "/" + userid;
-
                         dx_files.islocked = "false";
 
-                        dx_files.size = fileData.Length;
+                        // Get the filename and its extension
                         string filetype = System.IO.Path.GetExtension(file.FileName);
                         string filename = System.IO.Path.GetFileName(file.FileName);
+
+                        dx_files.type = filetype;
+                        dx_files.filename = filename;
+
                         if(supportedFileTypes.Contains(filetype))
                         {
-                            dx_files.type = filetype;
-                            dx_files.filename = filename;
-                            db.DX_FILES.AddObject(dx_files);
-                            db.SaveChanges();
+                            // Find if there are any files with the same filename
+                            var existingFiles = from filesTable in db.DX_FILES 
+                                                where filesTable.ownerid == userid && filesTable.filename == filename
+                                                select filesTable;
 
+                            // If there already existed a document by this name
+                            // increment the verison number
+                            if (existingFiles.Count() != 0)
+                            {
+                                dx_files = existingFiles.First();
+                                dx_files.latestversion = dx_files.latestversion + 1;
+                            }
+                            else
+                            {
+                                // Creating a new file
+                                dx_files.latestversion = 1;
+                                db.DX_FILES.AddObject(dx_files);
+                            }
+
+                            // Create a new file version object
                             DX_FILEVERSION fileversion = new DX_FILEVERSION();
-                            fileversion.fileid = dx_files.fileid;
-                            fileversion.versionid = Guid.NewGuid();
-                            fileversion.versionnumber = 1;
-                            fileversion.updatedate = System.DateTime.Now;
-                            fileversion.description = description;
-                            fileversion.size = fileData.Length;
-                            fileversion.updatedby = userid;
                             fileversion.isencrypted = false;
-                            //currentUser.UserName;
 
+                            // Encrypt the file data if requested
                             string encrypted = Request.Params.Get("encrypted");
                             if (encrypted == "on")
                             {
+                                // Read the encrytion key
+                                if (Request.Files[1].InputStream.Length == 0)
+                                    throw new Exception("Invalid encrytion key");
+
                                 HttpPostedFileBase keyFile = Request.Files[1];
                                 System.IO.Stream keyStream = keyFile.InputStream;
                                 byte[] keyData = new byte[keyStream.Length];
@@ -208,7 +233,6 @@ namespace docbox.Controllers
                                 Crypto.IV = ivArray;
 
                                 ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
-
                                 byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
 
                                 // Copy the encrypted data to the file data buffer
@@ -217,30 +241,43 @@ namespace docbox.Controllers
                                 Array.Copy(cipherText, fileData, cipherText.Length);
                             }
 
+                            // Save changes for the DX_FILES object so the new fileid is
+                            // auto generated.
+                            db.SaveChanges();
+
+                            fileversion.fileid = dx_files.fileid;
+                            fileversion.versionid = Guid.NewGuid();
+                            fileversion.versionnumber = (int)dx_files.latestversion;
+                            fileversion.updatedate = System.DateTime.Now;
+                            fileversion.description = description;
+                            fileversion.updatedby = userid;
+
+                            // Add information about the file version to database
                             fileversion.filedata = fileData;
+                            fileversion.size = fileData.Length;
                             db.AddToDX_FILEVERSION(fileversion);
                             db.SaveChanges();
+
+                            // Show the document list
                             return RedirectToAction("ListDocuments");
                         }
                         else{
-                            ModelState.AddModelError("","Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
+                            throw new Exception("Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
                         }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Please enter a valid description");
+                        throw new Exception("Please enter a valid description");
                     }
-                }
-                
+                }                
                 else
                 {
-                    ModelState.AddModelError("", "Please select the file to be uploaded");
+                    throw new Exception("Please select the file to be uploaded");
                 }
             }
-
-            catch (Exception e)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("","There is an exception while uploading the document");
+                ModelState.AddModelError("","Error uploading the document: " + ex.Message);
             }
             return View();
             

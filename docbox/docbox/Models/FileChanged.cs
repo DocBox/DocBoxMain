@@ -23,9 +23,8 @@ namespace docbox.Models
         [Display(Name = "Description")]
         public string Description { get; set; }
 
-        [RegularExpression(@"^(\d{3})$", ErrorMessage = "Not valid file size")]
-        [Display(Name = "File Size")]
-        public string FileSize { get; set; }
+        [Display(Name = "File Version")]
+        public long FileVersion { get; set; }
 
         [Display(Name = "Owner")]
         public string Owner { get; set; }

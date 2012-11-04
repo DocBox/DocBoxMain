@@ -14,7 +14,7 @@ namespace docbox.Controllers
         {
             ViewBag.Message = "";
 
-            return View();
+            return RedirectToAction("ListDocuments", "Documents");
         }
 
        

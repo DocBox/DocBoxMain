@@ -8,13 +8,12 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.ComponentModel;
-using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Linq;
-using System.Runtime.Serialization;
+using System.Data.EntityClient;
+using System.ComponentModel;
 using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -175,7 +174,6 @@ namespace docbox.Models
         private ObjectSet<DX_USERDEPT> _DX_USERDEPT;
 
         #endregion
-
         #region AddTo Methods
     
         /// <summary>
@@ -227,11 +225,11 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
+    
 
     #endregion
-
+    
     #region Entities
     
     /// <summary>
@@ -258,7 +256,6 @@ namespace docbox.Models
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -313,7 +310,6 @@ namespace docbox.Models
         partial void OnnameChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -340,7 +336,6 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
     
     /// <summary>
@@ -360,19 +355,19 @@ namespace docbox.Models
         /// <param name="filename">Initial value of the filename property.</param>
         /// <param name="parentpath">Initial value of the parentpath property.</param>
         /// <param name="ownerid">Initial value of the ownerid property.</param>
-        /// <param name="size">Initial value of the size property.</param>
+        /// <param name="latestversion">Initial value of the latestversion property.</param>
         /// <param name="isarchived">Initial value of the isarchived property.</param>
         /// <param name="islocked">Initial value of the islocked property.</param>
         /// <param name="type">Initial value of the type property.</param>
         /// <param name="creationdate">Initial value of the creationdate property.</param>
-        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 size, global::System.String isarchived, global::System.String islocked, global::System.String type, global::System.DateTime creationdate)
+        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.String isarchived, global::System.String islocked, global::System.String type, global::System.DateTime creationdate)
         {
             DX_FILES dX_FILES = new DX_FILES();
             dX_FILES.fileid = fileid;
             dX_FILES.filename = filename;
             dX_FILES.parentpath = parentpath;
             dX_FILES.ownerid = ownerid;
-            dX_FILES.size = size;
+            dX_FILES.latestversion = latestversion;
             dX_FILES.isarchived = isarchived;
             dX_FILES.islocked = islocked;
             dX_FILES.type = type;
@@ -381,7 +376,6 @@ namespace docbox.Models
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -488,24 +482,24 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Int64 size
+        public global::System.Int64 latestversion
         {
             get
             {
-                return _size;
+                return _latestversion;
             }
             set
             {
-                OnsizeChanging(value);
-                ReportPropertyChanging("size");
-                _size = StructuralObject.SetValidValue(value);
-                ReportPropertyChanged("size");
-                OnsizeChanged();
+                OnlatestversionChanging(value);
+                ReportPropertyChanging("latestversion");
+                _latestversion = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("latestversion");
+                OnlatestversionChanged();
             }
         }
-        private global::System.Int64 _size;
-        partial void OnsizeChanging(global::System.Int64 value);
-        partial void OnsizeChanged();
+        private global::System.Int64 _latestversion;
+        partial void OnlatestversionChanging(global::System.Int64 value);
+        partial void OnlatestversionChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -628,7 +622,6 @@ namespace docbox.Models
         partial void OncreationdateChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -753,7 +746,6 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
     
     /// <summary>
@@ -777,7 +769,8 @@ namespace docbox.Models
         /// <param name="description">Initial value of the description property.</param>
         /// <param name="size">Initial value of the size property.</param>
         /// <param name="updatedby">Initial value of the updatedby property.</param>
-        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby)
+        /// <param name="isencrypted">Initial value of the isencrypted property.</param>
+        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby, global::System.Boolean isencrypted)
         {
             DX_FILEVERSION dX_FILEVERSION = new DX_FILEVERSION();
             dX_FILEVERSION.version = version;
@@ -788,11 +781,11 @@ namespace docbox.Models
             dX_FILEVERSION.description = description;
             dX_FILEVERSION.size = size;
             dX_FILEVERSION.updatedby = updatedby;
+            dX_FILEVERSION.isencrypted = isencrypted;
             return dX_FILEVERSION;
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -1017,9 +1010,9 @@ namespace docbox.Models
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Boolean> isencrypted
+        public global::System.Boolean isencrypted
         {
             get
             {
@@ -1034,12 +1027,11 @@ namespace docbox.Models
                 OnisencryptedChanged();
             }
         }
-        private Nullable<global::System.Boolean> _isencrypted;
-        partial void OnisencryptedChanging(Nullable<global::System.Boolean> value);
+        private global::System.Boolean _isencrypted;
+        partial void OnisencryptedChanging(global::System.Boolean value);
         partial void OnisencryptedChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -1120,7 +1112,6 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
     
     /// <summary>
@@ -1157,7 +1148,6 @@ namespace docbox.Models
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -1332,7 +1322,6 @@ namespace docbox.Models
         partial void OncheckChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -1413,7 +1402,6 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
     
     /// <summary>
@@ -1456,7 +1444,6 @@ namespace docbox.Models
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -1727,7 +1714,6 @@ namespace docbox.Models
         partial void OnsaltChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -1842,7 +1828,6 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
     
     /// <summary>
@@ -1871,7 +1856,6 @@ namespace docbox.Models
         }
 
         #endregion
-
         #region Primitive Properties
     
         /// <summary>
@@ -1950,7 +1934,6 @@ namespace docbox.Models
         partial void OndeptidChanged();
 
         #endregion
-
     
         #region Navigation Properties
     
@@ -2031,10 +2014,8 @@ namespace docbox.Models
         }
 
         #endregion
-
     }
 
     #endregion
-
     
 }

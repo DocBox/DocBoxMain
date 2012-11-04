@@ -60,7 +60,7 @@
           <Property Name="filename" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="parentpath" Type="varchar" Nullable="false" MaxLength="300" />
           <Property Name="ownerid" Type="varchar" Nullable="false" MaxLength="100" />
-          <Property Name="size" Type="bigint" Nullable="false" />
+          <Property Name="latestversion" Type="bigint" Nullable="false" />
           <Property Name="isarchived" Type="varchar" Nullable="false" MaxLength="5" />
           <Property Name="islocked" Type="varchar" Nullable="false" MaxLength="5" />
           <Property Name="lockedby" Type="varchar" MaxLength="100" />
@@ -80,7 +80,7 @@
           <Property Name="size" Type="int" Nullable="false" />
           <Property Name="updatedby" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="filedata" Type="varbinary(max)" />
-          <Property Name="isencrypted" Type="bit" />
+          <Property Name="isencrypted" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="DX_PRIVILEGE">
           <Key>
@@ -287,7 +287,7 @@
           <Property Name="filename" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="parentpath" Type="String" Nullable="false" MaxLength="300" Unicode="false" FixedLength="false" />
           <Property Name="ownerid" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
-          <Property Name="size" Type="Int64" Nullable="false" />
+          <Property Name="latestversion" Type="Int64" Nullable="false" />
           <Property Name="isarchived" Type="String" Nullable="false" MaxLength="5" Unicode="false" FixedLength="false" />
           <Property Name="islocked" Type="String" Nullable="false" MaxLength="5" Unicode="false" FixedLength="false" />
           <Property Name="lockedby" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
@@ -311,7 +311,7 @@
           <Property Name="size" Type="Int32" Nullable="false" />
           <Property Name="updatedby" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="filedata" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="isencrypted" Type="Boolean" />
+          <Property Name="isencrypted" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="DX_FILES" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILEVERSION" ToRole="DX_FILES" />
           <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_FILEVERSION" ToRole="DX_USER" />
         </EntityType>
@@ -474,85 +474,61 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="DX_DOCBOXModelStoreContainer" CdmEntityContainer="dx_docboxEntities">
-          <EntitySetMapping Name="DX_DEPARTMENT">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_DEPARTMENT">
-              <MappingFragment StoreEntitySet="DX_DEPARTMENT">
-                <ScalarProperty Name="deptid" ColumnName="deptid" />
-                <ScalarProperty Name="name" ColumnName="name" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DX_FILES">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILES">
-              <MappingFragment StoreEntitySet="DX_FILES">
-                <ScalarProperty Name="fileid" ColumnName="fileid" />
-                <ScalarProperty Name="filename" ColumnName="filename" />
-                <ScalarProperty Name="parentpath" ColumnName="parentpath" />
-                <ScalarProperty Name="ownerid" ColumnName="ownerid" />
-                <ScalarProperty Name="size" ColumnName="size" />
-                <ScalarProperty Name="isarchived" ColumnName="isarchived" />
-                <ScalarProperty Name="islocked" ColumnName="islocked" />
-                <ScalarProperty Name="lockedby" ColumnName="lockedby" />
-                <ScalarProperty Name="type" ColumnName="type" />
-                <ScalarProperty Name="creationdate" ColumnName="creationdate" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DX_FILEVERSION">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILEVERSION">
-              <MappingFragment StoreEntitySet="DX_FILEVERSION">
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="fileid" ColumnName="fileid" />
-                <ScalarProperty Name="versionid" ColumnName="versionid" />
-                <ScalarProperty Name="versionnumber" ColumnName="versionnumber" />
-                <ScalarProperty Name="updatedate" ColumnName="updatedate" />
-                <ScalarProperty Name="description" ColumnName="description" />
-                <ScalarProperty Name="size" ColumnName="size" />
-                <ScalarProperty Name="updatedby" ColumnName="updatedby" />
-                <ScalarProperty Name="filedata" ColumnName="filedata" />
-                <ScalarProperty Name="isencrypted" ColumnName="isencrypted" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DX_PRIVILEGE">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_PRIVILEGE">
-              <MappingFragment StoreEntitySet="DX_PRIVILEGE">
-                <ScalarProperty Name="privilegeid" ColumnName="privilegeid" />
-                <ScalarProperty Name="fileid" ColumnName="fileid" />
-                <ScalarProperty Name="userid" ColumnName="userid" />
-                <ScalarProperty Name="read" ColumnName="read" />
-                <ScalarProperty Name="write" ColumnName="write" />
-                <ScalarProperty Name="update" ColumnName="update" />
-                <ScalarProperty Name="check" ColumnName="check" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DX_USER">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USER">
-              <MappingFragment StoreEntitySet="DX_USER">
-                <ScalarProperty Name="userid" ColumnName="userid" />
-                <ScalarProperty Name="fname" ColumnName="fname" />
-                <ScalarProperty Name="lname" ColumnName="lname" />
-                <ScalarProperty Name="role" ColumnName="role" />
-                <ScalarProperty Name="pwdhash" ColumnName="pwdhash" />
-                <ScalarProperty Name="questionid" ColumnName="questionid" />
-                <ScalarProperty Name="phone" ColumnName="phone" />
-                <ScalarProperty Name="anshash" ColumnName="anshash" />
-                <ScalarProperty Name="actcodehash" ColumnName="actcodehash" />
-                <ScalarProperty Name="accesslevel" ColumnName="accesslevel" />
-                <ScalarProperty Name="salt" ColumnName="salt" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DX_USERDEPT">
-            <EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USERDEPT">
-              <MappingFragment StoreEntitySet="DX_USERDEPT">
-                <ScalarProperty Name="userdeptid" ColumnName="userdeptid" />
-                <ScalarProperty Name="userid" ColumnName="userid" />
-                <ScalarProperty Name="deptid" ColumnName="deptid" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
+          <EntitySetMapping Name="DX_DEPARTMENT"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_DEPARTMENT"><MappingFragment StoreEntitySet="DX_DEPARTMENT">
+            <ScalarProperty Name="deptid" ColumnName="deptid" />
+            <ScalarProperty Name="name" ColumnName="name" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="DX_FILES"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILES"><MappingFragment StoreEntitySet="DX_FILES">
+            <ScalarProperty Name="fileid" ColumnName="fileid" />
+            <ScalarProperty Name="filename" ColumnName="filename" />
+            <ScalarProperty Name="parentpath" ColumnName="parentpath" />
+            <ScalarProperty Name="ownerid" ColumnName="ownerid" />
+            <ScalarProperty Name="latestversion" ColumnName="latestversion" />
+            <ScalarProperty Name="isarchived" ColumnName="isarchived" />
+            <ScalarProperty Name="islocked" ColumnName="islocked" />
+            <ScalarProperty Name="lockedby" ColumnName="lockedby" />
+            <ScalarProperty Name="type" ColumnName="type" />
+            <ScalarProperty Name="creationdate" ColumnName="creationdate" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="DX_FILEVERSION"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILEVERSION"><MappingFragment StoreEntitySet="DX_FILEVERSION">
+            <ScalarProperty Name="version" ColumnName="version" />
+            <ScalarProperty Name="fileid" ColumnName="fileid" />
+            <ScalarProperty Name="versionid" ColumnName="versionid" />
+            <ScalarProperty Name="versionnumber" ColumnName="versionnumber" />
+            <ScalarProperty Name="updatedate" ColumnName="updatedate" />
+            <ScalarProperty Name="description" ColumnName="description" />
+            <ScalarProperty Name="size" ColumnName="size" />
+            <ScalarProperty Name="updatedby" ColumnName="updatedby" />
+            <ScalarProperty Name="filedata" ColumnName="filedata" />
+            <ScalarProperty Name="isencrypted" ColumnName="isencrypted" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="DX_PRIVILEGE"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_PRIVILEGE"><MappingFragment StoreEntitySet="DX_PRIVILEGE">
+            <ScalarProperty Name="privilegeid" ColumnName="privilegeid" />
+            <ScalarProperty Name="fileid" ColumnName="fileid" />
+            <ScalarProperty Name="userid" ColumnName="userid" />
+            <ScalarProperty Name="read" ColumnName="read" />
+            <ScalarProperty Name="write" ColumnName="write" />
+            <ScalarProperty Name="update" ColumnName="update" />
+            <ScalarProperty Name="check" ColumnName="check" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="DX_USER"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USER"><MappingFragment StoreEntitySet="DX_USER">
+            <ScalarProperty Name="userid" ColumnName="userid" />
+            <ScalarProperty Name="fname" ColumnName="fname" />
+            <ScalarProperty Name="lname" ColumnName="lname" />
+            <ScalarProperty Name="role" ColumnName="role" />
+            <ScalarProperty Name="pwdhash" ColumnName="pwdhash" />
+            <ScalarProperty Name="questionid" ColumnName="questionid" />
+            <ScalarProperty Name="phone" ColumnName="phone" />
+            <ScalarProperty Name="anshash" ColumnName="anshash" />
+            <ScalarProperty Name="actcodehash" ColumnName="actcodehash" />
+            <ScalarProperty Name="accesslevel" ColumnName="accesslevel" />
+            <ScalarProperty Name="salt" ColumnName="salt" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="DX_USERDEPT"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USERDEPT"><MappingFragment StoreEntitySet="DX_USERDEPT">
+            <ScalarProperty Name="userdeptid" ColumnName="userdeptid" />
+            <ScalarProperty Name="userid" ColumnName="userid" />
+            <ScalarProperty Name="deptid" ColumnName="deptid" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
