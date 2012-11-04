@@ -40,7 +40,7 @@
                                       grid.Column("CreationDate"),
             grid.Column(format: (item) => { return new HtmlString("<div class='toggle basic' data-enabled='CHECK-OUT' data-disabled='CHECK-IN' data-toggle='toggle'><input type='checkbox' value='1' name='myCheckbox' class='checkbox' checked='checked' /><label class='check' for='myCheckbox'></label></div>"); }),
             grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-            grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID })),
             grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID })),
             grid.Column(format: (item) => Html.ActionButton("", "Details", "Documents", "icon-download", new { id = item.FileID }))
 

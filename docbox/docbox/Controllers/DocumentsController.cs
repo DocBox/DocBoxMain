@@ -176,11 +176,12 @@ namespace docbox.Controllers
                         // Get the filename and its extension
                         string filetype = System.IO.Path.GetExtension(file.FileName);
                         string filename = System.IO.Path.GetFileName(file.FileName);
-
+                        string filenamewoext = System.IO.Path.GetFileNameWithoutExtension(file.FileName);
+                        bool validFile = (filenamewoext.IndexOf('.') == -1);
                         dx_files.type = filetype;
                         dx_files.filename = filename;
 
-                        if(supportedFileTypes.Contains(filetype))
+                        if(supportedFileTypes.Contains(filetype) && validFile)
                         {
                             // Find if there are any files with the same filename
                             var existingFiles = from filesTable in db.DX_FILES 
@@ -208,11 +209,10 @@ namespace docbox.Controllers
                             // Encrypt the file data if requested
                             string encrypted = Request.Params.Get("encrypted");
                             if (encrypted == "on")
-                            {
+                            {                                
                                 // Read the encrytion key
-                                if (Request.Files[1].InputStream.Length == 0)
-                                    throw new Exception("Invalid encrytion key");
-
+                                 if (Request.Files[1].InputStream.Length != 0)
+                                {
                                 HttpPostedFileBase keyFile = Request.Files[1];
                                 System.IO.Stream keyStream = keyFile.InputStream;
                                 byte[] keyData = new byte[keyStream.Length];
@@ -239,7 +239,14 @@ namespace docbox.Controllers
                                 Array.Clear(fileData, 0, fileData.Length);
                                 Array.Resize(ref fileData, cipherText.Length);
                                 Array.Copy(cipherText, fileData, cipherText.Length);
+                                     }
+                                else
+                                {
+                                    ModelState.AddModelError("", "Please enter a valid keyfile");
+                                    return View();
+                                }
                             }
+                            
 
                             // Save changes for the DX_FILES object so the new fileid is
                             // auto generated.
@@ -255,7 +262,7 @@ namespace docbox.Controllers
                             // Add information about the file version to database
                             fileversion.filedata = fileData;
                             fileversion.size = fileData.Length;
-                            db.AddToDX_FILEVERSION(fileversion);
+                            db.DX_FILEVERSION.AddObject(fileversion);
                             db.SaveChanges();
 
                             // Show the document list
@@ -324,16 +331,32 @@ namespace docbox.Controllers
         //
         // POST: /Documents/Delete/5
 
-        [HttpPost, ActionName("Delete")]
+       // [HttpPost, ActionName("Delete")]
         
         public ActionResult DeleteConfirmed(long id)
         {
-            string user = SessionKeyMgmt.UserId;
-            DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-            
-            db.DX_FILES.DeleteObject(dx_files);
-            db.SaveChanges();
-            return RedirectToAction("ListDocuments");
+            try
+            {
+                string user = SessionKeyMgmt.UserId;
+                DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
+                if (user == dx_files.ownerid)
+                {
+                    long fileid = dx_files.fileid;
+                    db.DX_FILES.DeleteObject(dx_files);
+                    db.SaveChanges();
+                    return RedirectToAction("ListDocuments");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "You do not have privileges to delete this file");
+                    
+                }
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", "Exception caught, Please contact admin for more info");
+            }
+            return View();
         }
 
         protected override void Dispose(bool disposing)

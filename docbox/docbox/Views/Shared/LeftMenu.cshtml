@@ -2,10 +2,10 @@
     <div class="well" style="width:200px; padding: 8px 0;">
     <ul class="nav nav-list">
     <li class="nav-header"></li>
-    <li>@Html.ActionButton("MyDocs", "ListDocuments", "Documents", "icon-home",null)</li>
+    <li>@Html.ActionButton("My Docs", "ListDocuments", "Documents", "icon-home",null)</li>
     <li><a href="#"><i class="icon-share"></i> Shared Docs</a> </li>
     <li><a href="#"><i class="icon-briefcase"></i>Archived </a></li>
-    <li><a href="#"><i class="icon-folder-close"></i>Get Key</a></li>
+    <li>@Html.ActionButton("Get Key","GenerateKey","Security","icon-folder-close",null)</li>
     <li><a href="#"><i class="icon-user"></i> My Account</a></li>
     </ul>
     </div>
