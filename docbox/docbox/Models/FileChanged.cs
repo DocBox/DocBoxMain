@@ -32,12 +32,18 @@ namespace docbox.Models
         [DataType(DataType.DateTime)]
         [Display(Name = "Creation Date")]
         public string CreationDate { get; set; }
+
+        [Display(Name = "IsLocked")]
+        public bool IsLocked { get; set; }
+
+        [Display(Name = "LockedBy")]
+        public string LockedBy { get; set; }
+
     }
 
     public class Files
     {
-        List<FileModel> files;
-
+        public List<FileModel> files { get; set; }
     }
 
 }

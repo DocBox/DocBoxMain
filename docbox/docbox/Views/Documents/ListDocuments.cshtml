@@ -6,47 +6,76 @@
 
 @Html.ValidationSummary(true)
 
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
+
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
    grid.Pager(WebGridPagerModes.NextPrevious); 
    }
 <div class="navbar">
+<div class="navbar-inner">
+   
+    
+    @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
+    {
+        IDictionary<string, string> searchConditions = new Dictionary<string, string>();
 
-@{  <div class="navbar-inner">
-    <div class="container">
-    <ul class="nav">  
+        if (TempData["SearchConditions"] != null)
+        {
+            searchConditions = TempData["SearchConditions"] as Dictionary<string, string>;
+        }
+
+        this.TempData["SearchConditions"] = searchConditions;
+
+        string conditions1 = searchConditions.Keys.Contains("fileName") ? searchConditions["fileName"] : string.Empty;
+        <div class="container">
+         <ul class="nav">  
       <li class="active">  
         <a class="brand" href="#">MyDocs</a>  
       </li>  
     <li class="divider-vertical">@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
     <li class="divider-vertical">@Html.ActionButton("Share", "Share", "Documents", "icon-share", null)</li>
     <li class="divider-vertical">@Html.ActionButton("Archive", "Archive", "Documents", "icon-envelope", null)</li>
-    </ul>
-    </div>
-    </div>
-    
-    @grid.GetHtml(tableStyle: "webGrid",
+        </ul>
+      <div align=right>@Html.TextBox("fileName", @conditions1)
+      <input type=submit name="action:Search" value="Search" />
+      </div>
+      <!-- Html.ActionLink("Search", "Search", "Documents", new { fileTitle = @conditions1 }, new { name="action:Search"})</div -->
+       
+        
+        @grid.GetHtml(tableStyle: "webGrid",
           headerStyle: "webgrid-header",
         footerStyle: "webgrid-footer",
          alternatingRowStyle: "webgrid-alternating-row",
          selectedRowStyle: "webgrid-selected-row",
          rowStyle: "webgrid-row-style",
-                htmlAttributes: new { id = "DataTable" },
+                htmlAttributes: new { id = "myGrid", name = "myGrid" },
                 columns: grid.Columns(
+                             grid.Column(format: (item) => { return new HtmlString("<input type='hidden' name='id' value='item.FileID'"); }),
                              grid.Column(format: (item) => { return new HtmlString("<input type='checkbox' name='Select'/>"); }),
-                                      grid.Column("FileName"),
+                             grid.Column("FileName"),
                                       grid.Column("Description"),
                                       grid.Column("FileVersion"),
                                       grid.Column("Owner"),
                                       grid.Column("CreationDate"),
-            grid.Column(format: (item) => { return new HtmlString("<div class='toggle basic' data-enabled='CHECK-OUT' data-disabled='CHECK-IN' data-toggle='toggle'><input type='checkbox' value='1' name='myCheckbox' class='checkbox' checked='checked' /><label class='check' for='myCheckbox'></label></div>"); }),
+            grid.Column(format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { id = "checkLock", value = item.FileID, onclick = "return @Url.Action('CheckInOut', 'Documents')" })),
             grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-            grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID })),
+            grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
             grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID })),
             grid.Column(format: (item) => Html.ActionButton("", "Details", "Documents", "icon-download", new { id = item.FileID }))
+        ))
+    </div>
+        //@Html.ImageActionLink("", "Search", "ListDocuments", "Documents", new { filename = conditions1 }, new { name = "Search"}, new { @class = "icon-search"})
+        //grid.Column(format: (item) => { return new HtmlString("<input class='check-box'  id='checkLock' name='checkLock' type='checkbox' onChange='this.form.submit()' value="+ @item.FileID (item.IsLocked == "true" ? new { Checked = "checked" } : null) +"/>"); }),
+        //grid.Column(format: (item) => { return new HtmlString("<div class='toggle basic' data-enabled='CHECK-OUT' data-disabled='CHECK-IN' data-toggle='toggle'><input type='checkbox' value='1' name='myCheckbox' class='checkbox' checked='checked' value='@item.IsLocked' /><label class='check' for='myCheckbox'></label></div>"); }),
 
-        ));
+        //grid.Column(format: @<text><input class="check-box"  id="checkLock" name="checkLock" type="checkbox" onChange="this.form.submit()" value=@item.FileID @(item.IsLocked == "true" ? new { Checked = "checked" } : null) /></text>),
 
     //@: <li class="btn btn-mini btn-inverse"> @Html.ActionButton(lLink.LinkText, lLink.ActionName, lLink.ControllerName, lLink.IconClass)</li>
+        //@using (Ajax.BeginForm("CheckInOut", "Documents", new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "myGrid", InsertionMode = System.Web.Mvc.Ajax.InsertionMode.Replace }, new { id = "ajaxForm" }))
+        //, @onchange = "$(this).parents('form:first').find(':submit')[0].click();"
 
 }
 </div>
+</div>
+
+
+

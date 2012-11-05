@@ -67,7 +67,7 @@
   $.fn.toggle.defaults = {
     onClick: function () {},
     text: {
-      enabled: false,
+      enabled: true,
       disabled: false
     },
     style: {

@@ -357,10 +357,9 @@ namespace docbox.Models
         /// <param name="ownerid">Initial value of the ownerid property.</param>
         /// <param name="latestversion">Initial value of the latestversion property.</param>
         /// <param name="isarchived">Initial value of the isarchived property.</param>
-        /// <param name="islocked">Initial value of the islocked property.</param>
         /// <param name="type">Initial value of the type property.</param>
         /// <param name="creationdate">Initial value of the creationdate property.</param>
-        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.String isarchived, global::System.String islocked, global::System.String type, global::System.DateTime creationdate)
+        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.String isarchived, global::System.String type, global::System.DateTime creationdate)
         {
             DX_FILES dX_FILES = new DX_FILES();
             dX_FILES.fileid = fileid;
@@ -369,7 +368,6 @@ namespace docbox.Models
             dX_FILES.ownerid = ownerid;
             dX_FILES.latestversion = latestversion;
             dX_FILES.isarchived = isarchived;
-            dX_FILES.islocked = islocked;
             dX_FILES.type = type;
             dX_FILES.creationdate = creationdate;
             return dX_FILES;
@@ -528,9 +526,9 @@ namespace docbox.Models
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public global::System.String islocked
+        public Nullable<global::System.Boolean> islocked
         {
             get
             {
@@ -540,13 +538,13 @@ namespace docbox.Models
             {
                 OnislockedChanging(value);
                 ReportPropertyChanging("islocked");
-                _islocked = StructuralObject.SetValidValue(value, false);
+                _islocked = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("islocked");
                 OnislockedChanged();
             }
         }
-        private global::System.String _islocked;
-        partial void OnislockedChanging(global::System.String value);
+        private Nullable<global::System.Boolean> _islocked;
+        partial void OnislockedChanging(Nullable<global::System.Boolean> value);
         partial void OnislockedChanged();
     
         /// <summary>
@@ -769,8 +767,7 @@ namespace docbox.Models
         /// <param name="description">Initial value of the description property.</param>
         /// <param name="size">Initial value of the size property.</param>
         /// <param name="updatedby">Initial value of the updatedby property.</param>
-        /// <param name="isencrypted">Initial value of the isencrypted property.</param>
-        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby, global::System.Boolean isencrypted)
+        public static DX_FILEVERSION CreateDX_FILEVERSION(global::System.Int64 version, global::System.Int64 fileid, global::System.Guid versionid, global::System.Int32 versionnumber, global::System.DateTime updatedate, global::System.String description, global::System.Int32 size, global::System.String updatedby)
         {
             DX_FILEVERSION dX_FILEVERSION = new DX_FILEVERSION();
             dX_FILEVERSION.version = version;
@@ -781,7 +778,6 @@ namespace docbox.Models
             dX_FILEVERSION.description = description;
             dX_FILEVERSION.size = size;
             dX_FILEVERSION.updatedby = updatedby;
-            dX_FILEVERSION.isencrypted = isencrypted;
             return dX_FILEVERSION;
         }
 
@@ -1010,9 +1006,9 @@ namespace docbox.Models
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
         [DataMemberAttribute()]
-        public global::System.Boolean isencrypted
+        public Nullable<global::System.Boolean> isencrypted
         {
             get
             {
@@ -1027,8 +1023,8 @@ namespace docbox.Models
                 OnisencryptedChanged();
             }
         }
-        private global::System.Boolean _isencrypted;
-        partial void OnisencryptedChanging(global::System.Boolean value);
+        private Nullable<global::System.Boolean> _isencrypted;
+        partial void OnisencryptedChanging(Nullable<global::System.Boolean> value);
         partial void OnisencryptedChanged();
 
         #endregion

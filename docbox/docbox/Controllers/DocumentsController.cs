@@ -31,22 +31,15 @@ namespace docbox.Controllers
         //GET : //Documents/ListDocuments
         public ActionResult ListDocuments()
         {
-            List<FileModel> model = new List<FileModel>();
+            List<FileModel> modelList = new List<FileModel>();
             try
-            {
-                // Get the current logged in userid
-
-                // TODO: Showing document list for guest users?
-                string currentUserId = SessionKeyMgmt.UserId;
-
-                // Select all files for whom current user is the owner
-                var allFiles = from filesTable in db.DX_FILES where filesTable.ownerid == currentUserId select filesTable;
-
-                // Iterate through the files list and
-                if (allFiles.ToList().Count >= 1)
+            {            
+                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
+                if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
                     {
+                        //what is ur strategy to get the latest version of the files
                         // For the current file, get details about the latest version
                         DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
                             && versionObj.versionnumber == file.latestversion);
@@ -58,54 +51,192 @@ namespace docbox.Controllers
                         filemodel.CreationDate = file.creationdate.ToString();
                         filemodel.Description = fileversion.description;
                         filemodel.FileVersion = file.latestversion;
-                        model.Add(filemodel);
+                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
+                        filemodel.LockedBy = file.lockedby;
+                        modelList.Add(filemodel);
                     }
+                    return View("ListDocuments",modelList);
                 }
                 else
                 {
                     ModelState.AddModelError("", "No Files available for view");
                 }
-                return View("ListDocuments", model);
+                return View("ListDocuments", modelList);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Error getting the document list " + ex.Message);
             }
-
-            return View("ListDocuments", model);
+            return View("ListDocuments",modelList);
         }
+
+        [HttpPost]
+        //ActionResult subm(List)
+        //{
+        //}
 
         //
         // GET: /Documents/
-        [HttpGet]
-        public ActionResult Index()
+
+        public ViewResult Index()
         {
-            return RedirectToAction("ListDocuments");
+            var dx_files = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
+            return View(dx_files.ToList());
         }
 
-        public void CheckInOut(long id)
+        [HttpPost]
+        public ActionResult ListDocuments(docbox.Models.Files model)
         {
-            if (ModelState.IsValid)
+            if (null == model || null== model.files || model.files.Count < 1)
             {
-                DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-                var text = "";
-
-                if (dx_files.islocked.Equals(true))
+                List<FileModel>  modelList = new List<FileModel>();
+                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
+                if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
-                    var lockedBy = dx_files.lockedby;
-                    text = "The file is currently locked by" + lockedBy + ". Please try again later";
+                    foreach (DX_FILES file in allFiles)
+                    {
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
+                            && versionObj.versionnumber == file.latestversion);
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileVersion = file.latestversion;
+                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
+                        filemodel.LockedBy = file.lockedby;
+                        modelList.Add(filemodel);
+                    }
+                    model.files = modelList;
+                    return View(model);
                 }
                 else
                 {
-                    //MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true);
-                    dx_files.islocked = "true";
-                    dx_files.lockedby = "emkishan@yahoo.com";
-                        //currentUser.UserName.ToString();
-                    db.DX_FILES.Attach(dx_files);
-                    db.ObjectStateManager.ChangeObjectState(dx_files, EntityState.Modified);
-                    db.SaveChanges();
+                    ModelState.AddModelError("", "No Files available for view");
                 }
             }
+            return PartialView("_grid", model);
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Search")]
+        public ActionResult Search()
+        {
+            List<FileModel> model = new List<FileModel>();
+            if (ModelState.IsValid)
+            {
+                IDictionary<string, string> searchConditions = new Dictionary<string, string>();
+                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
+                if (allFiles.ToList().Count >= 1)
+                {
+                    foreach (DX_FILES file in allFiles)
+                    {DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
+                            && versionObj.versionnumber == file.latestversion);
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileVersion = file.latestversion;
+                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
+                        filemodel.LockedBy = file.lockedby;
+                        model.Add(filemodel);
+                    }
+                }
+
+                if (this.Request.Form.AllKeys.Length > 0)
+                //if(null != fileTitle && fileTitle.Length > 0)
+                {
+                     //Request["fileName"]
+                    searchConditions.Add("fileName", Request["fileName"]);
+                }
+                else
+                {
+                    object values = null;
+
+                    if (this.TempData.TryGetValue("SearchConditions", out values))
+                    {
+                        searchConditions = values as Dictionary<string, string>;
+                    }
+                }
+
+                this.TempData["SearchConditions"] = searchConditions;
+                string fileName = GetSearchConditionValue(searchConditions, "fileName");
+                var result = (from s in model
+                              where (string.IsNullOrEmpty(fileName) || s.FileName.StartsWith(fileName))
+                              select s).ToList();
+                model = result;
+            }
+            return View("ListDocuments", model);
+        }
+
+        private static string GetSearchConditionValue(IDictionary<string, string> searchConditions, string key)
+        {
+            string tempValue = string.Empty;
+
+            if (searchConditions != null)
+            {
+                searchConditions.TryGetValue(key, out tempValue);
+            }
+            return tempValue;
+        }
+
+        [HttpPost]
+        public ActionResult CheckInOut(int isLocked)
+        {
+            if (true)
+            {
+            }
+            return RedirectToAction("ListDocuments");
+        }
+
+
+        [HttpPost]
+        public ActionResult CheckInOut(FormCollection form)
+        {
+            List<FileModel> model = new List<FileModel>();
+            if (ModelState.IsValid)
+            {
+                var ch = form.GetValues("checkLock");
+                foreach (var id in ch)
+                {
+                    int intID = Convert.ToInt32(id);
+                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid == intID select filetabel;
+                    foreach(DX_FILES dx_file in dx_files)
+                    {
+                        if (dx_file != null && dx_file.islocked == true)
+                        {
+                            var lockedBy = dx_file.lockedby;
+                            if (lockedBy == SessionKeyMgmt.UserId)
+                            {
+                                dx_file.islocked = false;
+                                return RedirectToAction("ListDocuments");
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "Permission Denied: The file is locked by user " + lockedBy + ".");
+                            }
+                        }
+                        else
+                        {
+                            dx_file.islocked = true;
+                            dx_file.lockedby = SessionKeyMgmt.UserId;
+                            try
+                            {
+                                db.SaveChanges();
+                            }
+                            catch (Exception e)
+                            {
+                                ModelState.AddModelError("", "Cannot update the database with updated value");
+                            }
+                            return RedirectToAction("ListDocuments");
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("ListDocuments");
         }
 
         //
@@ -171,7 +302,7 @@ namespace docbox.Controllers
                         dx_files.ownerid = userid;
                         dx_files.isarchived = "false";
                         dx_files.parentpath = "/" + userid;
-                        dx_files.islocked = "false";
+                        dx_files.islocked = false;
 
                         // Get the filename and its extension
                         string filetype = System.IO.Path.GetExtension(file.FileName);

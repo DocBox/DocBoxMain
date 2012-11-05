@@ -62,7 +62,7 @@
           <Property Name="ownerid" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="latestversion" Type="bigint" Nullable="false" />
           <Property Name="isarchived" Type="varchar" Nullable="false" MaxLength="5" />
-          <Property Name="islocked" Type="varchar" Nullable="false" MaxLength="5" />
+          <Property Name="islocked" Type="bit" />
           <Property Name="lockedby" Type="varchar" MaxLength="100" />
           <Property Name="type" Type="varchar" Nullable="false" MaxLength="20" />
           <Property Name="creationdate" Type="datetime" Nullable="false" />
@@ -80,7 +80,7 @@
           <Property Name="size" Type="int" Nullable="false" />
           <Property Name="updatedby" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="filedata" Type="varbinary(max)" />
-          <Property Name="isencrypted" Type="bit" Nullable="false" />
+          <Property Name="isencrypted" Type="bit" />
         </EntityType>
         <EntityType Name="DX_PRIVILEGE">
           <Key>
@@ -289,7 +289,7 @@
           <Property Name="ownerid" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="latestversion" Type="Int64" Nullable="false" />
           <Property Name="isarchived" Type="String" Nullable="false" MaxLength="5" Unicode="false" FixedLength="false" />
-          <Property Name="islocked" Type="String" Nullable="false" MaxLength="5" Unicode="false" FixedLength="false" />
+          <Property Name="islocked" Type="Boolean" />
           <Property Name="lockedby" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="type" Type="String" Nullable="false" MaxLength="20" Unicode="false" FixedLength="false" />
           <Property Name="creationdate" Type="DateTime" Nullable="false" />
@@ -311,7 +311,7 @@
           <Property Name="size" Type="Int32" Nullable="false" />
           <Property Name="updatedby" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="filedata" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="isencrypted" Type="Boolean" Nullable="false" />
+          <Property Name="isencrypted" Type="Boolean" />
           <NavigationProperty Name="DX_FILES" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILEVERSION" ToRole="DX_FILES" />
           <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_FILEVERSION" ToRole="DX_USER" />
         </EntityType>

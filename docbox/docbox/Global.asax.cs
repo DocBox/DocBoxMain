@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using docbox.Models;
 
 namespace docbox
 {
@@ -39,6 +40,8 @@ namespace docbox
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+            //ModelBinders.Binders[typeof(docbox.Models.Files)] = new DocumentBinder();
         }
     }
 }
