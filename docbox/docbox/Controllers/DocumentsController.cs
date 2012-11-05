@@ -109,41 +109,6 @@ namespace docbox.Controllers
         }
 
         [HttpPost]
-        public ActionResult ListDocuments(docbox.Models.Files model)
-        {
-            if (null == model || null== model.files || model.files.Count < 1)
-            {
-                List<FileModel>  modelList = new List<FileModel>();
-                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
-                if (null != allFiles && allFiles.ToList().Count >= 1)
-                {
-                    foreach (DX_FILES file in allFiles)
-                    {
-                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
-                            && versionObj.versionnumber == file.latestversion);
-                        FileModel filemodel = new FileModel();
-                        filemodel.FileID = file.fileid.ToString();
-                        filemodel.FileName = file.filename;
-                        filemodel.Owner = file.ownerid;
-                        filemodel.CreationDate = file.creationdate.ToString();
-                        filemodel.Description = fileversion.description;
-                        filemodel.FileVersion = file.latestversion;
-                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
-                        filemodel.LockedBy = file.lockedby;
-                        modelList.Add(filemodel);
-                    }
-                    model.files = modelList;
-                    return View(model);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "No Files available for view");
-                }
-            }
-            return PartialView("_grid", model);
-        }
-
-        [HttpPost]
         [MultipleButton(Name = "action", Argument = "Search")]
         public ActionResult Search()
         {
@@ -206,28 +171,15 @@ namespace docbox.Controllers
             }
             return tempValue;
         }
-
-        [HttpPost]
-        public ActionResult CheckInOut(int isLocked)
-        {
-            if (true)
-            {
-            }
-            return RedirectToAction("ListDocuments");
-        }
-
-
-        [HttpPost]
-        public ActionResult CheckInOut(FormCollection form)
+               
+        [AcceptVerbs(HttpVerbs.Post)]
+        public ActionResult CheckInOut(string fileid)
         {
             List<FileModel> model = new List<FileModel>();
             if (ModelState.IsValid)
             {
-                var ch = form.GetValues("checkLock");
-                foreach (var id in ch)
-                {
-                    int intID = Convert.ToInt32(id);
-                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid == intID select filetabel;
+                    long intID = Convert.ToInt64(fileid);
+                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid== intID select filetabel;
                     foreach(DX_FILES dx_file in dx_files)
                     {
                         if (dx_file != null && dx_file.islocked == true)
@@ -236,7 +188,7 @@ namespace docbox.Controllers
                             if (lockedBy == SessionKeyMgmt.UserId)
                             {
                                 dx_file.islocked = false;
-                                return RedirectToAction("ListDocuments");
+                                dx_file.lockedby = null;
                             }
                             else
                             {
@@ -247,18 +199,17 @@ namespace docbox.Controllers
                         {
                             dx_file.islocked = true;
                             dx_file.lockedby = SessionKeyMgmt.UserId;
-                            try
-                            {
-                                db.SaveChanges();
-                            }
-                            catch (Exception e)
-                            {
-                                ModelState.AddModelError("", "Cannot update the database with updated value");
-                            }
-                            return RedirectToAction("ListDocuments");
                         }
                     }
-                }
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        var status = e.StackTrace;
+                        ModelState.AddModelError("Cannot update the database with updated value", status);
+                    }
             }
             return RedirectToAction("ListDocuments");
         }
