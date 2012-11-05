@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using docbox.Models;
 
 namespace docbox.Utilities
 {
@@ -11,10 +12,28 @@ namespace docbox.Utilities
     /// </summary>
     public static class SessionKeyMgmt
     {
+        private const string sharedFiles = "sharedfiles";
         //private const String userAuthValue="permissions";// Decide later
         private const string userEmail = "emailAddress";
         private const string userDept = "userDepartment";
+        public static List<DX_FILES> SharedFiles
+        {
+            get
+            {
+                List<DX_FILES> files = (List<DX_FILES>)HttpContext.Current.Session[sharedFiles];
+                if (files == null)
+                {
+                    return new List<DX_FILES>();
+                }
+                return files;
 
+            }
+
+            set
+            {
+                HttpContext.Current.Session[sharedFiles] = value;
+            }
+        }
         public static string UserId
         {
             get

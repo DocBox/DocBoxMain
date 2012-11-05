@@ -8,24 +8,25 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_DEPARTMENT), "DX_USERDEPT", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_USERDEPT), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_FILES__locked__060DEAE8", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(docbox.Models.DX_USER), "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILES), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_FILES__owneri__07020F21", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILES), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_FILES), "DX_FILEVERSION", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILEVERSION), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__check__0F975522", "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_FILES), "DX_PRIVILEGE", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_PRIVILEGE), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_FILEVERSION", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILEVERSION), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__useri__108B795B", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_PRIVILEGE", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_PRIVILEGE), true)]
-[assembly: EdmRelationshipAttribute("DX_DOCBOXModel", "FK__DX_USERDE__useri__21B6055D", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_USERDEPT", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_USERDEPT), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_DEPARTMENT), "DX_USERDEPT", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_USERDEPT), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_FILES__locked__060DEAE8", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(docbox.Models.DX_USER), "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILES), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_FILES__owneri__07020F21", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILES), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_FILES), "DX_FILEVERSION", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILEVERSION), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_PRIVIL__check__0F975522", "DX_FILES", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_FILES), "DX_PRIVILEGE", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_PRIVILEGE), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_FILEVERSION", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_FILEVERSION), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_PRIVIL__useri__108B795B", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_PRIVILEGE", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_PRIVILEGE), true)]
+[assembly: EdmRelationshipAttribute("DocboxModel", "FK__DX_USERDE__useri__21B6055D", "DX_USER", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(docbox.Models.DX_USER), "DX_USERDEPT", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(docbox.Models.DX_USERDEPT), true)]
 
 #endregion
 
@@ -174,6 +175,7 @@ namespace docbox.Models
         private ObjectSet<DX_USERDEPT> _DX_USERDEPT;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -225,17 +227,17 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_DEPARTMENT")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_DEPARTMENT")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_DEPARTMENT : EntityObject
@@ -256,6 +258,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -310,6 +313,7 @@ namespace docbox.Models
         partial void OnnameChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -319,29 +323,30 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT")]
         public EntityCollection<DX_USERDEPT> DX_USERDEPT
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_USERDEPT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_USERDEPT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_USERDEPT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_USERDEPT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_USERDEPT", value);
                 }
             }
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_FILES")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_FILES")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_FILES : EntityObject
@@ -357,9 +362,10 @@ namespace docbox.Models
         /// <param name="ownerid">Initial value of the ownerid property.</param>
         /// <param name="latestversion">Initial value of the latestversion property.</param>
         /// <param name="isarchived">Initial value of the isarchived property.</param>
+        /// <param name="islocked">Initial value of the islocked property.</param>
         /// <param name="type">Initial value of the type property.</param>
         /// <param name="creationdate">Initial value of the creationdate property.</param>
-        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.String isarchived, global::System.String type, global::System.DateTime creationdate)
+        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.Boolean isarchived, global::System.Boolean islocked, global::System.String type, global::System.DateTime creationdate)
         {
             DX_FILES dX_FILES = new DX_FILES();
             dX_FILES.fileid = fileid;
@@ -368,12 +374,14 @@ namespace docbox.Models
             dX_FILES.ownerid = ownerid;
             dX_FILES.latestversion = latestversion;
             dX_FILES.isarchived = isarchived;
+            dX_FILES.islocked = islocked;
             dX_FILES.type = type;
             dX_FILES.creationdate = creationdate;
             return dX_FILES;
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -504,7 +512,7 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String isarchived
+        public global::System.Boolean isarchived
         {
             get
             {
@@ -514,21 +522,21 @@ namespace docbox.Models
             {
                 OnisarchivedChanging(value);
                 ReportPropertyChanging("isarchived");
-                _isarchived = StructuralObject.SetValidValue(value, false);
+                _isarchived = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("isarchived");
                 OnisarchivedChanged();
             }
         }
-        private global::System.String _isarchived;
-        partial void OnisarchivedChanging(global::System.String value);
+        private global::System.Boolean _isarchived;
+        partial void OnisarchivedChanging(global::System.Boolean value);
         partial void OnisarchivedChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Boolean> islocked
+        public global::System.Boolean islocked
         {
             get
             {
@@ -543,8 +551,8 @@ namespace docbox.Models
                 OnislockedChanged();
             }
         }
-        private Nullable<global::System.Boolean> _islocked;
-        partial void OnislockedChanging(Nullable<global::System.Boolean> value);
+        private global::System.Boolean _islocked;
+        partial void OnislockedChanging(global::System.Boolean value);
         partial void OnislockedChanged();
     
         /// <summary>
@@ -620,6 +628,7 @@ namespace docbox.Models
         partial void OncreationdateChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -629,16 +638,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILES__locked__060DEAE8", "DX_USER")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILES__locked__060DEAE8", "DX_USER")]
         public DX_USER DX_USER
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_USER").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_USER").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_USER").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_USER").Value = value;
             }
         }
         /// <summary>
@@ -650,13 +659,13 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_USER");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_USER");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_USER", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_USER", value);
                 }
             }
         }
@@ -667,16 +676,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILES__owneri__07020F21", "DX_USER")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILES__owneri__07020F21", "DX_USER")]
         public DX_USER DX_USER1
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_USER").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_USER").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_USER").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_USER").Value = value;
             }
         }
         /// <summary>
@@ -688,13 +697,13 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_USER");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_USER");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_USER", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_USER", value);
                 }
             }
         }
@@ -705,18 +714,18 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION")]
         public EntityCollection<DX_FILEVERSION> DX_FILEVERSION
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILEVERSION>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILEVERSION>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILEVERSION>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILEVERSION>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILEVERSION", value);
                 }
             }
         }
@@ -727,29 +736,30 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE")]
         public EntityCollection<DX_PRIVILEGE> DX_PRIVILEGE
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_PRIVILEGE>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_PRIVILEGE>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_PRIVILEGE>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_PRIVILEGE>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_PRIVILEGE", value);
                 }
             }
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_FILEVERSION")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_FILEVERSION")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_FILEVERSION : EntityObject
@@ -782,6 +792,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1028,6 +1039,7 @@ namespace docbox.Models
         partial void OnisencryptedChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1037,16 +1049,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILES")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILEVE__filei__182C9B23", "DX_FILES")]
         public DX_FILES DX_FILES
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES").Value = value;
             }
         }
         /// <summary>
@@ -1058,13 +1070,13 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_FILES>("DocboxModel.FK__DX_FILEVE__filei__182C9B23", "DX_FILES", value);
                 }
             }
         }
@@ -1075,16 +1087,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_USER")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_USER")]
         public DX_USER DX_USER
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER").Value = value;
             }
         }
         /// <summary>
@@ -1096,24 +1108,25 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_USER", value);
                 }
             }
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_PRIVILEGE")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_PRIVILEGE")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_PRIVILEGE : EntityObject
@@ -1130,7 +1143,7 @@ namespace docbox.Models
         /// <param name="write">Initial value of the write property.</param>
         /// <param name="update">Initial value of the update property.</param>
         /// <param name="check">Initial value of the check property.</param>
-        public static DX_PRIVILEGE CreateDX_PRIVILEGE(global::System.Int64 privilegeid, global::System.Int64 fileid, global::System.String userid, global::System.String read, global::System.String write, global::System.String update, global::System.String check)
+        public static DX_PRIVILEGE CreateDX_PRIVILEGE(global::System.Int64 privilegeid, global::System.Int64 fileid, global::System.String userid, global::System.Boolean read, global::System.Boolean write, global::System.Boolean update, global::System.Boolean check)
         {
             DX_PRIVILEGE dX_PRIVILEGE = new DX_PRIVILEGE();
             dX_PRIVILEGE.privilegeid = privilegeid;
@@ -1144,6 +1157,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1226,7 +1240,7 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String read
+        public global::System.Boolean read
         {
             get
             {
@@ -1236,13 +1250,13 @@ namespace docbox.Models
             {
                 OnreadChanging(value);
                 ReportPropertyChanging("read");
-                _read = StructuralObject.SetValidValue(value, false);
+                _read = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("read");
                 OnreadChanged();
             }
         }
-        private global::System.String _read;
-        partial void OnreadChanging(global::System.String value);
+        private global::System.Boolean _read;
+        partial void OnreadChanging(global::System.Boolean value);
         partial void OnreadChanged();
     
         /// <summary>
@@ -1250,7 +1264,7 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String write
+        public global::System.Boolean write
         {
             get
             {
@@ -1260,13 +1274,13 @@ namespace docbox.Models
             {
                 OnwriteChanging(value);
                 ReportPropertyChanging("write");
-                _write = StructuralObject.SetValidValue(value, false);
+                _write = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("write");
                 OnwriteChanged();
             }
         }
-        private global::System.String _write;
-        partial void OnwriteChanging(global::System.String value);
+        private global::System.Boolean _write;
+        partial void OnwriteChanging(global::System.Boolean value);
         partial void OnwriteChanged();
     
         /// <summary>
@@ -1274,7 +1288,7 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String update
+        public global::System.Boolean update
         {
             get
             {
@@ -1284,13 +1298,13 @@ namespace docbox.Models
             {
                 OnupdateChanging(value);
                 ReportPropertyChanging("update");
-                _update = StructuralObject.SetValidValue(value, false);
+                _update = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("update");
                 OnupdateChanged();
             }
         }
-        private global::System.String _update;
-        partial void OnupdateChanging(global::System.String value);
+        private global::System.Boolean _update;
+        partial void OnupdateChanging(global::System.Boolean value);
         partial void OnupdateChanged();
     
         /// <summary>
@@ -1298,7 +1312,7 @@ namespace docbox.Models
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String check
+        public global::System.Boolean check
         {
             get
             {
@@ -1308,16 +1322,17 @@ namespace docbox.Models
             {
                 OncheckChanging(value);
                 ReportPropertyChanging("check");
-                _check = StructuralObject.SetValidValue(value, false);
+                _check = StructuralObject.SetValidValue(value);
                 ReportPropertyChanged("check");
                 OncheckChanged();
             }
         }
-        private global::System.String _check;
-        partial void OncheckChanging(global::System.String value);
+        private global::System.Boolean _check;
+        partial void OncheckChanging(global::System.Boolean value);
         partial void OncheckChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1327,16 +1342,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__check__0F975522", "DX_FILES")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_PRIVIL__check__0F975522", "DX_FILES")]
         public DX_FILES DX_FILES
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES").Value = value;
             }
         }
         /// <summary>
@@ -1348,13 +1363,13 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_FILES>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_FILES>("DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_FILES>("DocboxModel.FK__DX_PRIVIL__check__0F975522", "DX_FILES", value);
                 }
             }
         }
@@ -1365,16 +1380,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__useri__108B795B", "DX_USER")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_PRIVIL__useri__108B795B", "DX_USER")]
         public DX_USER DX_USER
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER").Value = value;
             }
         }
         /// <summary>
@@ -1386,24 +1401,25 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_USER", value);
                 }
             }
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_USER")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_USER")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_USER : EntityObject
@@ -1440,6 +1456,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1710,6 +1727,7 @@ namespace docbox.Models
         partial void OnsaltChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1719,18 +1737,18 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILES__locked__060DEAE8", "DX_FILES")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILES__locked__060DEAE8", "DX_FILES")]
         public EntityCollection<DX_FILES> DX_FILES
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILES>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_FILES");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILES>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_FILES");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILES>("DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8", "DX_FILES", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILES>("DocboxModel.FK__DX_FILES__locked__060DEAE8", "DX_FILES", value);
                 }
             }
         }
@@ -1741,18 +1759,18 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILES__owneri__07020F21", "DX_FILES")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILES__owneri__07020F21", "DX_FILES")]
         public EntityCollection<DX_FILES> DX_FILES1
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILES>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_FILES");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILES>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_FILES");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILES>("DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21", "DX_FILES", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILES>("DocboxModel.FK__DX_FILES__owneri__07020F21", "DX_FILES", value);
                 }
             }
         }
@@ -1763,18 +1781,18 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION")]
         public EntityCollection<DX_FILEVERSION> DX_FILEVERSION
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILEVERSION>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_FILEVERSION>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILEVERSION>("DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_FILEVERSION>("DocboxModel.FK__DX_FILEVE__updat__1920BF5C", "DX_FILEVERSION", value);
                 }
             }
         }
@@ -1785,18 +1803,18 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE")]
         public EntityCollection<DX_PRIVILEGE> DX_PRIVILEGE
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_PRIVILEGE>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_PRIVILEGE>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_PRIVILEGE>("DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_PRIVILEGE>("DocboxModel.FK__DX_PRIVIL__useri__108B795B", "DX_PRIVILEGE", value);
                 }
             }
         }
@@ -1807,29 +1825,30 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT")]
         public EntityCollection<DX_USERDEPT> DX_USERDEPT
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_USERDEPT>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<DX_USERDEPT>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_USERDEPT>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<DX_USERDEPT>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USERDEPT", value);
                 }
             }
         }
 
         #endregion
+
     }
     
     /// <summary>
     /// No Metadata Documentation available.
     /// </summary>
-    [EdmEntityTypeAttribute(NamespaceName="DX_DOCBOXModel", Name="DX_USERDEPT")]
+    [EdmEntityTypeAttribute(NamespaceName="DocboxModel", Name="DX_USERDEPT")]
     [Serializable()]
     [DataContractAttribute(IsReference=true)]
     public partial class DX_USERDEPT : EntityObject
@@ -1852,6 +1871,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1930,6 +1950,7 @@ namespace docbox.Models
         partial void OndeptidChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1939,16 +1960,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT")]
         public DX_DEPARTMENT DX_DEPARTMENT
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT").Value = value;
             }
         }
         /// <summary>
@@ -1960,13 +1981,13 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_DEPARTMENT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_DEPARTMENT>("DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_DEPARTMENT>("DocboxModel.FK__DX_USERDE__depti__22AA2996", "DX_DEPARTMENT", value);
                 }
             }
         }
@@ -1977,16 +1998,16 @@ namespace docbox.Models
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("DX_DOCBOXModel", "FK__DX_USERDE__useri__21B6055D", "DX_USER")]
+        [EdmRelationshipNavigationPropertyAttribute("DocboxModel", "FK__DX_USERDE__useri__21B6055D", "DX_USER")]
         public DX_USER DX_USER
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USER").Value;
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USER").Value;
             }
             set
             {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USER").Value = value;
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USER").Value = value;
             }
         }
         /// <summary>
@@ -1998,20 +2019,22 @@ namespace docbox.Models
         {
             get
             {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USER");
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<DX_USER>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USER");
             }
             set
             {
                 if ((value != null))
                 {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D", "DX_USER", value);
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<DX_USER>("DocboxModel.FK__DX_USERDE__useri__21B6055D", "DX_USER", value);
                 }
             }
         }
 
         #endregion
+
     }
 
     #endregion
+
     
 }

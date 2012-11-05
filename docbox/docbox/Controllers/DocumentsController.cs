@@ -10,9 +10,33 @@ using System.Web.Security;
 using System.Security.Cryptography;
 using System.IO;
 using docbox.Utilities;
+using System.Reflection;
 
 namespace docbox.Controllers
-{ 
+{
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class MultipleButtonAttribute : ActionNameSelectorAttribute
+    {
+        public string Name { get; set; }
+        public string Argument { get; set; }
+
+        public override bool IsValidName(ControllerContext controllerContext,
+    string actionName, MethodInfo methodInfo)
+        {
+            bool isValidName = false;
+            string keyValue = string.Format("{0}:{1}", Name, Argument);
+            var value = controllerContext.Controller.ValueProvider.GetValue(keyValue);
+            if (value != null)
+            {
+                value = new ValueProviderResult(Argument, Argument, null);
+                controllerContext.Controller.ControllerContext.RouteData.Values[Name] = Argument;
+                isValidName = true;
+            }
+
+            return isValidName;
+        }
+    }
+   
     public class DocumentsController : Controller
     {
         private dx_docboxEntities db = new dx_docboxEntities();
@@ -300,7 +324,7 @@ namespace docbox.Controllers
                     if (description.Length != 0)
                     {
                         dx_files.ownerid = userid;
-                        dx_files.isarchived = "false";
+                        dx_files.isarchived = false;
                         dx_files.parentpath = "/" + userid;
                         dx_files.islocked = false;
 
@@ -490,10 +514,140 @@ namespace docbox.Controllers
             return View();
         }
 
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "ListDocuments")]
+        public ActionResult ListDocuments(FormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var filesselected = form.GetValues("Select");
+                List<Int64> fileidList = new List<Int64>();
+                filesselected.ToList();
+                foreach (var fileid in filesselected)
+                    fileidList.Add(Convert.ToInt64(fileid));
+
+                var archivedfiles = from filetable in db.DX_FILES where fileidList.Contains(filetable.fileid) select filetable;
+                if (archivedfiles != null && archivedfiles.ToList().Count > 0)
+                {
+                    archivedfiles.ToList().ForEach(fm => fm.isarchived = true);
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Some Error occured. Try after sometime!");
+                }
+                return RedirectToAction("ListDocuments");
+            }
+
+            return RedirectToAction("ListDocuments");
+
+        }
+
+
+        private void populateUsersList()
+        {
+            var allusers = from usertabel in db.DX_USER select new { usertabel.userid };
+            ViewBag.UsersList = allusers != null ? allusers.ToList() : null;
+
+        }
+
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Share")]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        public ActionResult Share(FormCollection form)
+        {
+
+            var fileselected = form.GetValues("Select");
+            List<Int64> listoffiles = new List<Int64>();
+            ShareDocuments model = new ShareDocuments();
+            if (fileselected != null)
+            {
+                fileselected.ToList();
+                foreach (var file in fileselected)
+                    listoffiles.Add(Convert.ToInt64(file));
+                var shareFiles = from filetable in db.DX_FILES where listoffiles.Contains(filetable.fileid) && filetable.ownerid == SessionKeyMgmt.UserId select filetable;
+
+                if (shareFiles != null && shareFiles.ToList().Count > 0)
+                {
+                    model.Files = shareFiles.ToList();
+                    SessionKeyMgmt.SharedFiles = model.Files;
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "No Files Selected!");
+                return RedirectToAction("ListDocuments", "Documents");
+            }
+
+            model.shareWithUsers = new List<string>();
+            populateUsersList();
+            return View(model);
+
+        }
+
+        //Perform sharing
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "ShareFiles")]
+        public ActionResult ShareFiles(ShareDocuments files)
+        {
+
+            if (files != null && files.shareWithUsers != null)
+            {
+                files.Files = SessionKeyMgmt.SharedFiles;
+                try
+                {
+                    List<Int64> fileIdList = new List<Int64>();
+                    foreach (DX_FILES file in files.Files)
+                    {
+                        fileIdList.Add(Convert.ToInt64(file.fileid));
+                    }
+                    foreach (string user in files.shareWithUsers)
+                    {
+                        foreach (Int64 fileId in fileIdList)
+                        {
+                            DX_PRIVILEGE sharedfile = new DX_PRIVILEGE();
+                            sharedfile.fileid = fileId;
+                            sharedfile.userid = user;
+                            sharedfile.read = files.read;
+                            sharedfile.write = files.write;
+                            sharedfile.update = files.update;
+                            sharedfile.check = files.check;
+                            db.DX_PRIVILEGE.AddObject(sharedfile);
+
+
+
+                        }
+                    }
+                    db.SaveChanges();
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Some Error occured. Try again after sometime!");
+                }
+                SessionKeyMgmt.SharedFiles = new List<DX_FILES>();
+            }
+            else
+            {
+                ModelState.AddModelError("", "Please select users!!");
+
+            }
+            return RedirectToAction("ListDocuments");
+
+
+        }
+ 
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
             base.Dispose(disposing);
         }
     }
+
+
 }

@@ -35,7 +35,11 @@
               @Html.Partial("LeftMenu");
         </div>
         </div> 
+        <div>
+         @Html.ValidationSummary(true, "")
+        </div>
         <div class="span11">
+       
         <div class="hero-unit">
             @RenderBody()
         </div>
