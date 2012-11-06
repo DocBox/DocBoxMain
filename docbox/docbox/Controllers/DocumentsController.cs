@@ -52,20 +52,27 @@ namespace docbox.Controllers
                                                         ".png", ".bmp", 
                                                         ".tiff", ".tif" };
 
-        //GET : //Documents/ListDocuments
-        public ActionResult ListDocuments()
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        public ActionResult ListDocuments(List<FileModel> model)
+        {
+            if (null != model)
+            {
+                return View("ListDocuments", model);
+            }
+            return View("ListDocuments", getMyDocsModel());
+        }
+
+        public List<FileModel> getMyDocsModel()
         {
             List<FileModel> modelList = new List<FileModel>();
             try
-            {            
-                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
+            {
+                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId && filetabel.isarchived == false select filetabel;
                 if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
                     {
-                        //what is ur strategy to get the latest version of the files
-                        // For the current file, get details about the latest version
-                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid
                             && versionObj.versionnumber == file.latestversion);
 
                         FileModel filemodel = new FileModel();
@@ -79,28 +86,19 @@ namespace docbox.Controllers
                         filemodel.LockedBy = file.lockedby;
                         modelList.Add(filemodel);
                     }
-                    return View("ListDocuments",modelList);
                 }
                 else
                 {
                     ModelState.AddModelError("", "No Files available for view");
                 }
-                return View("ListDocuments", modelList);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Error getting the document list " + ex.Message);
             }
-            return View("ListDocuments",modelList);
+
+            return modelList;
         }
-
-        [HttpPost]
-        //ActionResult subm(List)
-        //{
-        //}
-
-        //
-        // GET: /Documents/
 
         public ViewResult Index()
         {
@@ -108,38 +106,27 @@ namespace docbox.Controllers
             return View(dx_files.ToList());
         }
 
-        [HttpPost]
-        [MultipleButton(Name = "action", Argument = "Search")]
-        public ActionResult Search()
+        [MultipleButton(Name = "action", Argument = "SearchMyDocs")]
+        public ActionResult SearchMyDocs()
         {
-            List<FileModel> model = new List<FileModel>();
+            string filename = "";
+            if (this.Request.Form.AllKeys.Length > 0)
+            {
+                filename = Request["fileName"];
+            }
+            return Search(filename, getMyDocsModel());
+        }
+
+
+        public ActionResult Search(string fileTitle, List<FileModel> model)
+        {
             if (ModelState.IsValid)
             {
                 IDictionary<string, string> searchConditions = new Dictionary<string, string>();
-                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId select filetabel;
-                if (allFiles.ToList().Count >= 1)
+                
+                if(!string.IsNullOrEmpty(fileTitle))
                 {
-                    foreach (DX_FILES file in allFiles)
-                    {DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid 
-                            && versionObj.versionnumber == file.latestversion);
-                        FileModel filemodel = new FileModel();
-                        filemodel.FileID = file.fileid.ToString();
-                        filemodel.FileName = file.filename;
-                        filemodel.Owner = file.ownerid;
-                        filemodel.CreationDate = file.creationdate.ToString();
-                        filemodel.Description = fileversion.description;
-                        filemodel.FileVersion = file.latestversion;
-                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
-                        filemodel.LockedBy = file.lockedby;
-                        model.Add(filemodel);
-                    }
-                }
-
-                if (this.Request.Form.AllKeys.Length > 0)
-                //if(null != fileTitle && fileTitle.Length > 0)
-                {
-                     //Request["fileName"]
-                    searchConditions.Add("fileName", Request["fileName"]);
+                    searchConditions.Add("fileName", fileTitle);
                 }
                 else
                 {
@@ -154,8 +141,8 @@ namespace docbox.Controllers
                 this.TempData["SearchConditions"] = searchConditions;
                 string fileName = GetSearchConditionValue(searchConditions, "fileName");
                 var result = (from s in model
-                              where (string.IsNullOrEmpty(fileName) || s.FileName.StartsWith(fileName))
-                              select s).ToList();
+                                where (string.IsNullOrEmpty(fileTitle) || s.FileName.StartsWith(fileTitle))
+                                select s).ToList();
                 model = result;
             }
             return View("ListDocuments", model);
@@ -171,15 +158,16 @@ namespace docbox.Controllers
             }
             return tempValue;
         }
-               
+
         [AcceptVerbs(HttpVerbs.Post)]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult CheckInOut(string fileid)
         {
             List<FileModel> model = new List<FileModel>();
             if (ModelState.IsValid)
             {
                     long intID = Convert.ToInt64(fileid);
-                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid== intID select filetabel;
+                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid == intID && filetabel.isarchived == false select filetabel;
                     foreach(DX_FILES dx_file in dx_files)
                     {
                         if (dx_file != null && dx_file.islocked == true)
@@ -467,8 +455,8 @@ namespace docbox.Controllers
 
 
         [HttpPost]
-        [MultipleButton(Name = "action", Argument = "ListDocuments")]
-        public ActionResult ListDocuments(FormCollection form)
+        [MultipleButton(Name = "action", Argument = "Archive")]
+        public ActionResult Archive(FormCollection form)
         {
             if (ModelState.IsValid)
             {
