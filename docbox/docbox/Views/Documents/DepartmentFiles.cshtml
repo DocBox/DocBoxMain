@@ -1,24 +1,24 @@
 ﻿@model List<docbox.Models.FileModel>
 @{
-    ViewBag.Title = "ListDocuments";
+    ViewBag.Title = "DepartmentFiles";
     Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 <script language="javascript" type="text/javascript">
     function updateChk(parameter) {
         $.ajax({
             type: "POST",
-            url: '@Url.Action("CheckInOut","Documents")',
+            url: '@Url.Action("CheckInOutDept","Documents")',
             data: { fileid: parameter },
             success: function () {
             }
         })
     }
  </script>
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
-    <div>
+    <div class="navbar-inner">
         @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
         {
             IDictionary<string, string> searchConditions = new Dictionary<string, string>();
@@ -33,16 +33,14 @@
             string conditions1 = searchConditions.Keys.Contains("fileName") ? searchConditions["fileName"] : string.Empty;
             <div class="container">
                 <ul class="nav">
-                    <li class="active"><a class="brand" href="#">MyDocs</a> </li>
+                    <li class="active"><a class="brand" href="#">DepartmentFiles</a> </li>
                     <li class="divider-vertical">@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
-                    <li class="divider-vertical"><label for="share" class="btn btn-link"><i class="icon-share"></i>Share</label>
-                        <input id="share" type="submit" name="action:Share" value="Go" class="hidden" /></li>
-                    <li class="divider-vertical"><label for="archive" class="btn btn-link"><i class="icon-move"></i>Archive</label>
-                        <input id="archive" type="submit" name="action:Archive" value="Go" class="hidden" /></li>
-                    <li><label for="txtSearch" class="text-info"></label>
-                        <input id="txtSearch" type="text" name="fileName" value="@conditions1" />               
-                    <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
-                        <input id="search" type="submit" name="action:SearchMyDocs" value="Go" class="hidden" /></li></li>
+                    <li class="divider-vertical"><input type="submit" value="Share" name="action:Share" /></li>
+                    <li class="divider-vertical"><input type="submit" value="Archive" name="action:Archive" /></li>
+                <li class="divider-vertical">@Html.TextBox("fileName", @conditions1) 
+                <input type="submit" value="Search" name="action:SearchMyDeptDocs" /></li>
+                
+                </ul>
                 @grid.GetHtml(tableStyle: "webGrid",
                         headerStyle: "webgrid-header",
                         footerStyle: "webgrid-footer",
@@ -51,18 +49,18 @@
                         rowStyle: "webgrid-row-style",
                         htmlAttributes: new { id = "myGrid", name = "myGrid" },
                         columns: grid.Columns(
-                              grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
+                              grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID /></text>),
                               grid.Column("FileName"),
                               grid.Column("Description"),
                               grid.Column("FileVersion"),
                               grid.Column("Owner"),
-                              grid.Column("CreationDate"),
-                 grid.Column(header: "CheckIn"  ,format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
+                              grid.Column("CreationDate"),            
+                 grid.Column(format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
                  grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-                 grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID }))
+                 grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
+                 grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID }))
              ))
-             </ul>
     </div>
-        }
+}
 </div>
 </div>
