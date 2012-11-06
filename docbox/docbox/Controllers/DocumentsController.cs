@@ -478,7 +478,7 @@ namespace docbox.Controllers
                 foreach (var fileid in filesselected)
                     fileidList.Add(Convert.ToInt64(fileid));
 
-                var archivedfiles = from filetable in db.DX_FILES where fileidList.Contains(filetable.fileid) select filetable;
+                var archivedfiles = from filetable in db.DX_FILES where fileidList.Contains(filetable.fileid) && filetable.islocked==true select filetable;
                 if (archivedfiles != null && archivedfiles.ToList().Count > 0)
                 {
                     archivedfiles.ToList().ForEach(fm => fm.isarchived = true);
@@ -493,11 +493,95 @@ namespace docbox.Controllers
                 }
                 return RedirectToAction("ListDocuments");
             }
-
+            
             return RedirectToAction("ListDocuments");
 
         }
 
+        //GET:/Archived Files on Grid
+        
+        public ActionResult ArchivedFiles()
+        {
+            List<FileModel> modelList = new List<FileModel>();
+            try
+            {
+                var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId && filetabel.isarchived==true select filetabel;
+                if (null != allFiles && allFiles.ToList().Count >= 1)
+                {
+                    foreach (DX_FILES file in allFiles)
+                    {
+                        //what is ur strategy to get the latest version of the files
+                        // For the current file, get details about the latest version
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid
+                            && versionObj.versionnumber == file.latestversion);
+
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileVersion = file.latestversion;
+                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
+                        filemodel.LockedBy = file.lockedby;
+                        modelList.Add(filemodel);
+                    }
+                    return View("ArchivedFiles", modelList);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No Files available for view");
+                }
+                return View("ArchivedFiles", modelList);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error getting the document list " + ex.Message);
+            }
+            return View("ArchivedFiles", modelList);
+        }
+
+        // Perform Unarchiving
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "UnArchive")]
+        public ActionResult UnArchive(FormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var selectedfiles = form.GetValues("Select");
+                List<Int64> fileId = new List<Int64>();
+
+                foreach (var file in selectedfiles)
+                    fileId.Add(Convert.ToInt64(file));
+
+                var archivedfiles = from filetable in db.DX_FILES where fileId.Contains(filetable.fileid) && filetable.isarchived == true select filetable;
+                if (archivedfiles.ToList().Count > 0)
+                {
+                    foreach (DX_FILES file in archivedfiles)
+                    {
+                        file.isarchived = false;
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No files selected for unarchiving");
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Some error occured. Please try after sometime!");
+                    return RedirectToAction("ListDocuments");
+                }
+                return RedirectToAction("ArchivedFiles");
+            }
+            else
+            {
+                return RedirectToAction("ArchivedFiles");
+            }
+        }
 
         private void populateUsersList()
         {
@@ -562,17 +646,29 @@ namespace docbox.Controllers
                     {
                         foreach (Int64 fileId in fileIdList)
                         {
-                            DX_PRIVILEGE sharedfile = new DX_PRIVILEGE();
-                            sharedfile.fileid = fileId;
-                            sharedfile.userid = user;
-                            sharedfile.read = files.read;
-                            sharedfile.write = files.write;
-                            sharedfile.update = files.update;
-                            sharedfile.check = files.check;
-                            db.DX_PRIVILEGE.AddObject(sharedfile);
+                            var listofsharedfiles = from privilegetable in db.DX_PRIVILEGE where privilegetable.fileid == fileId && privilegetable.userid == user select privilegetable;
+                            if (listofsharedfiles.ToList().Count > 0)
+                            {
+                                foreach (DX_PRIVILEGE existingfile in listofsharedfiles)
+                                {
+                                    existingfile.read = files.read;
+                                    existingfile.write = files.write;
+                                    existingfile.update = files.update;
+                                    existingfile.check = files.check;
+                                }
 
-
-
+                            }
+                            else
+                            {
+                                DX_PRIVILEGE sharedfile = new DX_PRIVILEGE();
+                                sharedfile.fileid = fileId;
+                                sharedfile.userid = user;
+                                sharedfile.read = files.read;
+                                sharedfile.write = files.write;
+                                sharedfile.update = files.update;
+                                sharedfile.check = files.check;
+                                db.DX_PRIVILEGE.AddObject(sharedfile);
+                            }
                         }
                     }
                     db.SaveChanges();

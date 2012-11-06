@@ -11,6 +11,7 @@
 
     <div class="editor-label">
         @Html.LabelFor(m => m.shareWithUsers)
+        @Html.ValidationMessageFor(m => m.shareWithUsers)
     </div>
     <div class="editor-field">
         @Html.ListBoxFor(m => m.shareWithUsers, new MultiSelectList(ViewBag.UsersList, "userid", "userid", Model.shareWithUsers))
@@ -29,19 +30,19 @@
     </ul>
      </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.read)
+       @Html.CheckBoxFor(m => m.read)    
        @Html.LabelFor(m => m.read) 
     </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.write)
+       @Html.CheckBoxFor(m => m.write)  
        @Html.LabelFor(m => m.write) 
     </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.update)
+       @Html.CheckBoxFor(m => m.update)  
        @Html.LabelFor(m => m.update) 
     </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.check)
+       @Html.CheckBoxFor(m => m.check)   
        @Html.LabelFor(m => m.check) 
     </div>
     <input type="submit" value="Share" name="action:ShareFiles"/>
