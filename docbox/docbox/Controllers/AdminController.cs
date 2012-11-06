@@ -34,11 +34,7 @@ namespace docbox.Controllers
 
                     List<DX_USER> users = (List<DX_USER>)allTempUsers.ToList();
 
-                    foreach (DX_USER tempuser in users)
-                    {
-                        Console.WriteLine("gautham : {0}",tempuser.fname);
-                    }
-
+                   
                     foreach (DX_USER tempuser in users)
                     { 
                         UserNeedingApproval tempUserNeedingApproval= new UserNeedingApproval();

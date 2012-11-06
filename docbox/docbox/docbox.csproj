@@ -220,9 +220,6 @@
     <Content Include="Views\Account\ForgetPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Documents\ListDocuments.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Documents\Upload.cshtml" />
   </ItemGroup>
   <ItemGroup>
