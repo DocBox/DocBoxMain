@@ -14,7 +14,7 @@ using docbox.Filters;
 
 namespace docbox.Controllers
 {
-    
+    [DeleteBrowserHistory]
     public class AccountController : Controller
     {
 

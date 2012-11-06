@@ -73,6 +73,7 @@
     <Compile Include="Controllers\SecurityController.cs" />
     <Compile Include="Controllers\TempUserController.cs" />
     <Compile Include="Filters\CustomRoleAttribute.cs" />
+    <Compile Include="Filters\DeleteBrowserHistory.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

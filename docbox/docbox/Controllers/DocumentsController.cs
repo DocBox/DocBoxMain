@@ -11,10 +11,13 @@ using System.Security.Cryptography;
 using System.IO;
 using docbox.Utilities;
 using System.Reflection;
+using docbox.Filters;
 
 namespace docbox.Controllers
 {
+
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    
     public class MultipleButtonAttribute : ActionNameSelectorAttribute
     {
         public string Name { get; set; }
@@ -36,7 +39,8 @@ namespace docbox.Controllers
             return isValidName;
         }
     }
-   
+
+    [DeleteBrowserHistory]
     public class DocumentsController : Controller
     {
         private dx_docboxEntities db = new dx_docboxEntities();
@@ -53,6 +57,7 @@ namespace docbox.Controllers
                                                         ".tiff", ".tif" };
 
         //GET : //Documents/ListDocuments
+        
         public ActionResult ListDocuments()
         {
             List<FileModel> modelList = new List<FileModel>();

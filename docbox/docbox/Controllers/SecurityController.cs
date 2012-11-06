@@ -4,9 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Security.Cryptography;
+using docbox.Filters;
 
 namespace docbox.Controllers
 {
+    [DeleteBrowserHistory]
     public class SecurityController : Controller
     {
         //

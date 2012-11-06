@@ -4,9 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using docbox.Models;
+using docbox.Filters;
  
 namespace docbox.Controllers
 {
+    [DeleteBrowserHistory]
     public class AdminController : Controller
     {
         private dx_docboxEntities database = new dx_docboxEntities();
