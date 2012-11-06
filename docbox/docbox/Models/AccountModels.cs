@@ -8,23 +8,27 @@ using System.Linq;
 namespace docbox.Models
 {
 
-    public class ChangePasswordModel
+    public class ResetPasswordModel
     {
-        [Required]
-        [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
-        public string OldPassword { get; set; }
+
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
         [DataType(DataType.Password)]
-        [Display(Name = "New password")]
-        public string NewPassword { get; set; }
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+
+        [Required]
+        [Display(Name = "Enter Characters")]
+        public string Captcha { get; set; }
     }
 
     public class ForgetPasswordModel
@@ -45,43 +49,41 @@ namespace docbox.Models
         [Display(Name = "Email address")]
         public string Email { get; set; }
 
-        [Required]
-        [RegularExpression(@"^(\d{10})$", ErrorMessage = "Not a correct phone number!")]
-        [DataType(DataType.PhoneNumber)]
-        [Display(Name = "Phone")]
-        public string Phone { get; set; }
-
-        [Required]
-        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
-        [Display(Name = "Position")]
-        public string Position { get; set; }
-
-        [Required]
-        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name")]
-        [Display(Name = "Department")]
-        public string Department { get; set; }
 
         [Required]
         [Display(Name = "Enter Characters")]
         public string Captcha { get; set; }
 
 
-        [Required]
-        [Display(Name = "Secret Question")]
-        public string Squestion { get; set;}
+
+
+       
+
+    }
+
+    public class VerifySecrete
+    {
+        
 
         [Required]
         [Display(Name = "Answer")]
         public string Answer { get; set; }
 
         [Required]
-        [Display(Name = "Notification Method")]
-        public bool NotificationChoice { get; set; }
+        [Display(Name = "Enter Characters")]
+        public string Captcha { get; set; }
 
     }
+    public class EnterActivationCode{
 
-    public class generateActivationCode{
-    
+        
+        [Required]
+        [Display(Name = "Activation Code")]
+        public string ActivationCode { get; set; }
+
+        [Required]
+        [Display(Name = "Enter Characters")]
+        public string Captcha { get; set; }
     }
 
     public class LogOnModel

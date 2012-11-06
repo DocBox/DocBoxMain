@@ -10,13 +10,16 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Net;
 using docbox.Utilities;
+using docbox.Filters;
 
 namespace docbox.Controllers
 {
+    
     public class AccountController : Controller
     {
 
         dx_docboxEntities database = new dx_docboxEntities();
+
 
         // GET: /Account/LogOn
         //[RequireHttps]
@@ -39,13 +42,13 @@ namespace docbox.Controllers
         // [RequireHttps]
         public ActionResult LogOn(LogOnModel model, string returnUrl)
         {
+            try{
 
             if (ModelState.IsValid)
             {
 
-
                 var allusers = from usertabel in database.DX_USER where usertabel.userid == model.UserName select usertabel;
-                if (allusers.ToList().Count == 1)
+                if (allusers!=null&&allusers.ToList().Count == 1)
                 {
 
                     var UserRecord = allusers.First();
@@ -78,7 +81,7 @@ namespace docbox.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                    ModelState.AddModelError("", "Could not connect to database!!.");
                 }
 
 
@@ -88,6 +91,9 @@ namespace docbox.Controllers
                 ModelState.AddModelError("", "The user name or password provided is incorrect.");
             }
             // If we got this far, something failed, redisplay form
+            }catch(Exception ex){
+                ModelState.AddModelError("","Can not process request, please try after some time!");
+            }
             return View(model);
         }
 
@@ -134,11 +140,13 @@ namespace docbox.Controllers
 
         //
         // GET: /Account/LogOff
+        [Authorize]
+    
         public ActionResult LogOff()
         {
             FormsAuthentication.SignOut();
-
-            return RedirectToAction("About", "Home");
+            Request.RequestContext.HttpContext.Session.Abandon();
+            return RedirectToActionPermanent("LogOn", "Account");
         }
 
         private void populateDepartmenetsList()
@@ -305,9 +313,6 @@ namespace docbox.Controllers
                         return View(model);
                     }
 
-
-
-
                 }
             }
             catch (Exception e)
@@ -320,39 +325,271 @@ namespace docbox.Controllers
 
         }
 
+        //Get://Account/EnterActivationCode
+
+        //Post:/Account/VerifySecret
+        [HttpPost]
+        public ActionResult VerifySecret(VerifySecrete secretModel)
+        {
+            ViewBag.SecQ = SessionKeyMgmt.SecreteQuestion;
+            if(ModelState.IsValid){
+                if (SessionKeyMgmt.UserId != null && !"".Equals(SessionKeyMgmt.UserId))
+                {
+
+                    if (verifyCaptcha() == false)
+                    {
+                        return View(secretModel);
+                    }
+
+                    var allusers = from usertabel in database.DX_USER
+                                   where usertabel.userid == SessionKeyMgmt.UserId
+                                   select usertabel;
+
+                    if (allusers != null && allusers.ToList().Count == 1)
+                    {
+                        DX_USER user = allusers.ToList().First();
+                        if (secretModel.Answer != null && !"".Equals(secretModel.Answer) && generateHash(secretModel.Answer).Equals(user.anshash))
+                        {
+                            if (sendNotificationCode())
+                            {
+                                return RedirectToAction("EnterActivationCode","Account");
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "Problem in sending notificatoin code please try recovering the password later!");
+                                return RedirectToAction("LogOn","Account");
+                            }
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Your request is invalid, sorry we cant process it!");
+                            return View(secretModel);
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Your request is invalid, sorry we cant process it!");
+                        return View(secretModel);
+                    }
+                }
+
+            }
+            return View(secretModel);
+        }
+
+        //Get: /Account/PasswordSuccess
+
+        public ActionResult PasswordSuccess()
+        {
+            return View();
+        }
+
+        //Get: /Accoint/ResetPassword/
+        public ActionResult ResetPassword()
+        {
+            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            return View();
+        }
+
+        //Post: /Account/ResetPassword/
+        [HttpPost]
+        public ActionResult ResetPassword(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid&&verifyCaptcha())
+            {
+                if (model.Password.Equals(model.ConfirmPassword))
+                {
+                    try
+                    {
+                        if (SessionKeyMgmt.UserId != null && !"".Equals(SessionKeyMgmt.UserId))
+                        {
+                            var allusers = from usertabel in database.DX_USER where usertabel.userid == SessionKeyMgmt.UserId select usertabel;
+                            if(allusers!=null && allusers.ToList().Count==1){
+                                DX_USER user=allusers.ToList().First();
+                                user.salt=generateSalt();
+                                user.pwdhash = generateHash(user.salt, model.Password);
+                            }
+                            database.SaveChanges();
+                            return RedirectToAction("PasswordSuccess", "Account");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("","Could not reset the password please try after some time");
+                        }
+
+                    }catch(Exception ex){
+
+                        ModelState.AddModelError("", "Could not reset the password please try after some time");
+                       
+                    }
+                  
+                }
+                else
+                {
+                    ModelState.AddModelError("","Password don't match!!");
+                }
+
+            }
+            return View(model);
+        }
+
+        //Get: //Acount/EnterActivationCode
+
+        public ActionResult EnterActivationCode()
+        {
+            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            return View();
+        }
+
+        //Post: /Account/EnterActivationCode
+        [HttpPost]
+        public ActionResult EnterActivationCode(EnterActivationCode activationModel)
+        {
+
+            if (verifyCaptcha()==false)
+                return View(activationModel);
+
+            if (!"".Equals(SessionKeyMgmt.UserId) && SessionKeyMgmt.UserId != null)
+            {
+                var allusers = from usertabel in database.DX_USER where usertabel.userid == SessionKeyMgmt.UserId select usertabel;
+                if (allusers != null && allusers.ToList().Count == 1)
+                {
+                    if (generateHash(activationModel.ActivationCode).Equals(allusers.ToList().First().actcodehash))
+                    {
+                        // Valid user success!!
+
+                        //Invalidate initial code
+                        allusers.ToList().First().actcodehash = generateActivationCode();
+                        database.SaveChanges();
+
+                        // Redirect to reset password
+                        return RedirectToAction("ResetPassword","Account");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Activation code is incorrect!!");
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("","User Id was invalid!!");
+            }
+            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            return View(activationModel);
+        }
+
+        private bool sendNotificationCode()
+        {
+          
+                  System.Configuration.Configuration webConfig =
+                 System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/docbox/web.config");
+                  System.Configuration.KeyValueConfigurationElement hostEmailId =
+                    webConfig.AppSettings.Settings["adminEmail"];
+                  var allusers = from usertabel in database.DX_USER
+                                 where usertabel.userid == SessionKeyMgmt.UserId
+                                 select usertabel;
+                  if (allusers == null && allusers.ToList().Count != 1)
+                  {
+                      return false;
+                  }
+                  try
+                  {
+                    
+                         string activationcode = generateActivationCode();
+                          allusers.ToList().First().actcodehash = generateHash(activationcode);
+                          EmailMessaging.sendMessage(allusers.ToList().First().userid, "Activation code is:" + activationcode, "Activation Code");
+                          database.SaveChanges();
+
+                     
+                  }catch(Exception e){
+                     
+                      return false;
+
+                  }
+
+                return true;
+           
+        }
+        //GET:/Account/VerifySecret
+
+        public ActionResult VerifySecret()
+        {
+            VerifySecrete model = new VerifySecrete();
+            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            if ("".Equals(SessionKeyMgmt.SecreteQuestion) || SessionKeyMgmt.SecreteQuestion == null)
+            {
+                ModelState.AddModelError("", "Your request is invalid, sorry we cant process it!");
+                SessionKeyMgmt.SecreteQuestion = "";
+                return View(model);
+            }
+           ViewBag.SecQ = SessionKeyMgmt.SecreteQuestion;
+
+          
+            
+            return View(model);
+        }
+
         //GET : /Account/ForgetPassword
 
         public ActionResult ForgetPassword()
         {
             ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            
             return View();
 
         }
+        private bool verifyCaptcha()
+        {
+            string captchaid = Request.Form["CaptchaGuid"];
+            string captchaValue = Request.Form["Captcha"];
+            WebClient captchaCliden = new WebClient();
 
+            string reponseCaptchaService = captchaCliden.DownloadString(
+              "http://www.opencaptcha.com/validate.php?img="
+                + captchaid + "&ans=" + captchaValue);
+
+            if (!"pass".Equals(reponseCaptchaService))
+            {
+                ModelState.AddModelError("", "Captcha didn't match, please try again!");
+                return false;
+            }
+
+            return true;
+        }
         private bool isUserInfoCorrect(ForgetPasswordModel model)
         {
+
+            if (verifyCaptcha() == false)
+            {
+                return false;
+            }
 
             var allusers = from usertabel in database.DX_USER
                            where
                                usertabel.fname == model.FirstName
                                && usertabel.lname == model.LastName
-                               && usertabel.role == model.Position
+                              
                                && usertabel.userid == model.Email
                            select usertabel;
 
-            var allDepartments = from departmentuser in database.DX_USERDEPT
-                                 join department in database.DX_DEPARTMENT
-                                     on departmentuser.deptid equals department.deptid
-                                 where departmentuser.userid == model.Email
-                                 select departmentuser;
+         
             string sQuestion = "";
             //ok if one user and more than one dept
-            if (allusers != null && allDepartments != null && allusers.ToList().Count == 1 && allDepartments.ToList().Count >= 1)
+            if (allusers != null && allusers.ToList().Count == 1)
                 Constants.secrateQuestionList.TryGetValue(allusers.ToList().First().questionid, out sQuestion);
             else
+            {
+                SessionKeyMgmt.SecreteQuestion = "";
+                SessionKeyMgmt.UserId = "";
+               
                 return false;
-            model.Squestion = sQuestion;
-            return allusers.ToList().Count == 1 && allDepartments.ToList().Count >= 1;
+            }
+
+            SessionKeyMgmt.SecreteQuestion = sQuestion;
+            SessionKeyMgmt.UserId = model.Email;
+          
+            return allusers.ToList().Count == 1;
         }
 
 
@@ -362,12 +599,9 @@ namespace docbox.Controllers
         {
             if (ModelState.IsValid)
             {
-
-
                 if (isUserInfoCorrect(model))
                 {
-                    return RedirectToAction("VerifySecret", "Account", model);
-
+                    return RedirectToAction("VerifySecret", "Account");
                 }
                 else
                 {
@@ -385,32 +619,10 @@ namespace docbox.Controllers
 
 
 
-        //
-        // GET:/Account/VerifySecret
-
-        public ActionResult VerifySecret()
-        {
-            return View();
-        }
+       
 
 
-        //
-        //POST: /Account/SendActivationCode
-
-        [HttpPost]
-        public ActionResult SendActivationCode(ForgetPasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-
-
-
-            }
-
-            return View();
-        }
-
-
+       
 
         //
         // GET: /Account/ChangePassword
@@ -421,54 +633,19 @@ namespace docbox.Controllers
             return View();
         }
 
-        //
-        // POST: /Account/ChangePassword
-
-        [Authorize]
-        [HttpPost]
-        public ActionResult ChangePassword(ChangePasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-
-                // ChangePassword will throw an exception rather
-                // than return false in certain failure scenarios.
-                bool changePasswordSucceeded;
-                try
-                {
-                    MembershipUser currentUser = Membership.GetUser(User.Identity.Name, true /* userIsOnline */);
-                    changePasswordSucceeded = currentUser.ChangePassword(model.OldPassword, model.NewPassword);
-                }
-                catch (Exception)
-                {
-                    changePasswordSucceeded = false;
-                }
-
-                if (changePasswordSucceeded)
-                {
-                    return RedirectToAction("ChangePasswordSuccess");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
-                }
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // GET: /Account/ChangePasswordSuccess
-
-        public ActionResult ChangePasswordSuccess()
-        {
-            return View();
-        }
+       
 
         private static string generateSalt()
         {
             byte[] randomSalt = new byte[64];
+            RNGCryptoServiceProvider qualityRandom = new RNGCryptoServiceProvider();
+            qualityRandom.GetBytes(randomSalt);
+            return Convert.ToBase64String(randomSalt);
+        }
+
+        private static string generateActivationCode()
+        {
+            byte[] randomSalt = new byte[10];
             RNGCryptoServiceProvider qualityRandom = new RNGCryptoServiceProvider();
             qualityRandom.GetBytes(randomSalt);
             return Convert.ToBase64String(randomSalt);
@@ -484,8 +661,6 @@ namespace docbox.Controllers
         }
         private static string generateHash(string answer)
         {
-
-
             HashAlgorithm algorithm = new SHA256CryptoServiceProvider();
             byte[] quickHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(answer));
             string hash = Convert.ToBase64String(quickHash);

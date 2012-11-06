@@ -1,9 +1,9 @@
-﻿@model docbox.Models.VerifySecrete
+﻿@model docbox.Models.EnterActivationCode
 @{
-    ViewBag.Title = "VerifySecret";
+    ViewBag.Title = "Enter Activation Code";
 }
 
-<h2>Answer following question</h2>
+<h2>Enter Activation Code</h2>
 
 
 @using (Html.BeginForm())
@@ -11,21 +11,13 @@
     @Html.ValidationSummary(true, "")
     <div>
         <fieldset>
-        
+ 
             <div class="editor-label">
-               Answer question:
-            </div>
-            <div class="editor-label">
-             @ViewBag.SecQ
-             </div>
-        
-
-            <div class="editor-label">
-                @Html.LabelFor(m => m.Answer)
+                @Html.LabelFor(m => m.ActivationCode)
             </div>
             <div class="editor-field">
-                @Html.TextBoxFor(m => m.Answer)
-                @Html.ValidationMessageFor(m => m.Answer)
+                @Html.TextBoxFor(m => m.ActivationCode)
+                @Html.ValidationMessageFor(m => m.ActivationCode)
             </div>
             <div class="editor-label">
             Captcha
@@ -33,7 +25,7 @@
             <div class="editor-field">
             <img src = @Url.Content("http://www.opencaptcha.com/img/"
                   + ViewBag.CaptchaGuid + ".jpgx") alt="Captcha" />
-                  @Html.Hidden("CaptchaGuid", ViewData["CaptchaGuid"])
+                  @Html.Hidden("CaptchaGuid",ViewData["CaptchaGuid"])
             </div>
 
             <div class="editor-label">
@@ -46,12 +38,10 @@
            
    
             <p>
-                <input type="submit" value="Send Reset Code" />
+                <input type="submit" value="Change Password" />
             </p>
         </fieldset>
     </div>
     
     
 }
-
-

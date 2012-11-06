@@ -16,6 +16,9 @@ namespace docbox.Utilities
         //private const String userAuthValue="permissions";// Decide later
         private const string userEmail = "emailAddress";
         private const string userDept = "userDepartment";
+        private const string sQuestion = "secretequestion";
+        private const string notification = "notificationpreference";
+      
         public static List<DX_FILES> SharedFiles
         {
             get
@@ -34,6 +37,8 @@ namespace docbox.Utilities
                 HttpContext.Current.Session[sharedFiles] = value;
             }
         }
+
+      
         public static string UserId
         {
             get
@@ -53,7 +58,28 @@ namespace docbox.Utilities
             }
 
         }
+       
+        public static string SecreteQuestion
+        {
+            get
+            {
+                string secrete = (string)HttpContext.Current.Session[sQuestion];
+                if (secrete == null)
+                {
+                    return "";
+                }
+                return secrete;
 
+            }
+
+            set
+            {
+                HttpContext.Current.Session[sQuestion] = value;
+            }
+
+        }
+      
+       
         public static List<string> UserDept
         {
             get
