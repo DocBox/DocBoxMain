@@ -58,8 +58,7 @@ namespace docbox.Controllers
 
         //GET : //Documents/ListDocuments
 
-        
-
+        [ImportFromTempData]
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult ListDocuments(List<FileModel> model)
         {
@@ -71,7 +70,6 @@ namespace docbox.Controllers
         }
 
         public List<FileModel> getMyDocsModel()
-
         {
             List<FileModel> modelList = new List<FileModel>();
             try
@@ -215,7 +213,7 @@ namespace docbox.Controllers
         //
         // GET: /Documents/Details/5
 
-        public void Details(long id)
+        public void Download(long id)
         {
             DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
             DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==dx_files.fileid);
@@ -241,7 +239,7 @@ namespace docbox.Controllers
 
         //
         // GET: /Documents/Create
-
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Create()
         {
             ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname");
@@ -296,7 +294,55 @@ namespace docbox.Controllers
 
 
 
+        public abstract class TempDataTransfer : ActionFilterAttribute
+        {
+            protected static readonly string Key = typeof(TempDataTransfer).FullName;
+        }
+
+        public class ExportToTempData : TempDataTransfer
+        {
+            public override void OnActionExecuted(ActionExecutedContext filterContext)
+            {
+                //Only export when ModelState is not valid
+                if (!filterContext.Controller.ViewData.ModelState.IsValid)
+                {
+                    //Export if we are redirecting
+                    if ((filterContext.Result is RedirectResult) || (filterContext.Result is RedirectToRouteResult))
+                    {
+                        filterContext.Controller.TempData[Key] = filterContext.Controller.ViewData.ModelState;
+                    }
+                }
+
+                base.OnActionExecuted(filterContext);
+            }
+        }
+
+        public class ImportFromTempData : TempDataTransfer
+        {
+            public override void OnActionExecuted(ActionExecutedContext filterContext)
+            {
+                ModelStateDictionary modelState = filterContext.Controller.TempData[Key] as ModelStateDictionary;
+
+                if (modelState != null)
+                {
+                    //Only Import if we are viewing
+                    if (filterContext.Result is ViewResult)
+                    {
+                        filterContext.Controller.ViewData.ModelState.Merge(modelState);
+                    }
+                    else
+                    {
+                        //Otherwise remove it.
+                        filterContext.Controller.TempData.Remove(Key);
+                    }
+                }
+
+                base.OnActionExecuted(filterContext);
+            }
+        }
+
         [HttpPost]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Create(DX_FILES dx_files)
         {
@@ -312,7 +358,7 @@ namespace docbox.Controllers
                     string userid = SessionKeyMgmt.UserId;
 
                     //Setting properties of the file object
-                    dx_files.creationdate = System.DateTime.Now;
+                    
                     string description = Request.Params.Get("description");
                     if (description.Length != 0)
                     {
@@ -340,14 +386,135 @@ namespace docbox.Controllers
                             // increment the verison number
                             if (existingFiles.Count() != 0)
                             {
-                                dx_files = existingFiles.First();
-                                dx_files.latestversion = dx_files.latestversion + 1;
+                                DX_FILES existingFile = existingFiles.First();
+                                if (existingFile.isarchived == true)
+                                {
+                                    ModelState.AddModelError("", "A file with the same name exists in your archived docs. Cannot upload");
+                                    return View();
+                                }
+                                else
+                                {
+                                    ModelState.AddModelError("", "A file with same name exists in My Docs. Please update the corresponding file");
+                                    return View();
+                                }
                             }
                             else
                             {
                                 // Creating a new file
                                 dx_files.latestversion = 1;
+                                dx_files.creationdate = System.DateTime.Now;
                                 db.DX_FILES.AddObject(dx_files);
+                                db.SaveChanges();
+
+                                DX_USER user = db.DX_USER.Single(d => d.userid == userid);
+                                string accesslevel= user.accesslevel;
+
+                                //Share with the owner
+                                DX_PRIVILEGE empPriv = new DX_PRIVILEGE();
+                                empPriv.fileid = dx_files.fileid;
+                                empPriv.userid = userid;
+                                empPriv.read = true;
+                                empPriv.update = true;
+                                empPriv.write = true;
+                                empPriv.check = true;
+                                db.DX_PRIVILEGE.AddObject(empPriv);
+                                
+                                
+                                //Based on the role, the file should be shared with managers
+                                if ( accesslevel== "employee")
+                                {
+                                    //Getting the dept id of employee
+                                    DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                    int deptid = userdept.deptid;
+
+                                    //Getting the user id of manager
+                                    var managers = from usersTable in db.DX_USER
+                                                  where usersTable.accesslevel == "manager"
+                                                  join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                    select usersTable;
+                                    if (managers.Count() != 0)
+                                    {
+                                        foreach (DX_USER managerUser in managers)
+                                        {
+                                            //Providing manager the respective rights
+                                            string managerId = managerUser.userid;
+                                            DX_PRIVILEGE mgrPriv = new DX_PRIVILEGE();
+                                            mgrPriv.fileid = dx_files.fileid;
+                                            mgrPriv.userid = managerId;
+                                            mgrPriv.read = true;
+                                            mgrPriv.check = true;
+                                            
+                                            mgrPriv.update = true;
+                                            db.DX_PRIVILEGE.AddObject(mgrPriv);
+                                
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ModelState.AddModelError("", "File could not be shared with the manager");
+                                    }
+                                    
+                                }
+                                if (accesslevel == "manager" || accesslevel=="employee")
+                                {
+                                    //Getting the dept id of employee
+                                    DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                    int deptid = userdept.deptid;
+
+                                    var vp = from usersTable in db.DX_USER
+                                             where usersTable.accesslevel == "vp"
+                                             join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                             select usersTable;
+                                    if (vp.Count() != 0)
+                                    {
+                                        foreach (DX_USER vpUser in vp)
+                                        {
+                                            string vpId = vpUser.userid;
+                                            DX_PRIVILEGE vpPriv = new DX_PRIVILEGE();
+                                            vpPriv.fileid = dx_files.fileid;
+                                            vpPriv.userid = vpId;
+                                            vpPriv.read = true;
+                                            vpPriv.check = true;
+
+                                            vpPriv.update = true;
+                                            db.DX_PRIVILEGE.AddObject(vpPriv);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ModelState.AddModelError("", "File could not be shared with the VP");
+                                    }
+                                }
+                                if (accesslevel == "vp" || accesslevel=="manager" || accesslevel=="employee")
+                                {
+                                    var ceo = from usersTable in db.DX_USER
+                                              where usersTable.accesslevel == "ceo"
+                                              select usersTable;
+                                    if(ceo.Count() !=0){
+                                        foreach (DX_USER ceoUser in ceo)
+                                        {
+                                            string ceoId = ceoUser.userid;
+                                            DX_PRIVILEGE ceoPriv = new DX_PRIVILEGE();
+                                            ceoPriv.fileid = dx_files.fileid;
+                                            ceoPriv.userid = ceoId;
+                                            ceoPriv.read = true;
+                                            ceoPriv.check = true;
+                                            
+                                            ceoPriv.update = true;
+                                            db.DX_PRIVILEGE.AddObject(ceoPriv);
+                                        }
+                                    }
+                                    db.SaveChanges();
+                                }
+                                
+                                else
+                                {
+                                    ModelState.AddModelError("", "You are not authorized to upload a file");
+                                    return View();
+                                }
+                                
+                                
                             }
 
                             // Create a new file version object
@@ -415,6 +582,7 @@ namespace docbox.Controllers
 
                             // Show the document list
                             return RedirectToAction("ListDocuments");
+                            
                         }
                         else{
                             throw new Exception("Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
@@ -443,28 +611,72 @@ namespace docbox.Controllers
  
         public ActionResult Edit(long id)
         {
-            DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-            ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
-            ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
-            return View(dx_files);
+            DX_FILES fileObj = db.DX_FILES.Single(d => d.fileid == id);
+            
+            DX_FILEVERSION fileVer = db.DX_FILEVERSION.Single(d => d.fileid == id && d.versionnumber == fileObj.latestversion);
+            ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", fileObj.lockedby);
+            ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", fileObj.ownerid);
+            return View(fileVer);
         }
 
         //
         // POST: /Documents/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(DX_FILES dx_files)
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        public ActionResult Edit(DX_FILEVERSION filever)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.DX_FILES.Attach(dx_files);
-                db.ObjectStateManager.ChangeObjectState(dx_files, EntityState.Modified);
-                db.SaveChanges();
-                return RedirectToAction("ListDocuments");
+                string description = Request.Params.Get("description");
+                if (description.Length != 0)
+                {
+                    string fileidtrap = Request.Params.Get("fileid");
+                    long fileid = long.Parse(fileidtrap.Substring(0, fileidtrap.IndexOf('_')));
+                    int fileversion = int.Parse(fileidtrap.Substring(fileidtrap.IndexOf(' ')));
+                    string userid = SessionKeyMgmt.UserId;
+
+                    DX_FILES mainFile = db.DX_FILES.Single(d => d.fileid == fileid);
+
+                    DX_PRIVILEGE userPriv = db.DX_PRIVILEGE.Single(d => d.fileid == fileid && d.userid == userid);
+
+                    if (userPriv.update == true)
+                    {
+
+                        DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileid && d.versionnumber == fileversion);
+
+                        if (fileObj.description != description)
+                        {
+                            fileObj.updatedate = System.DateTime.Now;
+                            fileObj.description = description;
+                            fileObj.updatedby = SessionKeyMgmt.UserId;
+                            db.ObjectStateManager.ChangeObjectState(fileObj, EntityState.Modified);
+                            db.SaveChanges();
+                            return RedirectToAction("ListDocuments");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "File description is same as earlier and hence not updated");
+                            return View();
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "You do not have edit permissions on this file");
+                        return View();
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Please enter a valid description");
+                    return View();
+                }
             }
-            ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", dx_files.lockedby);
-            ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", dx_files.ownerid);
-            return View(dx_files);
+            catch (Exception e)
+            {
+                ModelState.AddModelError("","Exception occured while editing the document");
+                return View();
+            }
         }
 
         //
@@ -487,17 +699,25 @@ namespace docbox.Controllers
             {
                 string user = SessionKeyMgmt.UserId;
                 DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-                if (user == dx_files.ownerid)
+                if (dx_files.islocked != true)
                 {
-                    long fileid = dx_files.fileid;
-                    db.DX_FILES.DeleteObject(dx_files);
-                    db.SaveChanges();
-                    return RedirectToAction("ListDocuments");
+                    if (user == dx_files.ownerid)
+                    {
+                        long fileid = dx_files.fileid;
+                        db.DX_FILES.DeleteObject(dx_files);
+                        db.SaveChanges();
+                        return RedirectToAction("ListDocuments");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "You do not have privileges to delete this file");
+                        return View();
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "You do not have privileges to delete this file");
-                    
+                    ModelState.AddModelError("", "The file has been checked out by other user and cannot be deleted");
+                    return View();
                 }
             }
             catch (Exception e)

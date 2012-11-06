@@ -4,62 +4,70 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>Download Document</h2>
 
+<script type="text/javascript">
+    function isEncrypted(encrypted) {
+        var selected = document.getElementById("dropdown").value;
+        if(encrypted=="true")
+            document.getElementById("keyFile").disabled = false;
+        else
+            document.getElementById("keyFile").disabled=true;
+    }
+</script>
+
+<form class="form-horizontal" name="mainform" method="post">
 <fieldset>
-    <legend>DX_FILES</legend>
+    <input type="hidden" name="fileid" value="@ViewData["fileid"]" />
 
-    <div class="display-label">filename</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.filename)
+    <div class="control-group">
+    <label class="control-label"  for="file">File Name</label>
+    <div class="control-group">
+    <label class="control-label" for"filename" value="@ViewData["filename"]"/>
+    </div>
     </div>
 
-    <div class="display-label">parentpath</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.parentpath)
-    </div>
+    @{ 
+        int count = 0;
+        
+        var fileversions = (string[])ViewData["fileversions"];
+        foreach(string fileversion in fileversions){
+            count++;
+        }
+        string[] version = new string[count];
+        for (int j = 0; j < count; j++)
+            version[j] = fileversions[j];
+    }      
 
-    <div class="display-label">DX_USER1</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.DX_USER1.fname)
-    </div>
+    <div class="control-group">
+    <label class="control-label"  for="file">File Version</label>
+    <div class="controls">
+    <select onchange="isEncrypted()" name="selectdrop" id="dropdown">
+    @{
+        int i=0;
+        for(i=0;i<count;i++)
+         @Html.Raw("<option" + version[i] + ">" + i + "</option>");  
+        }
 
-    <div class="display-label">size</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.size)
+    </select>
     </div>
+    </div>
+    
+    <div class="control-group">
+    <label class="control-label"  for="file">Key File</label>
+    <div class="controls">
+            <input type="file" name="keyFile" id="keyFile" disabled/>
+    </div>
+</div>
 
-    <div class="display-label">isencrypted</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.isencrypted)
-    </div>
+            <div class="control-group">
+           <div class="controls">
+                        <input type="submit" value="Download" class="btn btn-primary"/>
+                        </div>
+                        </div>
 
-    <div class="display-label">isarchived</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.isarchived)
-    </div>
+    
+    @Html.ActionLink("Back to List", "ListDocuments")
+    </fieldset>
+    </form>
 
-    <div class="display-label">islocked</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.islocked)
-    </div>
-
-    <div class="display-label">DX_USER</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.DX_USER.fname)
-    </div>
-
-    <div class="display-label">type</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.type)
-    </div>
-
-    <div class="display-label">creationdate</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.creationdate)
-    </div>
-</fieldset>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id=Model.fileid }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
