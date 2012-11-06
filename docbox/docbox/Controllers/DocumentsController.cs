@@ -57,6 +57,7 @@ namespace docbox.Controllers
                                                         ".tiff", ".tif" };
 
         //GET : //Documents/ListDocuments
+
         
 
         [Authorize(Roles = "employee,manager,ceo,vp")]
@@ -76,6 +77,7 @@ namespace docbox.Controllers
             try
             {
                 var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId && filetabel.isarchived == false select filetabel;
+
                 if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
@@ -249,6 +251,50 @@ namespace docbox.Controllers
 
         //
         // POST: /Documents/Create
+        public abstract class TempDataTransfer : ActionFilterAttribute
+        {
+            protected static readonly string Key = typeof(TempDataTransfer).FullName;
+        }
+        public class ExportToTempData : TempDataTransfer
+        {
+            public override void OnActionExecuted(ActionExecutedContext filterContext)
+            {
+                //Only export when ModelState is not valid
+                if (!filterContext.Controller.ViewData.ModelState.IsValid)
+                {
+                    //Export if we are redirecting
+                    if ((filterContext.Result is RedirectResult) || (filterContext.Result is RedirectToRouteResult))
+                    {
+                        filterContext.Controller.TempData[Key] = filterContext.Controller.ViewData.ModelState;
+                    }
+                }
+                base.OnActionExecuted(filterContext);
+            }
+        }
+
+        public class ImportFromTempData : TempDataTransfer
+        {
+            public override void OnActionExecuted(ActionExecutedContext filterContext)
+            {
+                ModelStateDictionary modelState = filterContext.Controller.TempData[Key] as ModelStateDictionary;
+                if (modelState != null)
+                {
+                    //Only Import if we are viewing
+                    if (filterContext.Result is ViewResult)
+                    {
+                        filterContext.Controller.ViewData.ModelState.Merge(modelState);
+                    }
+                    else
+                    {
+                        //Otherwise remove it.
+                        filterContext.Controller.TempData.Remove(Key);
+                    }
+                }
+                base.OnActionExecuted(filterContext);
+            }
+        }
+
+
 
         [HttpPost]
         [Authorize(Roles = "employee,manager,ceo,vp")]
@@ -464,38 +510,62 @@ namespace docbox.Controllers
 
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "Archive")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Archive(FormCollection form)
         {
             if (ModelState.IsValid)
             {
                 var filesselected = form.GetValues("Select");
                 List<Int64> fileidList = new List<Int64>();
-                filesselected.ToList();
-                foreach (var fileid in filesselected)
-                    fileidList.Add(Convert.ToInt64(fileid));
+                if (filesselected != null && filesselected.ToList().Count>0)
+                {
+                    foreach (var fileid in filesselected)
+                        fileidList.Add(Convert.ToInt64(fileid));
 
-                var archivedfiles = from filetable in db.DX_FILES where fileidList.Contains(filetable.fileid) && filetable.islocked==true select filetable;
-                if (archivedfiles != null && archivedfiles.ToList().Count > 0)
-                {
-                    archivedfiles.ToList().ForEach(fm => fm.isarchived = true);
+
+                    var archivedfiles = from filetable in db.DX_FILES where fileidList.Contains(filetable.fileid) select filetable;
+                    if (archivedfiles != null && archivedfiles.ToList().Count > 0)
+                    {
+                        foreach (DX_FILES file in archivedfiles)
+                        {
+
+                            if (file.islocked == false)
+                            {
+                                archivedfiles.ToList().ForEach(fm => fm.isarchived = true);
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "The file is checked-out by someone you cannot archive it at this time");
+                                return RedirectToAction("ListDocuments");
+                            }
+                        }
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch
+                        {
+                            ModelState.AddModelError("", "Some Error occured. Try after sometime!");
+                        }
+                    }
+                    if (archivedfiles.ToList().Count < fileidList.Count)
+                    {
+                        ModelState.AddModelError("", "Some of the files got deleted so it was unable to archive them");
+                        return RedirectToAction("ListDocuments");
+                    }
                 }
-                try
+                else
                 {
-                    db.SaveChanges();
+                    ModelState.AddModelError("", "No Files Selected");
+                    return RedirectToAction("ListDocuments");
                 }
-                catch
-                {
-                    ModelState.AddModelError("", "Some Error occured. Try after sometime!");
-                }
-                return RedirectToAction("ListDocuments");
             }
             
             return RedirectToAction("ListDocuments");
-
-        }
+         }
 
         //GET:/Archived Files on Grid
-        
+       // [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult ArchivedFiles()
         {
             List<FileModel> modelList = new List<FileModel>();
@@ -540,43 +610,49 @@ namespace docbox.Controllers
         // Perform Unarchiving
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "UnArchive")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult UnArchive(FormCollection form)
         {
             if (ModelState.IsValid)
             {
                 var selectedfiles = form.GetValues("Select");
                 List<Int64> fileId = new List<Int64>();
-
-                foreach (var file in selectedfiles)
-                    fileId.Add(Convert.ToInt64(file));
-
-                var archivedfiles = from filetable in db.DX_FILES where fileId.Contains(filetable.fileid) && filetable.isarchived == true select filetable;
-                if (archivedfiles.ToList().Count > 0)
+                if (selectedfiles != null && selectedfiles.ToList().Count > 0)
                 {
-                    foreach (DX_FILES file in archivedfiles)
+                    foreach (var file in selectedfiles)
+                        fileId.Add(Convert.ToInt64(file));
+
+                    var archivedfiles = from filetable in db.DX_FILES where fileId.Contains(filetable.fileid) && filetable.isarchived == true select filetable;
+                    if (archivedfiles.ToList().Count > 0 && archivedfiles != null)
                     {
-                        file.isarchived = false;
+                        foreach (DX_FILES file in archivedfiles)
+                        {
+                            file.isarchived = false;
+                        }
                     }
+                    else
+                    {
+                        ModelState.AddModelError("", "No files selected for unarchiving");
+                        return RedirectToAction("ArchivedFiles");
+                    }
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch
+                    {
+                        ModelState.AddModelError("", "Some error occured. Please try after sometime!");
+                        return RedirectToAction("ArchivedFiles");
+                    }
+                    return RedirectToAction("ArchivedFiles");
                 }
                 else
                 {
                     ModelState.AddModelError("", "No files selected for unarchiving");
+                    return RedirectToAction("ArchivedFiles");
                 }
-                try
-                {
-                    db.SaveChanges();
-                }
-                catch
-                {
-                    ModelState.AddModelError("", "Some error occured. Please try after sometime!");
-                    return RedirectToAction("ListDocuments");
-                }
-                return RedirectToAction("ArchivedFiles");
             }
-            else
-            {
-                return RedirectToAction("ArchivedFiles");
-            }
+                    return RedirectToAction("ArchivedFiles");
         }
 
         private void populateUsersList()
@@ -588,15 +664,16 @@ namespace docbox.Controllers
 
 
         [HttpPost]
-        [MultipleButton(Name = "action", Argument = "Share")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [Authorize(Roles = "employee,manager,ceo,vp")]
+        [MultipleButton(Name = "action", Argument = "Share")]
         public ActionResult Share(FormCollection form)
         {
-
             var fileselected = form.GetValues("Select");
             List<Int64> listoffiles = new List<Int64>();
             ShareDocuments model = new ShareDocuments();
-            if (fileselected != null)
+            
+            if (fileselected != null && fileselected.ToList().Count>0)
             {
                 fileselected.ToList();
                 foreach (var file in fileselected)
@@ -608,13 +685,18 @@ namespace docbox.Controllers
                     model.Files = shareFiles.ToList();
                     SessionKeyMgmt.SharedFiles = model.Files;
                 }
+                if(listoffiles.Count > shareFiles.ToList().Count)
+                {
+                    ModelState.AddModelError("","Some files got deleted before you shared the documents");
+                    return RedirectToAction("ListDocuments");
+                }
             }
             else
             {
                 ModelState.AddModelError("", "No Files Selected!");
-                return RedirectToAction("ListDocuments", "Documents");
+                return RedirectToAction("ListDocuments");
             }
-
+            
             model.shareWithUsers = new List<string>();
             populateUsersList();
             return View(model);
@@ -624,10 +706,10 @@ namespace docbox.Controllers
         //Perform sharing
 
         [HttpPost]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [MultipleButton(Name = "action", Argument = "ShareFiles")]
         public ActionResult ShareFiles(ShareDocuments files)
         {
-
             if (files != null && files.shareWithUsers != null)
             {
                 files.Files = SessionKeyMgmt.SharedFiles;
@@ -652,7 +734,6 @@ namespace docbox.Controllers
                                     existingfile.update = files.update;
                                     existingfile.check = files.check;
                                 }
-
                             }
                             else
                             {
@@ -678,12 +759,10 @@ namespace docbox.Controllers
             else
             {
                 ModelState.AddModelError("", "Please select users!!");
-
             }
             return RedirectToAction("ListDocuments");
-
-
         }
+
  
         protected override void Dispose(bool disposing)
         {

@@ -4,11 +4,12 @@ using System.Linq;
 using System.Web;
 using docbox.Models;
 
+
 namespace docbox.Utilities
 {
     public class DbCommonQueries
     {
-
+        public static dx_docboxEntities db = new dx_docboxEntities();
         public static List<string> getDepartmentName(string userId, dx_docboxEntities database)
         {
             List<string> departmentNames=new List<string>();
@@ -28,6 +29,24 @@ namespace docbox.Utilities
             return departmentNames;
         }
 
+        public static bool FileExistence(Int64 FileID)
+        {
+            var fileIdList = from filetable in db.DX_FILES select filetable;
+            fileIdList.ToList();
+            bool flag = false;
+            foreach (DX_FILES file in fileIdList)
+            {
+                if (file.fileid == FileID)
+                {
+                    flag = true;
+                }
+            }
+            if (flag == false)
+                return false;
+            else
+                return true;
+        }
 
+       
     }
 }

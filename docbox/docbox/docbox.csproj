@@ -223,9 +223,6 @@
     <Content Include="Views\Documents\Upload.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Documents\Archive.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Security\GenerateKey.cshtml" />
   </ItemGroup>
   <ItemGroup>

@@ -8,12 +8,13 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.ComponentModel;
+using System.Data.EntityClient;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
-using System.Data.EntityClient;
-using System.ComponentModel;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
@@ -174,6 +175,7 @@ namespace docbox.Models
         private ObjectSet<DX_USERDEPT> _DX_USERDEPT;
 
         #endregion
+
         #region AddTo Methods
     
         /// <summary>
@@ -225,11 +227,11 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
-    
 
     #endregion
-    
+
     #region Entities
     
     /// <summary>
@@ -256,6 +258,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -310,6 +313,7 @@ namespace docbox.Models
         partial void OnnameChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -336,6 +340,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -374,6 +379,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -620,6 +626,7 @@ namespace docbox.Models
         partial void OncreationdateChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -744,6 +751,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -782,6 +790,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1028,6 +1037,7 @@ namespace docbox.Models
         partial void OnisencryptedChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1108,6 +1118,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1130,7 +1141,8 @@ namespace docbox.Models
         /// <param name="write">Initial value of the write property.</param>
         /// <param name="update">Initial value of the update property.</param>
         /// <param name="check">Initial value of the check property.</param>
-        public static DX_PRIVILEGE CreateDX_PRIVILEGE(global::System.Int64 privilegeid, global::System.Int64 fileid, global::System.String userid, global::System.Boolean read, global::System.Boolean write, global::System.Boolean update, global::System.Boolean check)
+        /// <param name="reason">Initial value of the reason property.</param>
+        public static DX_PRIVILEGE CreateDX_PRIVILEGE(global::System.Int64 privilegeid, global::System.Int64 fileid, global::System.String userid, global::System.Boolean read, global::System.Boolean write, global::System.Boolean update, global::System.Boolean check, global::System.String reason)
         {
             DX_PRIVILEGE dX_PRIVILEGE = new DX_PRIVILEGE();
             dX_PRIVILEGE.privilegeid = privilegeid;
@@ -1140,10 +1152,12 @@ namespace docbox.Models
             dX_PRIVILEGE.write = write;
             dX_PRIVILEGE.update = update;
             dX_PRIVILEGE.check = check;
+            dX_PRIVILEGE.reason = reason;
             return dX_PRIVILEGE;
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1316,8 +1330,33 @@ namespace docbox.Models
         private global::System.Boolean _check;
         partial void OncheckChanging(global::System.Boolean value);
         partial void OncheckChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.String reason
+        {
+            get
+            {
+                return _reason;
+            }
+            set
+            {
+                OnreasonChanging(value);
+                ReportPropertyChanging("reason");
+                _reason = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("reason");
+                OnreasonChanged();
+            }
+        }
+        private global::System.String _reason;
+        partial void OnreasonChanging(global::System.String value);
+        partial void OnreasonChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1398,6 +1437,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1440,6 +1480,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1710,6 +1751,7 @@ namespace docbox.Models
         partial void OnsaltChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -1824,6 +1866,7 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
     
     /// <summary>
@@ -1852,6 +1895,7 @@ namespace docbox.Models
         }
 
         #endregion
+
         #region Primitive Properties
     
         /// <summary>
@@ -1930,6 +1974,7 @@ namespace docbox.Models
         partial void OndeptidChanged();
 
         #endregion
+
     
         #region Navigation Properties
     
@@ -2010,8 +2055,10 @@ namespace docbox.Models
         }
 
         #endregion
+
     }
 
     #endregion
+
     
 }
