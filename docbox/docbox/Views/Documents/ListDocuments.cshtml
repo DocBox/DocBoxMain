@@ -7,15 +7,13 @@
     function updateChk(parameter) {
         $.ajax({
             type: "POST",
-            url: '@Url.Action("CheckInOut", "Documents" )',
+            url: '@Url.Action("CheckInOut","Documents")',
             data: { fileid: parameter },
             success: function () {
             }
         })
     }
-    </script>
-
-@Html.ValidationSummary(true)
+ </script>
 @{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
@@ -37,29 +35,27 @@
                 <ul class="nav">
                     <li class="active"><a class="brand" href="#">MyDocs</a> </li>
                     <li class="divider-vertical">@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
-                    <input type="submit" value="Share" name="action:Share" />
-                    <input type="submit" value="Archive" name="action:ListDocuments" />
+                    <li class="divider-vertical"><input type="submit" value="Share" name="action:Share" /></li>
+                    <li class="divider-vertical"><input type="submit" value="Archive" name="action:Archive" /></li>
+                <li class="divider-vertical">@Html.TextBox("fileName", @conditions1) 
+                <input type="submit" value="Search" name="action:SearchMyDocs" /></li>
+                
                 </ul>
-                <div align="right">@Html.TextBox("fileName", @conditions1)
-                    <input type="submit" name="action:Search" value="Search" />
-                </div>
                 @grid.GetHtml(tableStyle: "webGrid",
-          headerStyle: "webgrid-header",
-        footerStyle: "webgrid-footer",
-         alternatingRowStyle: "webgrid-alternating-row",
-         selectedRowStyle: "webgrid-selected-row",
-         rowStyle: "webgrid-row-style",
-                htmlAttributes: new { id = "myGrid", name = "myGrid" },
-                columns: grid.Columns(
-                                    grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
-                             grid.Column("FileName"),
-                                      grid.Column("Description"),
-                                      grid.Column("FileVersion"),
-                                      grid.Column("Owner"),
-                                      grid.Column("CreationDate"),
-            //grid.Column(format: @<text><div id="AjaxDiv"><input type="checkbox" name="checkLock" id="checkLock" value="@item.FileID" onclick="return updateChk()"/></div></text>),
+                        headerStyle: "webgrid-header",
+                        footerStyle: "webgrid-footer",
+                        alternatingRowStyle: "webgrid-alternating-row",
+                        selectedRowStyle: "webgrid-selected-row",
+                        rowStyle: "webgrid-row-style",
+                        htmlAttributes: new { id = "myGrid", name = "myGrid" },
+                        columns: grid.Columns(
+                              grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
+                              grid.Column("FileName"),
+                              grid.Column("Description"),
+                              grid.Column("FileVersion"),
+                              grid.Column("Owner"),
+                              grid.Column("CreationDate"),            
                  grid.Column(format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
-            //grid.Column("", format: @<input type="checkbox" class="check-box"  id="checkLock" name="checkLock" onClick="location.href='@Url.Action("GetBackQuestion", "GetQuestion", new { QuestionNo = Model.QuestionNo }, null)'" value=@item.FileID @(item.IsLocked == "true" ? new { Checked = "checked" } : null) />),
                  grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
                  grid.Column(format: (item) => Html.ActionButton("", "Delete", "Documents", "icon-remove", new { id = item.FileID })),
                  grid.Column(format: (item) => Html.ActionButton("", "#", "#", "icon-list", new { id = item.FileID })),
@@ -68,4 +64,4 @@
     </div>
 }
 </div>
-</div
+</div>

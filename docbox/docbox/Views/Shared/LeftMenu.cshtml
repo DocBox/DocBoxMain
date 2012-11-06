@@ -4,7 +4,8 @@
     <li class="nav-header"></li>
     <li>@Html.ActionButton("My Docs", "ListDocuments", "Documents", "icon-home",null)</li>
     <li><a href="#"><i class="icon-share"></i> Shared Docs</a> </li>
-    <li><a href="#"><i class="icon-briefcase"></i>Archived </a></li>
+    <li>@Html.ActionButton("Archived","ArchivedFiles","Documents","icon-briefcase",null)</li
+    <li>@Html.ActionButton("Department Files", "DepartmentFiles", "Documents", "icon-",null)</li>
     <li>@Html.ActionButton("Get Key","GenerateKey","Security","icon-folder-close",null)</li>
     <li><a href="#"><i class="icon-user"></i> My Account</a></li>
     </ul>
