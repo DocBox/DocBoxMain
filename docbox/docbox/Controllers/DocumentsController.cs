@@ -108,6 +108,96 @@ namespace docbox.Controllers
             return modelList;
         }
 
+        [Authorize(Roles = "manager,ceo,vp")]
+        public ActionResult DepartmentFiles(List<FileModel> model)
+        {
+            if (null != model)
+            {
+                return View("DepartmentFiles", model);
+            }
+            return View("DepartmentFiles", getDeptDocsModel());
+        }
+
+        private List<string> getRoleHierarchy(string designation)
+        {
+            List<string> accessibleRole = new List<string>();
+            switch (designation)
+            {
+                case "ceo":
+                    {
+                        accessibleRole.Add("vp");
+                        accessibleRole.Add("manager");
+                        accessibleRole.Add("employee");
+                        break;
+                    }
+                case "vp":
+                    {
+                        accessibleRole.Add("manager");
+                        accessibleRole.Add("employee");
+                        break;
+                    }
+                case "manager":
+                    {
+                        accessibleRole.Add("employee");
+                        break;
+                    }
+                default: break;
+            }
+
+            return accessibleRole;
+        }
+
+        private List<FileModel> getDeptDocsModel()
+        {
+            
+            List<FileModel> modelList = new List<FileModel>();
+            try
+            {
+                ////get the role for current user
+                //var userRole = db.DX_USER.Single(d => d.userid == SessionKeyMgmt.UserId).role;
+
+                ////identify all other users in the same department as current user
+                //var otherUsers = from deptTable in db.DX_USERDEPT join userDept in db.DX_USERDEPT on deptTable.deptid equals userDept.deptid where userDept.userid == SessionKeyMgmt.UserId select deptTable.userid;
+
+                ////pull out only those users which are above the hierarchy of current user
+                //var filteredUsers = from userTable in db.DX_USER where otherUsers.Contains(userTable.userid) && getRoleHierarchy(userRole).Contains(userTable.role) select userTable.userid; 
+
+                ////get the files owned by these users and is not archived or shared.
+                //var allFiles = from filetable in db.DX_FILES where filteredUsers.Contains(filetable.ownerid) && filetable.ownerid != SessionKeyMgmt.UserId  && filetable.isarchived == false select filetable;
+
+                var allFiles = from filetable in db.DX_FILES join userprev in db.DX_PRIVILEGE on filetable.fileid equals userprev.fileid where userprev.userid == SessionKeyMgmt.UserId select filetable;
+                if (null != allFiles && allFiles.ToList().Count >= 1)
+                {
+                    foreach (DX_FILES file in allFiles)
+                    {
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid
+                            && versionObj.versionnumber == file.latestversion);
+
+                        FileModel filemodel = new FileModel();
+                        filemodel.FileID = file.fileid.ToString();
+                        filemodel.FileName = file.filename;
+                        filemodel.Owner = file.ownerid;
+                        filemodel.CreationDate = file.creationdate.ToString();
+                        filemodel.Description = fileversion.description;
+                        filemodel.FileVersion = file.latestversion;
+                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
+                        filemodel.LockedBy = file.lockedby;
+                        modelList.Add(filemodel);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No Files available for view");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error getting the document list " + ex.Message);
+            }
+
+            return modelList;
+        }
+        
         public ViewResult Index()
         {
             var dx_files = db.DX_FILES.Include("DX_USER").Include("DX_USER1");
@@ -122,11 +212,23 @@ namespace docbox.Controllers
             {
                 filename = Request["fileName"];
             }
-            return Search(filename, getMyDocsModel());
+            List<FileModel> model = Search(filename, getMyDocsModel());
+            return View("ListDocuments", model);
         }
 
+        [MultipleButton(Name = "action", Argument = "SearchMyDeptDocs")]
+        public ActionResult SearchMyDeptDocs()
+        {
+            string filename = "";
+            if (this.Request.Form.AllKeys.Length > 0)
+            {
+                filename = Request["fileName"];
+            }
+            List<FileModel> model = Search(filename, getDeptDocsModel());
+            return View("DepartmentFiles", model);
+        }
 
-        public ActionResult Search(string fileTitle, List<FileModel> model)
+        public List<FileModel> Search(string fileTitle, List<FileModel> model)
         {
             if (ModelState.IsValid)
             {
@@ -153,7 +255,7 @@ namespace docbox.Controllers
                                 select s).ToList();
                 model = result;
             }
-            return View("ListDocuments", model);
+            return model;
         }
 
         private static string GetSearchConditionValue(IDictionary<string, string> searchConditions, string key)
@@ -167,47 +269,59 @@ namespace docbox.Controllers
             return tempValue;
         }
 
+        private void SaveCheckInOut(string fileid)
+        {
+            if (ModelState.IsValid)
+            {
+                long intID = Convert.ToInt64(fileid);
+                var dx_files = from filetabel in db.DX_FILES where filetabel.fileid == intID && filetabel.isarchived == false select filetabel;
+                foreach (DX_FILES dx_file in dx_files)
+                {
+                    if (dx_file != null && dx_file.islocked == true)
+                    {
+                        var lockedBy = dx_file.lockedby;
+                        if (lockedBy == SessionKeyMgmt.UserId)
+                        {
+                            dx_file.islocked = false;
+                            dx_file.lockedby = null;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Permission Denied: The file is locked by user " + lockedBy + ".");
+                        }
+                    }
+                    else
+                    {
+                        dx_file.islocked = true;
+                        dx_file.lockedby = SessionKeyMgmt.UserId;
+                    }
+                }
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    var status = e.StackTrace;
+                    ModelState.AddModelError("Cannot update the database with updated value", status);
+                }
+            }
+        }
+
         [AcceptVerbs(HttpVerbs.Post)]
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult CheckInOut(string fileid)
         {
-            List<FileModel> model = new List<FileModel>();
-            if (ModelState.IsValid)
-            {
-                    long intID = Convert.ToInt64(fileid);
-                    var dx_files = from filetabel in db.DX_FILES where filetabel.fileid == intID && filetabel.isarchived == false select filetabel;
-                    foreach(DX_FILES dx_file in dx_files)
-                    {
-                        if (dx_file != null && dx_file.islocked == true)
-                        {
-                            var lockedBy = dx_file.lockedby;
-                            if (lockedBy == SessionKeyMgmt.UserId)
-                            {
-                                dx_file.islocked = false;
-                                dx_file.lockedby = null;
-                            }
-                            else
-                            {
-                                ModelState.AddModelError("", "Permission Denied: The file is locked by user " + lockedBy + ".");
-                            }
-                        }
-                        else
-                        {
-                            dx_file.islocked = true;
-                            dx_file.lockedby = SessionKeyMgmt.UserId;
-                        }
-                    }
-                    try
-                    {
-                        db.SaveChanges();
-                    }
-                    catch (Exception e)
-                    {
-                        var status = e.StackTrace;
-                        ModelState.AddModelError("Cannot update the database with updated value", status);
-                    }
-            }
+            SaveCheckInOut(fileid);
             return RedirectToAction("ListDocuments");
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        [Authorize(Roles = "manager,ceo,vp")]
+        public ActionResult CheckInOutDept(string fileid)
+        {
+            SaveCheckInOut(fileid);
+            return RedirectToAction("DepartmentFiles");
         }
 
         //
