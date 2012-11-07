@@ -10,7 +10,7 @@ namespace docbox.Controllers
     [DeleteBrowserHistory]
     public class HomeController : Controller
     {
-        [Authorize (Roles="employee,manager,ceo,vp")] 
+        [Authorize (Roles="employee,manager,ceo,vp,guest")] 
         
         public ActionResult Index()
         {

@@ -1,0 +1,6 @@
+﻿
+@if(Request.IsAuthenticated) {
+}
+else {
+    @:[ @Html.ActionLink("Logon as Guest", "LogOnAsGuestUser", "Account") ]
+}

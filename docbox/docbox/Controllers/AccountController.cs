@@ -97,6 +97,69 @@ namespace docbox.Controllers
             return View(model);
         }
 
+        public ActionResult LogOnAsGuestUser( string returnUrl)
+        {
+            LogOnModel model = new LogOnModel();
+            model.UserName = "guest@docbox.com";
+            model.Password = "AmR/O3@Qw5l5Z&o";
+               
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    var allusers = from usertabel in database.DX_USER where usertabel.userid == model.UserName select usertabel;
+                    if (allusers != null && allusers.ToList().Count == 1)
+                    {
+
+                        var UserRecord = allusers.First();
+                        if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
+                        {
+
+                            FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
+
+                            //Set userid in session
+                            SessionKeyMgmt.UserId = model.UserName;
+
+                            //Get the department
+                            SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName, database);
+
+                            //Security checkpoint for preventing open redirect attack
+                            if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
+                                && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
+                            {
+                                return Redirect(returnUrl);
+                            }
+                            else
+                            {
+                                return RedirectToAction("RespectiveHome");
+                            }
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Could not connect to database!!.");
+                    }
+
+
+                }
+                else
+                {
+                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                }
+                // If we got this far, something failed, redisplay form
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Can not process request, please try after some time!");
+            }
+            return View(model);
+        }
+
         // This will take each user to its home depending upon its role!!
         public ActionResult RespectiveHome()
         {
@@ -129,7 +192,7 @@ namespace docbox.Controllers
                 }
                 else if (roles.Contains(Constants.GUEST_USER_ACCESS))
                 {
-                    return RedirectToAction("Index", "TempUser");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
