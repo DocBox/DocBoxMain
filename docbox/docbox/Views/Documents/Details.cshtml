@@ -9,34 +9,43 @@
 <script type="text/javascript">
     function isEncrypted(encrypted) {
         var selected = document.getElementById("dropdown").value;
-        if(encrypted=="true")
+
+        if (selected == "True") {
             document.getElementById("keyFile").disabled = false;
-        else
-            document.getElementById("keyFile").disabled=true;
+            document.getElementById("fileVersion").value = selected;
+            document.getElementById("encryptStatus").value="true";
+        }
+        else {
+            document.getElementById("keyFile").disabled = true;
+            document.getElementById("encryptStatus").value="false";
+        }
     }
 </script>
 
-<form class="form-horizontal" name="mainform" method="post">
+@using (Html.BeginForm("Download", "Documents", FormMethod.Post)){
 <fieldset>
-    <input type="hidden" name="fileid" value="@ViewData["fileid"]" />
-
+    <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
+    <input type="hidden" name="fileVersion" value=1 />
+    <input type='hidden' name="isEncrypted" value="false" />
+    <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
     <div class="control-group">
     <label class="control-label"  for="file">File Name</label>
     <div class="control-group">
-    <label class="control-label" for"filename" value="@ViewData["filename"]"/>
+    @ViewData["fileName"]
     </div>
     </div>
 
     @{ 
         int count = 0;
-        
-        var fileversions = (string[])ViewData["fileversions"];
-        foreach(string fileversion in fileversions){
+
+        var fileversions = (bool[])ViewData["cryptoStatus"];
+        foreach(bool fileversion in fileversions){
             count++;
         }
-        string[] version = new string[count];
-        for (int j = 0; j < count; j++)
+        bool[] version = new bool[count];
+        for (int j = 0; j < count; j++){
             version[j] = fileversions[j];
+        }
     }      
 
     <div class="control-group">
@@ -45,10 +54,10 @@
     <select onchange="isEncrypted()" name="selectdrop" id="dropdown">
     @{
         int i=0;
-        for(i=0;i<count;i++)
-         @Html.Raw("<option" + version[i] + ">" + i + "</option>");  
+        for(i=0;i<count;i++){
+         @Html.Raw("<option value=\"" + version[i] + "\">" + (i+1) + "</option>");  
         }
-
+        }
     </select>
     </div>
     </div>
@@ -62,12 +71,13 @@
 
             <div class="control-group">
            <div class="controls">
-                        <input type="submit" value="Download" class="btn btn-primary"/>
+                        <input type="submit" value="Download" name="action:Details" class="btn btn-primary"/>
                         </div>
                         </div>
 
     
     @Html.ActionLink("Back to List", "ListDocuments")
     </fieldset>
-    </form>
+
+    }
 

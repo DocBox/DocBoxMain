@@ -324,31 +324,194 @@ namespace docbox.Controllers
             return RedirectToAction("DepartmentFiles");
         }
 
+        // GET: /Documents/MyDocDetails/5
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        public ActionResult MyDocDetails(long fileId)
+        {
+            return Details(fileId, "ListDocuments");
+        }
+        
+        // GET: /Documents/SharedDocDetails/
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        public ActionResult SharedDocDetails(long fileId)
+        {
+            // TODO: Check the name of the caller view
+            return Details(fileId, "SharedDocuments");
+        }
+
+        // GET: /Documents/DeptDocDetails/5
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        public ActionResult DeptDocDetails(long fileId)
+        {
+            // TODO: Check the name of the caller view
+            return Details(fileId, "DepartmentDocuments");
+        }
+
         //
         // GET: /Documents/Details/5
-
-        public void Download(long id)
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        private ActionResult Details(long fileId, string callerName)
         {
-            DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-            DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(d => d.fileid==dx_files.fileid);
+            try
+            {
+                // Check if the given fileId is valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                {
+                    throw new FileNotFoundException("File not found!");
+                }
 
-            byte[] FileData = fileversion.filedata;
+                // Get the current user 
+                string currentUserId = SessionKeyMgmt.UserId;
 
-            string fullname = dx_files.filename;
+                // Check if the user has read privileges for the document
+                var privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == currentUserId && r.fileid == fileId);
+                bool hasReadAccess = privileges != null ? privileges.read : false;
 
-            Response.Clear();
-            // Add a HTTP header to the output stream that specifies the default filename
-            // for the browser's download dialog
-            Response.AddHeader("Content-Disposition", "attachment; filename=" + fullname);
-            // Add a HTTP header to the output stream that contains the 
-            // content length(File Size). This lets the browser know how much data is being transfered
-            Response.AddHeader("Content-Length", FileData.Length.ToString());
-            // Set the HTTP MIME type of the output stream
-            Response.ContentType = "application/octet-stream";
+                bool isFileLocked = true;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
 
-            Response.BinaryWrite(FileData);
-            Response.Flush();
+                // Throw an exception if document is locked/archived/access restricted
+                if (isFileLocked == true || dx_files.isarchived == true
+                    || hasReadAccess == false)
+                {
+                    throw new AccessViolationException("Cannot access the file. File not found or access denied!");
+                }
 
+                // Construct an array of boolean values indicating if every version 
+                // is encrypted/decrypted
+                var fileVersions = from fileVersionsTable in db.DX_FILEVERSION
+                                   where fileVersionsTable.fileid == fileId
+                                   select fileVersionsTable;
+
+                if (fileVersions == null)
+                    throw new ArgumentNullException();
+
+                // TODO:
+                // If there is only one version and is unecnryped
+                // simply start the download.
+                // No need to ask for version to be downloaded
+
+                List<bool> cryptoStatus = new List<bool>();
+                foreach (DX_FILEVERSION version in fileVersions)
+                {
+                    bool isThisVersionEncrypted = false;
+                    if (version.isencrypted.HasValue)
+                        isThisVersionEncrypted = (bool)version.isencrypted;
+                    cryptoStatus.Add(isThisVersionEncrypted);
+                }
+
+                if (cryptoStatus.Count == 0)
+                {
+                    throw new InvalidDataException();
+                }
+                
+                // Pass the fileId
+                ViewBag.originalCaller = callerName;
+                ViewBag.fileId = fileId;
+                ViewBag.fileName = dx_files.filename;
+                ViewBag.cryptoStatus = cryptoStatus.ToArray();
+
+                // Pass the filename, list of encrytion values, fileid
+                return View("Details");
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException ||
+                    ex is AccessViolationException)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error reading the document information");
+                }
+
+                // In case of error, return the view where the download was requested from
+                // TODO: Action actions for shared documents and department documents
+                switch (callerName)
+                {
+                    case "ListDocuments": return View("ListDocuments", getMyDocsModel());
+                    default: return View("ListDocuments", getMyDocsModel());
+                }
+            }
+        }
+
+        [HttpPost]
+       // [MultipleButton(Name = "action", Argument = "Details")]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        public ActionResult Download()
+        {
+            string originalView = "ListDocuments";
+            try
+            {
+                // Get the parameters from request
+                long fileId = long.Parse(Request.Params.Get("fileId"));
+                int versionNumber = Convert.ToInt32(Request.Params.Get("fileVersion"));
+                string encryptionStatus = Request.Params.Get("isEncrypted");
+                bool isEncrypted = encryptionStatus.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
+                originalView = Request.Params.Get("originalCaller");
+
+                // Check if the given fileId is valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                {
+                    throw new FileNotFoundException("File not found!");
+                }
+
+                // Get the current user 
+                string currentUserId = SessionKeyMgmt.UserId;
+
+                // Check if the user has read privileges for the document
+                DX_PRIVILEGE privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == currentUserId && r.fileid == fileId);
+                bool hasReadAccess = privileges != null ? privileges.read : false;
+
+                bool isFileLocked = true;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
+
+                // Throw an exception if document is locked/archived/access restricted
+                if (isFileLocked == true || dx_files.isarchived == true
+                    || hasReadAccess == false)
+                {
+                    throw new AccessViolationException("Cannot access the file. File not found or access denied!");
+                }
+
+                // Get the file data
+                DX_FILEVERSION selectedVersion = db.DX_FILEVERSION.SingleOrDefault(d => d.fileid == fileId && d.versionnumber == versionNumber);
+                byte[] fileData = (selectedVersion != null) ? selectedVersion.filedata : null;
+
+                //if (isEncrypted)
+                //{
+                //     Get the encryption key file and perform the decryption
+                //}
+
+                
+                FileContentResult fileRequested = new FileContentResult(fileData, "application/octet-stream");
+                fileRequested.FileDownloadName = dx_files.filename;
+                return fileRequested;
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException)
+                {
+                    // Throw a file not found error
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error downloading the selected document");
+                }
+
+                // On error, return to the page where download was requested from
+                // TODO: Action actions for shared documents and department documents
+                switch (originalView)
+                {
+                    case "ListDocuments": return View("ListDocuments", getMyDocsModel());
+                    default: return View("ListDocuments", getMyDocsModel());
+                }
+            }
         }
 
         //
