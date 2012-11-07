@@ -13,21 +13,21 @@
         if (selected == "True") {
             document.getElementById("keyFile").disabled = false;
             document.getElementById("fileVersion").value = selected;
-            document.getElementById("encryptStatus").value="true";
+            document.getElementById("encStatus").value = "true";
         }
         else {
             document.getElementById("keyFile").disabled = true;
-            document.getElementById("encryptStatus").value="false";
+            document.getElementById("encStatus").value = "false";
         }
     }
 </script>
 
-@using (Html.BeginForm("Download", "Documents", FormMethod.Post)){
+@using (Html.BeginForm("Download", "Documents", FormMethod.Post,new {enctype="multipart/form-data"})){
 <fieldset>
 
     <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
     <input type="hidden" name="fileVersion" value=1 />
-    <input type='hidden' name="isEncrypted" value="false" />
+    <input type='hidden' name="encStatus" value="false" />
     <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
     <div class="control-group">
     <label class="control-label"  for="file">File Name</label>
@@ -67,7 +67,7 @@
     <div class="control-group">
     <label class="control-label"  for="file">Key File</label>
     <div class="controls">
-            <input type="file" name="keyFile" id="keyFile" disabled/>
+            <input type="file" name="keyFile" id="keyFile"/>
     </div>
 </div>
 
@@ -81,5 +81,5 @@
     @Html.ActionLink("Back to List", "ListDocuments")
     </fieldset>
 
-    }
 
+    }

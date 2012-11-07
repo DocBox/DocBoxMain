@@ -379,6 +379,7 @@ namespace docbox.Controllers
 
         // GET: /Documents/MyDocDetails/5
         [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult MyDocDetails(long fileId)
         {
             return Details(fileId, "ListDocuments");
@@ -386,18 +387,19 @@ namespace docbox.Controllers
         
         // GET: /Documents/SharedDocDetails/
         [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult SharedDocDetails(long fileId)
         {
-            // TODO: Check the name of the caller view
-            return Details(fileId, "SharedDocuments");
+            return Details(fileId, "SharedFiles");
         }
 
         // GET: /Documents/DeptDocDetails/5
         [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeptDocDetails(long fileId)
         {
             // TODO: Check the name of the caller view
-            return Details(fileId, "DepartmentDocuments");
+            return Details(fileId, "DepartmentFiles");
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
@@ -411,6 +413,7 @@ namespace docbox.Controllers
         //
         // GET: /Documents/Details/5
         [Authorize(Roles = "employee,manager,ceo,vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         private ActionResult Details(long fileId, string callerName)
         {
             try
@@ -449,11 +452,6 @@ namespace docbox.Controllers
                 if (fileVersions == null)
                     throw new ArgumentNullException();
 
-                // TODO:
-                // If there is only one version and is unecnryped
-                // simply start the download.
-                // No need to ask for version to be downloaded
-
                 List<bool> cryptoStatus = new List<bool>();
                 foreach (DX_FILEVERSION version in fileVersions)
                 {
@@ -490,11 +488,12 @@ namespace docbox.Controllers
                 }
 
                 // In case of error, return the view where the download was requested from
-                // TODO: Action actions for shared documents and department documents
                 switch (callerName)
                 {
-                    case "ListDocuments": return View("ListDocuments", getMyDocsModel());
-                    default: return View("ListDocuments", getMyDocsModel());
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    default: return RedirectToAction("ListDocuments");
                 }
             }
         }
@@ -502,6 +501,7 @@ namespace docbox.Controllers
         [HttpPost]
        // [MultipleButton(Name = "action", Argument = "Details")]
         [Authorize(Roles = "employee,manager,ceo,vp")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Download()
         {
             string originalView = "ListDocuments";
@@ -510,7 +510,7 @@ namespace docbox.Controllers
                 // Get the parameters from request
                 long fileId = long.Parse(Request.Params.Get("fileId"));
                 int versionNumber = Convert.ToInt32(Request.Params.Get("fileVersion"));
-                string encryptionStatus = Request.Params.Get("isEncrypted");
+                string encryptionStatus = Request.Params.Get("selectdrop");
                 bool isEncrypted = encryptionStatus.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
                 originalView = Request.Params.Get("originalCaller");
 
@@ -543,11 +543,42 @@ namespace docbox.Controllers
                 DX_FILEVERSION selectedVersion = db.DX_FILEVERSION.SingleOrDefault(d => d.fileid == fileId && d.versionnumber == versionNumber);
                 byte[] fileData = (selectedVersion != null) ? selectedVersion.filedata : null;
 
-                //if (isEncrypted)
-                //{
-                //     Get the encryption key file and perform the decryption
-                //}
+                if (isEncrypted)
+                {
+                    // Read the encrytion key
+                    if (Request.Files[0].InputStream.Length != 0)
+                    {
+                        HttpPostedFileBase keyFile = Request.Files[0];
+                        System.IO.Stream keyStream = keyFile.InputStream;
+                        byte[] keyData = new byte[keyStream.Length];
+                        keyStream.Read(keyData, 0, (int)keyStream.Length);
 
+                        RijndaelManaged Crypto = new RijndaelManaged();
+                        Crypto.BlockSize = 128;
+                        Crypto.KeySize = 256;
+                        Crypto.Mode = CipherMode.CBC;
+                        Crypto.Padding = PaddingMode.PKCS7;
+                        Crypto.Key = keyData;
+
+                        // Convert the ivString to a byte array
+                        byte[] ivArray = new byte[16];
+                        System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
+                            ivArray, 0, ivArray.Length);
+                        Crypto.IV = ivArray;
+
+                        ICryptoTransform Decryptor = Crypto.CreateDecryptor(Crypto.Key, Crypto.IV);
+                        byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+
+                        // Copy the encrypted data to the file data buffer
+                        Array.Clear(fileData, 0, fileData.Length);
+                        Array.Resize(ref fileData, originalFile.Length);
+                        Array.Copy(originalFile, fileData, originalFile.Length);
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException("Invalid key file given. Please try again!");
+                    }
+                }
                 
                 FileContentResult fileRequested = new FileContentResult(fileData, "application/octet-stream");
                 fileRequested.FileDownloadName = dx_files.filename;
@@ -555,7 +586,7 @@ namespace docbox.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is FileNotFoundException)
+                if (ex is FileNotFoundException || ex is AccessViolationException)
                 {
                     // Throw a file not found error
                     ModelState.AddModelError("", ex.Message);
@@ -566,11 +597,12 @@ namespace docbox.Controllers
                 }
 
                 // On error, return to the page where download was requested from
-                // TODO: Action actions for shared documents and department documents
                 switch (originalView)
                 {
-                    case "ListDocuments": return View("ListDocuments", getMyDocsModel());
-                    default: return View("ListDocuments", getMyDocsModel());
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    default: return RedirectToAction("ListDocuments");
                 }
             }
         }
@@ -712,7 +744,7 @@ namespace docbox.Controllers
                                     empPriv.update = true;
                                     empPriv.reason = "owner";
                                     empPriv.check = true;
-                                    empPriv.write = true;
+                                    empPriv.delete = true;
 
                                     if(accesslevel !="employee" && accesslevel!="manager" && accesslevel!="vp" && accesslevel!="ceo")
                                     {
@@ -745,6 +777,7 @@ namespace docbox.Controllers
                                                 mgrPriv.check = true;
                                                 mgrPriv.update = true;
                                                 mgrPriv.reason = "inherit";
+                                                mgrPriv.delete = true;
 
                                                 //TODO DELETE
                                             }
@@ -774,6 +807,7 @@ namespace docbox.Controllers
                                                 vpPriv.check = true;
                                                 vpPriv.update = true;
                                                 vpPriv.reason = "inherit";
+                                                vpPriv.delete = true;
                                             }
                                         }
 
@@ -795,13 +829,11 @@ namespace docbox.Controllers
                                                 ceoPriv.check = true;
                                                 ceoPriv.update = true;
                                                 ceoPriv.reason = "inherit";
+                                                ceoPriv.delete = true;
                                             }
                                         }
 
                                     }
-
-
-                                    
 
                                     // Create a new file version object
                                     DX_FILEVERSION fileversion = new DX_FILEVERSION();
@@ -893,30 +925,21 @@ namespace docbox.Controllers
                                         mgrPriv.fileid = dx_files.fileid;
                                         db.DX_PRIVILEGE.AddObject(mgrPriv);
                                     }
-                                    else
-                                    {
-                                        ModelState.AddModelError("", "File could not be shared with the manager");
-                                    }
+                                    
 
                                     if (vpCount != 0)
                                     {
                                         vpPriv.fileid = dx_files.fileid;
                                         db.DX_PRIVILEGE.AddObject(vpPriv);
                                     }
-                                    else
-                                    {
-                                        ModelState.AddModelError("", "File could not be shared with the VP");
-                                    }
+                                   
 
                                     if (ceoCount != 0)
                                     {
                                         ceoPriv.fileid = dx_files.fileid;
                                         db.DX_PRIVILEGE.AddObject(ceoPriv);
                                     }
-                                    else
-                                    {
-                                        ModelState.AddModelError("", "File could not be shared with the CEO");
-                                    }
+                                    
 
                                     db.SaveChanges();
 
@@ -1346,6 +1369,7 @@ namespace docbox.Controllers
             return RedirectToAction("ListDocuments");
         }
 
+        [ImportFromTempData]
         public ActionResult SharedFiles()
         {
             var files = from privilegetable in db.DX_PRIVILEGE
