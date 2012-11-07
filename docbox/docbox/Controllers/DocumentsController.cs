@@ -26,17 +26,24 @@ namespace docbox.Controllers
         public override bool IsValidName(ControllerContext controllerContext,
     string actionName, MethodInfo methodInfo)
         {
-            bool isValidName = false;
-            string keyValue = string.Format("{0}:{1}", Name, Argument);
-            var value = controllerContext.Controller.ValueProvider.GetValue(keyValue);
-            if (value != null)
+            try
             {
-                value = new ValueProviderResult(Argument, Argument, null);
-                controllerContext.Controller.ControllerContext.RouteData.Values[Name] = Argument;
-                isValidName = true;
+                bool isValidName = false;
+                string keyValue = string.Format("{0}:{1}", Name, Argument);
+                var value = controllerContext.Controller.ValueProvider.GetValue(keyValue);
+                if (value != null)
+                {
+                    value = new ValueProviderResult(Argument, Argument, null);
+                    controllerContext.Controller.ControllerContext.RouteData.Values[Name] = Argument;
+                    isValidName = true;
+                    return isValidName;
+                }
             }
-
-            return isValidName;
+            catch (HttpException e)
+            {
+                  
+            }
+            return false;
         }
     }
 
@@ -580,247 +587,298 @@ namespace docbox.Controllers
             {
                 if (Request.Files[0].InputStream.Length != 0)
                 {
-                    HttpPostedFileBase file = Request.Files[0];
-                    System.IO.Stream stream = file.InputStream;
-                    byte[] fileData = new byte[stream.Length];
-                    stream.Read(fileData, 0, fileData.Length);
-
-                    string userid = SessionKeyMgmt.UserId;
-
-                    //Setting properties of the file object
-                    
-                    string description = Request.Params.Get("description");
-                    if (description.Length != 0)
+                    if (Request.Files[0].InputStream.Length < (5 * 1024 * 1024))
                     {
-                        dx_files.ownerid = userid;
-                        dx_files.isarchived = false;
-                        dx_files.parentpath = "/" + userid;
-                        dx_files.islocked = false;
+                        HttpPostedFileBase file = Request.Files[0];
+                        System.IO.Stream stream = file.InputStream;
+                        byte[] fileData = new byte[stream.Length];
+                        stream.Read(fileData, 0, fileData.Length);
 
-                        // Get the filename and its extension
-                        string filetype = System.IO.Path.GetExtension(file.FileName);
-                        string filename = System.IO.Path.GetFileName(file.FileName);
-                        string filenamewoext = System.IO.Path.GetFileNameWithoutExtension(file.FileName);
-                        bool validFile = (filenamewoext.IndexOf('.') == -1);
-                        dx_files.type = filetype;
-                        dx_files.filename = filename;
+                        string userid = SessionKeyMgmt.UserId;
 
-                        if(supportedFileTypes.Contains(filetype) && validFile)
+                        //Setting properties of the file object
+
+                        string description = Request.Params.Get("description");
+                        if (description.Length != 0 || description.Length > 75)
                         {
-                            // Find if there are any files with the same filename
-                            var existingFiles = from filesTable in db.DX_FILES 
-                                                where filesTable.ownerid == userid && filesTable.filename == filename
-                                                select filesTable;
+                            dx_files.ownerid = userid;
+                            dx_files.isarchived = false;
+                            dx_files.parentpath = "/" + userid;
+                            dx_files.islocked = false;
 
-                            // If there already existed a document by this name
-                            // increment the verison number
-                            if (existingFiles.Count() != 0)
+                            // Get the filename and its extension
+                            string filetype = System.IO.Path.GetExtension(file.FileName);
+                            string filename = System.IO.Path.GetFileName(file.FileName);
+                            string filenamewoext = System.IO.Path.GetFileNameWithoutExtension(file.FileName);
+                            bool validFile = (filenamewoext.IndexOf('.') == -1);
+                            dx_files.type = filetype;
+                            dx_files.filename = filename;
+
+                            if (supportedFileTypes.Contains(filetype) && validFile)
                             {
-                                DX_FILES existingFile = existingFiles.First();
-                                if (existingFile.isarchived == true)
+                                // Find if there are any files with the same filename
+                                var existingFiles = from filesTable in db.DX_FILES
+                                                    where filesTable.ownerid == userid && filesTable.filename == filename
+                                                    select filesTable;
+
+                                // If there already existed a document by this name
+                                // increment the verison number
+                                if (existingFiles.Count() != 0)
                                 {
-                                    ModelState.AddModelError("", "A file with the same name exists in your archived docs. Cannot upload");
-                                    return View();
+                                    DX_FILES existingFile = existingFiles.First();
+                                    if (existingFile.isarchived == true)
+                                    {
+                                        ModelState.AddModelError("", "A file with the same name exists in your archived docs. Cannot upload");
+                                        return View();
+                                    }
+                                    else
+                                    {
+                                        ModelState.AddModelError("", "A file with same name exists in My Docs. Please update the corresponding file");
+                                        return View();
+                                    }
                                 }
                                 else
                                 {
-                                    ModelState.AddModelError("", "A file with same name exists in My Docs. Please update the corresponding file");
-                                    return View();
-                                }
-                            }
-                            else
-                            {
-                                // Creating a new file
-                                dx_files.latestversion = 1;
-                                dx_files.creationdate = System.DateTime.Now;
-                                db.DX_FILES.AddObject(dx_files);
-                                db.SaveChanges();
+                                    // Creating a new file
+                                    dx_files.latestversion = 1;
+                                    dx_files.creationdate = System.DateTime.Now;
 
-                                DX_USER user = db.DX_USER.Single(d => d.userid == userid);
-                                string accesslevel= user.accesslevel;
+                                    DX_USER user = db.DX_USER.Single(d => d.userid == userid);
+                                    string accesslevel = user.accesslevel;
 
-                                //Share with the owner
-                                DX_PRIVILEGE empPriv = new DX_PRIVILEGE();
-                                empPriv.fileid = dx_files.fileid;
-                                empPriv.userid = userid;
-                                empPriv.read = true;
-                                empPriv.update = true;
-                                empPriv.write = true;
-                                empPriv.check = true;
-                                db.DX_PRIVILEGE.AddObject(empPriv);
-                                
-                                
-                                //Based on the role, the file should be shared with managers
-                                if ( accesslevel== "employee")
-                                {
-                                    //Getting the dept id of employee
-                                    DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
-                                    int deptid = userdept.deptid;
+                                    int vpCount = 0, managerCount = 0, ceoCount = 0;
 
-                                    //Getting the user id of manager
-                                    var managers = from usersTable in db.DX_USER
-                                                  where usersTable.accesslevel == "manager"
-                                                  join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
-                                                    select usersTable;
-                                    if (managers.Count() != 0)
+                                    //Share with the owner
+                                    DX_PRIVILEGE empPriv = new DX_PRIVILEGE();
+                                    DX_PRIVILEGE mgrPriv = new DX_PRIVILEGE();
+                                    DX_PRIVILEGE vpPriv = new DX_PRIVILEGE();
+                                    DX_PRIVILEGE ceoPriv = new DX_PRIVILEGE();
+
+                                    empPriv.userid = userid;
+                                    empPriv.read = true;
+                                    empPriv.update = true;
+                                    empPriv.reason = "owner";
+                                    empPriv.check = true;
+                                    empPriv.write = true;
+
+                                    if(accesslevel !="employee" && accesslevel!="manager" && accesslevel!="vp" && accesslevel!="ceo")
                                     {
-                                        foreach (DX_USER managerUser in managers)
+                                        ModelState.AddModelError("", "You are not authorized to upload a file");
+                                        return View();
+                                    }
+
+                                    //Based on the role, the file should be shared with managers
+                                    if (accesslevel == "employee")
+                                    {
+                                        //Getting the dept id of employee
+                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                        int deptid = userdept.deptid;
+
+                                        //Getting the user id of manager
+                                        var managers = from usersTable in db.DX_USER
+                                                       where usersTable.accesslevel == "manager"
+                                                       join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                       select usersTable;
+                                        if (managers.Count() != 0)
                                         {
-                                            //Providing manager the respective rights
-                                            string managerId = managerUser.userid;
-                                            DX_PRIVILEGE mgrPriv = new DX_PRIVILEGE();
-                                            mgrPriv.fileid = dx_files.fileid;
-                                            mgrPriv.userid = managerId;
-                                            mgrPriv.read = true;
-                                            mgrPriv.check = true;
-                                            
-                                            mgrPriv.update = true;
-                                            db.DX_PRIVILEGE.AddObject(mgrPriv);
-                                
+                                            managerCount = managers.Count();
+                                            foreach (DX_USER managerUser in managers)
+                                            {
+                                                //Providing manager the respective rights
+                                                string managerId = managerUser.userid;
+
+                                                mgrPriv.userid = managerId;
+                                                mgrPriv.read = true;
+                                                mgrPriv.check = true;
+                                                mgrPriv.update = true;
+                                                mgrPriv.reason = "inherit";
+
+                                                //TODO DELETE
+                                            }
                                         }
+
+
+                                    }
+                                    if (accesslevel == "manager" || accesslevel == "employee")
+                                    {
+                                        //Getting the dept id of employee
+                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                        int deptid = userdept.deptid;
+
+                                        var vp = from usersTable in db.DX_USER
+                                                 where usersTable.accesslevel == "vp"
+                                                 join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                 select usersTable;
+                                        if (vp.Count() != 0)
+                                        {
+                                            vpCount = vp.Count();
+                                            foreach (DX_USER vpUser in vp)
+                                            {
+                                                string vpId = vpUser.userid;
+
+                                                vpPriv.userid = vpId;
+                                                vpPriv.read = true;
+                                                vpPriv.check = true;
+                                                vpPriv.update = true;
+                                                vpPriv.reason = "inherit";
+                                            }
+                                        }
+
+                                    }
+                                    if (accesslevel == "vp" || accesslevel == "manager" || accesslevel == "employee")
+                                    {
+                                        var ceo = from usersTable in db.DX_USER
+                                                  where usersTable.accesslevel == "ceo"
+                                                  select usersTable;
+                                        if (ceo.Count() != 0)
+                                        {
+                                            ceoCount = ceo.Count();
+                                            foreach (DX_USER ceoUser in ceo)
+                                            {
+                                                string ceoId = ceoUser.userid;
+
+                                                ceoPriv.userid = ceoId;
+                                                ceoPriv.read = true;
+                                                ceoPriv.check = true;
+                                                ceoPriv.update = true;
+                                                ceoPriv.reason = "inherit";
+                                            }
+                                        }
+
+                                    }
+
+
+                                    
+
+                                    // Create a new file version object
+                                    DX_FILEVERSION fileversion = new DX_FILEVERSION();
+                                    fileversion.isencrypted = false;
+
+                                    // Encrypt the file data if requested
+                                    string encrypted = Request.Params.Get("encrypted");
+                                    if (encrypted == "on")
+                                    {
+                                        // Read the encrytion key
+                                        if (Request.Files[1].InputStream.Length != 0)
+                                        {
+                                            HttpPostedFileBase keyFile = Request.Files[1];
+                                            System.IO.Stream keyStream = keyFile.InputStream;
+                                            byte[] keyData = new byte[keyStream.Length];
+                                            keyStream.Read(keyData, 0, (int)keyStream.Length);
+                                            fileversion.isencrypted = true;
+
+                                            RijndaelManaged Crypto = new RijndaelManaged();
+                                            Crypto.BlockSize = 128;
+                                            Crypto.KeySize = 256;
+                                            Crypto.Mode = CipherMode.CBC;
+                                            Crypto.Padding = PaddingMode.PKCS7;
+                                            Crypto.Key = keyData;
+
+                                            // Convert the ivString to a byte array
+                                            byte[] ivArray = new byte[16];
+                                            System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
+                                                ivArray, 0, ivArray.Length);
+                                            Crypto.IV = ivArray;
+
+                                            ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
+                                            byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+
+                                            // Copy the encrypted data to the file data buffer
+                                            Array.Clear(fileData, 0, fileData.Length);
+                                            Array.Resize(ref fileData, cipherText.Length);
+                                            Array.Copy(cipherText, fileData, cipherText.Length);
+                                        }
+                                        else
+                                        {
+                                            ModelState.AddModelError("", "Please enter a valid keyfile");
+                                            return View();
+                                        }
+                                    }
+
+                                    var allFiles = from fileversions in db.DX_FILEVERSION
+                                                   select fileversions;
+                                    double totalSize = allFiles.Sum(w => w.size);
+                                    totalSize /= (1024 * 1024);
+
+                                    if ((totalSize + (fileData.Length / (1024 * 1024)) > 1024))
+                                    {
+                                        ModelState.AddModelError("", "Disk space exceeded. Please contact admin");
+                                        return View();
+                                    }
+
+                                    // Save changes for the DX_FILES object so the new fileid is
+                                    // auto generated.
+                                    db.DX_FILES.AddObject(dx_files);
+                                    db.SaveChanges();
+
+
+                                    fileversion.versionnumber = (int)dx_files.latestversion;
+                                    fileversion.updatedate = System.DateTime.Now;
+                                    fileversion.description = description;
+                                    fileversion.updatedby = userid;
+
+                                    // Add information about the file version to database
+                                    fileversion.filedata = fileData;
+                                    fileversion.size = fileData.Length;
+
+                                    fileversion.fileid = dx_files.fileid;
+                                    fileversion.versionid = Guid.NewGuid();
+
+                                    db.DX_FILEVERSION.AddObject(fileversion);
+
+                                    empPriv.fileid = dx_files.fileid;
+                                    db.DX_PRIVILEGE.AddObject(empPriv);
+
+                                    if (managerCount != 0)
+                                    {
+                                        mgrPriv.fileid = dx_files.fileid;
+                                        db.DX_PRIVILEGE.AddObject(mgrPriv);
                                     }
                                     else
                                     {
                                         ModelState.AddModelError("", "File could not be shared with the manager");
                                     }
-                                    
-                                }
-                                if (accesslevel == "manager" || accesslevel=="employee")
-                                {
-                                    //Getting the dept id of employee
-                                    DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
-                                    int deptid = userdept.deptid;
 
-                                    var vp = from usersTable in db.DX_USER
-                                             where usersTable.accesslevel == "vp"
-                                             join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
-                                             select usersTable;
-                                    if (vp.Count() != 0)
+                                    if (vpCount != 0)
                                     {
-                                        foreach (DX_USER vpUser in vp)
-                                        {
-                                            string vpId = vpUser.userid;
-                                            DX_PRIVILEGE vpPriv = new DX_PRIVILEGE();
-                                            vpPriv.fileid = dx_files.fileid;
-                                            vpPriv.userid = vpId;
-                                            vpPriv.read = true;
-                                            vpPriv.check = true;
-
-                                            vpPriv.update = true;
-                                            db.DX_PRIVILEGE.AddObject(vpPriv);
-
-                                        }
+                                        vpPriv.fileid = dx_files.fileid;
+                                        db.DX_PRIVILEGE.AddObject(vpPriv);
                                     }
                                     else
                                     {
                                         ModelState.AddModelError("", "File could not be shared with the VP");
                                     }
-                                }
-                                if (accesslevel == "vp" || accesslevel=="manager" || accesslevel=="employee")
-                                {
-                                    var ceo = from usersTable in db.DX_USER
-                                              where usersTable.accesslevel == "ceo"
-                                              select usersTable;
-                                    if(ceo.Count() !=0){
-                                        foreach (DX_USER ceoUser in ceo)
-                                        {
-                                            string ceoId = ceoUser.userid;
-                                            DX_PRIVILEGE ceoPriv = new DX_PRIVILEGE();
-                                            ceoPriv.fileid = dx_files.fileid;
-                                            ceoPriv.userid = ceoId;
-                                            ceoPriv.read = true;
-                                            ceoPriv.check = true;
-                                            
-                                            ceoPriv.update = true;
-                                            db.DX_PRIVILEGE.AddObject(ceoPriv);
-                                        }
+
+                                    if (ceoCount != 0)
+                                    {
+                                        ceoPriv.fileid = dx_files.fileid;
+                                        db.DX_PRIVILEGE.AddObject(ceoPriv);
                                     }
+                                    else
+                                    {
+                                        ModelState.AddModelError("", "File could not be shared with the CEO");
+                                    }
+
                                     db.SaveChanges();
-                                }
-                                
-                                else
-                                {
-                                    ModelState.AddModelError("", "You are not authorized to upload a file");
-                                    return View();
-                                }
-                                
-                                
-                            }
 
-                            // Create a new file version object
-                            DX_FILEVERSION fileversion = new DX_FILEVERSION();
-                            fileversion.isencrypted = false;
-
-                            // Encrypt the file data if requested
-                            string encrypted = Request.Params.Get("encrypted");
-                            if (encrypted == "on")
-                            {                                
-                                // Read the encrytion key
-                                 if (Request.Files[1].InputStream.Length != 0)
-                                {
-                                HttpPostedFileBase keyFile = Request.Files[1];
-                                System.IO.Stream keyStream = keyFile.InputStream;
-                                byte[] keyData = new byte[keyStream.Length];
-                                keyStream.Read(keyData, 0, (int)keyStream.Length);
-                                fileversion.isencrypted = true;
-
-                                RijndaelManaged Crypto = new RijndaelManaged();
-                                Crypto.BlockSize = 128;
-                                Crypto.KeySize = 256;
-                                Crypto.Mode = CipherMode.CBC;
-                                Crypto.Padding = PaddingMode.PKCS7;
-                                Crypto.Key = keyData;
-
-                                // Convert the ivString to a byte array
-                                byte[] ivArray = new byte[16];
-                                System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
-                                    ivArray, 0, ivArray.Length);
-                                Crypto.IV = ivArray;
-
-                                ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
-                                byte[] cipherText = Encryptor.TransformFinalBlock(fileData, 0, fileData.Length);
-
-                                // Copy the encrypted data to the file data buffer
-                                Array.Clear(fileData, 0, fileData.Length);
-                                Array.Resize(ref fileData, cipherText.Length);
-                                Array.Copy(cipherText, fileData, cipherText.Length);
-                                     }
-                                else
-                                {
-                                    ModelState.AddModelError("", "Please enter a valid keyfile");
-                                    return View();
+                                    // Show the document list
+                                    return RedirectToAction("ListDocuments");
                                 }
                             }
-                            
-
-                            // Save changes for the DX_FILES object so the new fileid is
-                            // auto generated.
-                            db.SaveChanges();
-
-                            fileversion.fileid = dx_files.fileid;
-                            fileversion.versionid = Guid.NewGuid();
-                            fileversion.versionnumber = (int)dx_files.latestversion;
-                            fileversion.updatedate = System.DateTime.Now;
-                            fileversion.description = description;
-                            fileversion.updatedby = userid;
-
-                            // Add information about the file version to database
-                            fileversion.filedata = fileData;
-                            fileversion.size = fileData.Length;
-                            db.DX_FILEVERSION.AddObject(fileversion);
-                            db.SaveChanges();
-
-                            // Show the document list
-                            return RedirectToAction("ListDocuments");
-                            
+                            else
+                            {
+                                throw new Exception("Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
+                            }
                         }
-                        else{
-                            throw new Exception("Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
+                        else
+                        {
+                            throw new Exception("Please enter a valid description");
                         }
                     }
                     else
                     {
-                        throw new Exception("Please enter a valid description");
+                        ModelState.AddModelError("", "File size exceeded 5 MB Limit");
+                        return View();
                     }
                 }                
                 else
@@ -859,7 +917,7 @@ namespace docbox.Controllers
             try
             {
                 string description = Request.Params.Get("description");
-                if (description.Length != 0)
+                if (description.Length != 0 || description.Length>75)
                 {
                     string fileidtrap = Request.Params.Get("fileid");
                     long fileid = long.Parse(fileidtrap.Substring(0, fileidtrap.IndexOf('_')));
@@ -929,24 +987,40 @@ namespace docbox.Controllers
             {
                 string user = SessionKeyMgmt.UserId;
                 DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-                if (dx_files.islocked != true)
+                if (dx_files != null)
                 {
-                    if (user == dx_files.ownerid)
+                    if (dx_files.islocked != true)
                     {
-                        long fileid = dx_files.fileid;
-                        db.DX_FILES.DeleteObject(dx_files);
-                        db.SaveChanges();
-                        return RedirectToAction("ListDocuments");
+                        if (dx_files.isarchived != true)
+                        {
+                            //TODO - CHECK IF THE USER HAS DELETE PRIV
+                            if (user == dx_files.ownerid)
+                            {
+                                long fileid = dx_files.fileid;
+                                db.DX_FILES.DeleteObject(dx_files);
+                                db.SaveChanges();
+                                return RedirectToAction("ListDocuments");
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "You do not have privileges to delete this file");
+                                return View();
+                            }
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "The file has been archived. Hence cannot be deleted");
+                        }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "You do not have privileges to delete this file");
+                        ModelState.AddModelError("", "The file has been checked out by other user and cannot be deleted");
                         return View();
                     }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The file has been checked out by other user and cannot be deleted");
+                    ModelState.AddModelError("", "The file has already been deleted");
                     return View();
                 }
             }

@@ -24,6 +24,7 @@
 
 @using (Html.BeginForm("Download", "Documents", FormMethod.Post)){
 <fieldset>
+
     <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
     <input type="hidden" name="fileVersion" value=1 />
     <input type='hidden' name="isEncrypted" value="false" />
@@ -32,6 +33,7 @@
     <label class="control-label"  for="file">File Name</label>
     <div class="control-group">
     @ViewData["fileName"]
+
     </div>
     </div>
 
