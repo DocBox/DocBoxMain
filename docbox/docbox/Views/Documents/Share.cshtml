@@ -30,20 +30,14 @@
     </ul>
      </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.read)    
-       @Html.LabelFor(m => m.read) 
-     </div>
-    <div class="editor-label">
-       @Html.CheckBoxFor(m => m.write)  
-       @Html.LabelFor(m => m.write) 
-    </div>
-    <div class="editor-label">
        @Html.CheckBoxFor(m => m.update)  
        @Html.LabelFor(m => m.update) 
+       @Html.Label("Updating the meta-data of the file");
     </div>
     <div class="editor-label">
        @Html.CheckBoxFor(m => m.check)   
        @Html.LabelFor(m => m.check) 
+       @Html.Label("Updating a the current file");
     </div>
     <input type="submit" value="Share" name="action:ShareFiles"/>
 

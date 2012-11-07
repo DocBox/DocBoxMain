@@ -1,0 +1,63 @@
+﻿@model List<docbox.Models.FileShared>
+@{
+    ViewBag.Title = "ListDocuments";
+    Layout = "~/Views/Shared/_DocumentLayout.cshtml";
+}
+<script language="javascript" type="text/javascript">
+    function updateChk(parameter) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("CheckInOut","Documents")',
+            data: { fileid: parameter },
+            success: function () {
+            }
+        })
+    }
+</script>
+@Html.ValidationSummary(true,"")
+
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage:10);
+   grid.Pager(WebGridPagerModes.NextPrevious); 
+}
+<div class="navbar">
+    <div class="navbar-inner">
+        @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
+        {
+            IDictionary<string, string> searchConditions = new Dictionary<string, string>();
+
+            if (TempData["SearchConditions"] != null)
+            {
+                searchConditions = TempData["SearchConditions"] as Dictionary<string, string>;
+            }
+
+            this.TempData["SearchConditions"] = searchConditions;
+
+            string conditions1 = searchConditions.Keys.Contains("fileName") ? searchConditions["fileName"] : string.Empty;
+            <div class="container">
+                <ul class="nav">
+                    <li class="active"><a class="brand" href="#">MyDocs</a> </li>
+                    <li class="divider-vertical">@Html.TextBox("fileName", @conditions1) 
+                <input type="submit" value="Search" name="action:SearchMyDocs" /></li>
+                </ul>
+                @grid.GetHtml(tableStyle: "webGrid",
+                        headerStyle: "webgrid-header",
+                        footerStyle: "webgrid-footer",
+                        alternatingRowStyle: "webgrid-alternating-row",
+                        selectedRowStyle: "webgrid-selected-row",
+                        rowStyle: "webgrid-row-style",
+                        htmlAttributes: new { id = "myGrid", name = "myGrid" },
+                        columns: grid.Columns(
+                        grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" hidden="hidden" value=@item.FileID  /></text>),
+                        grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
+                        "SharedDocDetails", "Documents", new { @fileId = item.FileId}, null)</text>),
+                        grid.Column("Description"),
+                        grid.Column("FileVersion"),
+                        grid.Column("Owner"),
+                        grid.Column("CreationDate"),
+                        grid.Column("Update",format: (item) => item.update == true ? Html.ActionButton("","update","Documents","icon-pencil",null): Html.Raw("NA")),
+                        grid.Column("Check-in/Out", format: (item) => item.check == true ? Html.CheckBox("checkLock", item.check == true ? false : true, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" }) : Html.Raw("NA"))
+                        ))
+    </div>
+}
+</div>
+</div>

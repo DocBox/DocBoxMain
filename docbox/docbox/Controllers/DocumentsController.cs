@@ -1136,7 +1136,7 @@ namespace docbox.Controllers
          }
 
         //GET:/Archived Files on Grid
-       // [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        //[AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult ArchivedFiles()
         {
             List<FileModel> modelList = new List<FileModel>();
@@ -1228,11 +1228,9 @@ namespace docbox.Controllers
 
         private void populateUsersList()
         {
-            var allusers = from usertabel in db.DX_USER select new { usertabel.userid };
+            var allusers = from usertabel in db.DX_USER where usertabel.userid!=SessionKeyMgmt.UserId select new { usertabel.userid };
             ViewBag.UsersList = allusers != null ? allusers.ToList() : null;
-
         }
-
 
         [HttpPost]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
@@ -1267,11 +1265,9 @@ namespace docbox.Controllers
                 ModelState.AddModelError("", "No Files Selected!");
                 return RedirectToAction("ListDocuments");
             }
-            
             model.shareWithUsers = new List<string>();
             populateUsersList();
             return View(model);
-
         }
 
         //Perform sharing
@@ -1300,10 +1296,13 @@ namespace docbox.Controllers
                             {
                                 foreach (DX_PRIVILEGE existingfile in listofsharedfiles)
                                 {
-                                    existingfile.read = files.read;
-                                    existingfile.write = files.write;
-                                    existingfile.update = files.update;
-                                    existingfile.check = files.check;
+                                    if (existingfile.reason != "inherit" && existingfile.reason!="owner")
+                                    {
+                                        existingfile.read = true;
+                                        existingfile.delete = false;
+                                        existingfile.update = files.update;
+                                        existingfile.check = files.check;
+                                    }
                                 }
                             }
                             else
@@ -1311,10 +1310,11 @@ namespace docbox.Controllers
                                 DX_PRIVILEGE sharedfile = new DX_PRIVILEGE();
                                 sharedfile.fileid = fileId;
                                 sharedfile.userid = user;
-                                sharedfile.read = files.read;
-                                sharedfile.write = files.write;
+                                sharedfile.read = true;
+                                sharedfile.delete = false;
                                 sharedfile.update = files.update;
                                 sharedfile.check = files.check;
+                                sharedfile.reason = "shared";
                                 db.DX_PRIVILEGE.AddObject(sharedfile);
                             }
                         }
@@ -1334,7 +1334,44 @@ namespace docbox.Controllers
             return RedirectToAction("ListDocuments");
         }
 
- 
+        public ActionResult SharedFiles()
+        {
+            var files = from privilegetable in db.DX_PRIVILEGE
+                        join filetable in db.DX_FILES
+                        on new { key1 = privilegetable.userid, key2 = privilegetable.fileid,key3=false }
+                            equals new { key1 = SessionKeyMgmt.UserId, key2 = filetable.fileid, key3=filetable.isarchived }
+                        join versiontable in db.DX_FILEVERSION on filetable.fileid equals versiontable.fileid
+                        select new { filetable, privilegetable, versiontable };
+
+            List<FileShared> docs = new List<FileShared>();
+            
+            if (files != null && files.ToList().Count > 0)
+            {
+                foreach(var sharedfile in files)
+                {
+                        FileShared share =new FileShared();                      
+                        share.FileID=sharedfile.filetable.fileid;
+                        share.FileName = sharedfile.filetable.filename;
+                        share.Description = sharedfile.versiontable.description;
+                        share.FileVersion = sharedfile.versiontable.versionnumber;
+                        share.CreationDate = sharedfile.filetable.creationdate;
+                        share.Owner = sharedfile.filetable.ownerid;
+                        share.read = sharedfile.privilegetable.read;
+                        share.delete = sharedfile.privilegetable.delete;
+                        share.update = sharedfile.privilegetable.update;
+                        share.check = sharedfile.privilegetable.check;
+                        docs.Add(share);
+                }
+                return View("SharedFiles",docs);
+            }
+            else
+            {
+                ModelState.AddModelError("", "No files have been shared with you");
+                return View("SharedFiles",docs);
+            }
+            
+        }
+
         protected override void Dispose(bool disposing)
         {
             db.Dispose();

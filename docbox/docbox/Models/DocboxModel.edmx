@@ -4,43 +4,43 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="DX_DOCBOXModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
-        <EntityContainer Name="DX_DOCBOXModelStoreContainer">
-          <EntitySet Name="DX_DEPARTMENT" EntityType="DX_DOCBOXModel.Store.DX_DEPARTMENT" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="DX_FILES" EntityType="DX_DOCBOXModel.Store.DX_FILES" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="DX_FILEVERSION" EntityType="DX_DOCBOXModel.Store.DX_FILEVERSION" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="DX_PRIVILEGE" EntityType="DX_DOCBOXModel.Store.DX_PRIVILEGE" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="DX_USER" EntityType="DX_DOCBOXModel.Store.DX_USER" store:Type="Tables" Schema="dbo" />
-          <EntitySet Name="DX_USERDEPT" EntityType="DX_DOCBOXModel.Store.DX_USERDEPT" store:Type="Tables" Schema="dbo" />
-          <AssociationSet Name="FK__DX_FILES__locked__060DEAE8" Association="DX_DOCBOXModel.Store.FK__DX_FILES__locked__060DEAE8">
+      <Schema Namespace="DocboxModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="DocboxModelStoreContainer">
+          <EntitySet Name="DX_DEPARTMENT" EntityType="DocboxModel.Store.DX_DEPARTMENT" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DX_FILES" EntityType="DocboxModel.Store.DX_FILES" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DX_FILEVERSION" EntityType="DocboxModel.Store.DX_FILEVERSION" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DX_PRIVILEGE" EntityType="DocboxModel.Store.DX_PRIVILEGE" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DX_USER" EntityType="DocboxModel.Store.DX_USER" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="DX_USERDEPT" EntityType="DocboxModel.Store.DX_USERDEPT" store:Type="Tables" Schema="dbo" />
+          <AssociationSet Name="FK__DX_FILES__locked__060DEAE8" Association="DocboxModel.Store.FK__DX_FILES__locked__060DEAE8">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILES" EntitySet="DX_FILES" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILES__owneri__07020F21" Association="DX_DOCBOXModel.Store.FK__DX_FILES__owneri__07020F21">
+          <AssociationSet Name="FK__DX_FILES__owneri__07020F21" Association="DocboxModel.Store.FK__DX_FILES__owneri__07020F21">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILES" EntitySet="DX_FILES" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILEVE__filei__182C9B23" Association="DX_DOCBOXModel.Store.FK__DX_FILEVE__filei__182C9B23">
+          <AssociationSet Name="FK__DX_FILEVE__filei__182C9B23" Association="DocboxModel.Store.FK__DX_FILEVE__filei__182C9B23">
             <End Role="DX_FILES" EntitySet="DX_FILES" />
             <End Role="DX_FILEVERSION" EntitySet="DX_FILEVERSION" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILEVE__updat__1920BF5C" Association="DX_DOCBOXModel.Store.FK__DX_FILEVE__updat__1920BF5C">
+          <AssociationSet Name="FK__DX_FILEVE__updat__1920BF5C" Association="DocboxModel.Store.FK__DX_FILEVE__updat__1920BF5C">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILEVERSION" EntitySet="DX_FILEVERSION" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_PRIVIL__check__0F975522" Association="DX_DOCBOXModel.Store.FK__DX_PRIVIL__check__0F975522">
+          <AssociationSet Name="FK__DX_PRIVIL__check__0F975522" Association="DocboxModel.Store.FK__DX_PRIVIL__check__0F975522">
             <End Role="DX_FILES" EntitySet="DX_FILES" />
             <End Role="DX_PRIVILEGE" EntitySet="DX_PRIVILEGE" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_PRIVIL__useri__108B795B" Association="DX_DOCBOXModel.Store.FK__DX_PRIVIL__useri__108B795B">
+          <AssociationSet Name="FK__DX_PRIVIL__useri__108B795B" Association="DocboxModel.Store.FK__DX_PRIVIL__useri__108B795B">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_PRIVILEGE" EntitySet="DX_PRIVILEGE" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_USERDE__depti__22AA2996" Association="DX_DOCBOXModel.Store.FK__DX_USERDE__depti__22AA2996">
+          <AssociationSet Name="FK__DX_USERDE__depti__22AA2996" Association="DocboxModel.Store.FK__DX_USERDE__depti__22AA2996">
             <End Role="DX_DEPARTMENT" EntitySet="DX_DEPARTMENT" />
             <End Role="DX_USERDEPT" EntitySet="DX_USERDEPT" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_USERDE__useri__21B6055D" Association="DX_DOCBOXModel.Store.FK__DX_USERDE__useri__21B6055D">
+          <AssociationSet Name="FK__DX_USERDE__useri__21B6055D" Association="DocboxModel.Store.FK__DX_USERDE__useri__21B6055D">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_USERDEPT" EntitySet="DX_USERDEPT" />
           </AssociationSet>
@@ -90,7 +90,7 @@
           <Property Name="fileid" Type="bigint" Nullable="false" />
           <Property Name="userid" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="read" Type="bit" Nullable="false" />
-          <Property Name="write" Type="bit" Nullable="false" />
+          <Property Name="delete" Type="bit" Nullable="false" />
           <Property Name="update" Type="bit" Nullable="false" />
           <Property Name="check" Type="bit" Nullable="false" />
           <Property Name="reason" Type="varchar" Nullable="false" MaxLength="50" />
@@ -120,8 +120,8 @@
           <Property Name="deptid" Type="int" Nullable="false" />
         </EntityType>
         <Association Name="FK__DX_FILES__locked__060DEAE8">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.Store.DX_USER" Multiplicity="0..1" />
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.Store.DX_FILES" Multiplicity="*" />
+          <End Role="DX_USER" Type="DocboxModel.Store.DX_USER" Multiplicity="0..1" />
+          <End Role="DX_FILES" Type="DocboxModel.Store.DX_FILES" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -132,8 +132,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILES__owneri__07020F21">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.Store.DX_USER" Multiplicity="1" />
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.Store.DX_FILES" Multiplicity="*" />
+          <End Role="DX_USER" Type="DocboxModel.Store.DX_USER" Multiplicity="1" />
+          <End Role="DX_FILES" Type="DocboxModel.Store.DX_FILES" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -144,10 +144,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILEVE__filei__182C9B23">
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.Store.DX_FILES" Multiplicity="1">
+          <End Role="DX_FILES" Type="DocboxModel.Store.DX_FILES" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_FILEVERSION" Type="DX_DOCBOXModel.Store.DX_FILEVERSION" Multiplicity="*" />
+          <End Role="DX_FILEVERSION" Type="DocboxModel.Store.DX_FILEVERSION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_FILES">
               <PropertyRef Name="fileid" />
@@ -158,10 +158,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILEVE__updat__1920BF5C">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.Store.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.Store.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_FILEVERSION" Type="DX_DOCBOXModel.Store.DX_FILEVERSION" Multiplicity="*" />
+          <End Role="DX_FILEVERSION" Type="DocboxModel.Store.DX_FILEVERSION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -172,10 +172,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_PRIVIL__check__0F975522">
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.Store.DX_FILES" Multiplicity="1">
+          <End Role="DX_FILES" Type="DocboxModel.Store.DX_FILES" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_PRIVILEGE" Type="DX_DOCBOXModel.Store.DX_PRIVILEGE" Multiplicity="*" />
+          <End Role="DX_PRIVILEGE" Type="DocboxModel.Store.DX_PRIVILEGE" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_FILES">
               <PropertyRef Name="fileid" />
@@ -186,10 +186,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_PRIVIL__useri__108B795B">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.Store.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.Store.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_PRIVILEGE" Type="DX_DOCBOXModel.Store.DX_PRIVILEGE" Multiplicity="*" />
+          <End Role="DX_PRIVILEGE" Type="DocboxModel.Store.DX_PRIVILEGE" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -200,10 +200,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_USERDE__depti__22AA2996">
-          <End Role="DX_DEPARTMENT" Type="DX_DOCBOXModel.Store.DX_DEPARTMENT" Multiplicity="1">
+          <End Role="DX_DEPARTMENT" Type="DocboxModel.Store.DX_DEPARTMENT" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_USERDEPT" Type="DX_DOCBOXModel.Store.DX_USERDEPT" Multiplicity="*" />
+          <End Role="DX_USERDEPT" Type="DocboxModel.Store.DX_USERDEPT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_DEPARTMENT">
               <PropertyRef Name="deptid" />
@@ -214,10 +214,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_USERDE__useri__21B6055D">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.Store.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.Store.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_USERDEPT" Type="DX_DOCBOXModel.Store.DX_USERDEPT" Multiplicity="*" />
+          <End Role="DX_USERDEPT" Type="DocboxModel.Store.DX_USERDEPT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -227,46 +227,47 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="DX_DOCBOXModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+      <Schema Namespace="DocboxModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="dx_docboxEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="DX_DEPARTMENT" EntityType="DX_DOCBOXModel.DX_DEPARTMENT" />
-          <EntitySet Name="DX_FILES" EntityType="DX_DOCBOXModel.DX_FILES" />
-          <EntitySet Name="DX_FILEVERSION" EntityType="DX_DOCBOXModel.DX_FILEVERSION" />
-          <EntitySet Name="DX_PRIVILEGE" EntityType="DX_DOCBOXModel.DX_PRIVILEGE" />
-          <EntitySet Name="DX_USER" EntityType="DX_DOCBOXModel.DX_USER" />
-          <EntitySet Name="DX_USERDEPT" EntityType="DX_DOCBOXModel.DX_USERDEPT" />
-          <AssociationSet Name="FK__DX_USERDE__depti__22AA2996" Association="DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996">
+          <EntitySet Name="DX_DEPARTMENT" EntityType="DocboxModel.DX_DEPARTMENT" />
+          <EntitySet Name="DX_FILES" EntityType="DocboxModel.DX_FILES" />
+          <EntitySet Name="DX_FILEVERSION" EntityType="DocboxModel.DX_FILEVERSION" />
+          <EntitySet Name="DX_PRIVILEGE" EntityType="DocboxModel.DX_PRIVILEGE" />
+          <EntitySet Name="DX_USER" EntityType="DocboxModel.DX_USER" />
+          <EntitySet Name="DX_USERDEPT" EntityType="DocboxModel.DX_USERDEPT" />
+          <AssociationSet Name="FK__DX_USERDE__depti__22AA2996" Association="DocboxModel.FK__DX_USERDE__depti__22AA2996">
             <End Role="DX_DEPARTMENT" EntitySet="DX_DEPARTMENT" />
             <End Role="DX_USERDEPT" EntitySet="DX_USERDEPT" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILES__locked__060DEAE8" Association="DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8">
+          <AssociationSet Name="FK__DX_FILES__locked__060DEAE8" Association="DocboxModel.FK__DX_FILES__locked__060DEAE8">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILES" EntitySet="DX_FILES" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILES__owneri__07020F21" Association="DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21">
+          <AssociationSet Name="FK__DX_FILES__owneri__07020F21" Association="DocboxModel.FK__DX_FILES__owneri__07020F21">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILES" EntitySet="DX_FILES" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILEVE__filei__182C9B23" Association="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23">
+          <AssociationSet Name="FK__DX_FILEVE__filei__182C9B23" Association="DocboxModel.FK__DX_FILEVE__filei__182C9B23">
             <End Role="DX_FILES" EntitySet="DX_FILES" />
             <End Role="DX_FILEVERSION" EntitySet="DX_FILEVERSION" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_PRIVIL__check__0F975522" Association="DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522">
+          <AssociationSet Name="FK__DX_PRIVIL__check__0F975522" Association="DocboxModel.FK__DX_PRIVIL__check__0F975522">
             <End Role="DX_FILES" EntitySet="DX_FILES" />
             <End Role="DX_PRIVILEGE" EntitySet="DX_PRIVILEGE" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_FILEVE__updat__1920BF5C" Association="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C">
+          <AssociationSet Name="FK__DX_FILEVE__updat__1920BF5C" Association="DocboxModel.FK__DX_FILEVE__updat__1920BF5C">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_FILEVERSION" EntitySet="DX_FILEVERSION" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_PRIVIL__useri__108B795B" Association="DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B">
+          <AssociationSet Name="FK__DX_PRIVIL__useri__108B795B" Association="DocboxModel.FK__DX_PRIVIL__useri__108B795B">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_PRIVILEGE" EntitySet="DX_PRIVILEGE" />
           </AssociationSet>
-          <AssociationSet Name="FK__DX_USERDE__useri__21B6055D" Association="DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D">
+          <AssociationSet Name="FK__DX_USERDE__useri__21B6055D" Association="DocboxModel.FK__DX_USERDE__useri__21B6055D">
             <End Role="DX_USER" EntitySet="DX_USER" />
             <End Role="DX_USERDEPT" EntitySet="DX_USERDEPT" />
           </AssociationSet>
@@ -277,7 +278,7 @@
           </Key>
           <Property Name="deptid" Type="Int32" Nullable="false" />
           <Property Name="name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
-          <NavigationProperty Name="DX_USERDEPT" Relationship="DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996" FromRole="DX_DEPARTMENT" ToRole="DX_USERDEPT" />
+          <NavigationProperty Name="DX_USERDEPT" Relationship="DocboxModel.FK__DX_USERDE__depti__22AA2996" FromRole="DX_DEPARTMENT" ToRole="DX_USERDEPT" />
         </EntityType>
         <EntityType Name="DX_FILES">
           <Key>
@@ -293,10 +294,10 @@
           <Property Name="lockedby" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="type" Type="String" Nullable="false" MaxLength="20" Unicode="false" FixedLength="false" />
           <Property Name="creationdate" Type="DateTime" Nullable="false" />
-          <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8" FromRole="DX_FILES" ToRole="DX_USER" />
-          <NavigationProperty Name="DX_USER1" Relationship="DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21" FromRole="DX_FILES" ToRole="DX_USER" />
-          <NavigationProperty Name="DX_FILEVERSION" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILES" ToRole="DX_FILEVERSION" />
-          <NavigationProperty Name="DX_PRIVILEGE" Relationship="DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522" FromRole="DX_FILES" ToRole="DX_PRIVILEGE" />
+          <NavigationProperty Name="DX_USER" Relationship="DocboxModel.FK__DX_FILES__locked__060DEAE8" FromRole="DX_FILES" ToRole="DX_USER" />
+          <NavigationProperty Name="DX_USER1" Relationship="DocboxModel.FK__DX_FILES__owneri__07020F21" FromRole="DX_FILES" ToRole="DX_USER" />
+          <NavigationProperty Name="DX_FILEVERSION" Relationship="DocboxModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILES" ToRole="DX_FILEVERSION" />
+          <NavigationProperty Name="DX_PRIVILEGE" Relationship="DocboxModel.FK__DX_PRIVIL__check__0F975522" FromRole="DX_FILES" ToRole="DX_PRIVILEGE" />
         </EntityType>
         <EntityType Name="DX_FILEVERSION">
           <Key>
@@ -312,8 +313,8 @@
           <Property Name="updatedby" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="filedata" Type="Binary" MaxLength="Max" FixedLength="false" />
           <Property Name="isencrypted" Type="Boolean" />
-          <NavigationProperty Name="DX_FILES" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILEVERSION" ToRole="DX_FILES" />
-          <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_FILEVERSION" ToRole="DX_USER" />
+          <NavigationProperty Name="DX_FILES" Relationship="DocboxModel.FK__DX_FILEVE__filei__182C9B23" FromRole="DX_FILEVERSION" ToRole="DX_FILES" />
+          <NavigationProperty Name="DX_USER" Relationship="DocboxModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_FILEVERSION" ToRole="DX_USER" />
         </EntityType>
         <EntityType Name="DX_PRIVILEGE">
           <Key>
@@ -323,12 +324,12 @@
           <Property Name="fileid" Type="Int64" Nullable="false" />
           <Property Name="userid" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="read" Type="Boolean" Nullable="false" />
-          <Property Name="write" Type="Boolean" Nullable="false" />
+          <Property Name="delete" Type="Boolean" Nullable="false" />
           <Property Name="update" Type="Boolean" Nullable="false" />
           <Property Name="check" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="DX_FILES" Relationship="DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522" FromRole="DX_PRIVILEGE" ToRole="DX_FILES" />
-          <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B" FromRole="DX_PRIVILEGE" ToRole="DX_USER" />
-          <Property Type="String" Name="reason" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="reason" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <NavigationProperty Name="DX_FILES" Relationship="DocboxModel.FK__DX_PRIVIL__check__0F975522" FromRole="DX_PRIVILEGE" ToRole="DX_FILES" />
+          <NavigationProperty Name="DX_USER" Relationship="DocboxModel.FK__DX_PRIVIL__useri__108B795B" FromRole="DX_PRIVILEGE" ToRole="DX_USER" />
         </EntityType>
         <EntityType Name="DX_USER">
           <Key>
@@ -345,11 +346,11 @@
           <Property Name="actcodehash" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
           <Property Name="accesslevel" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="salt" Type="String" Nullable="false" MaxLength="200" Unicode="false" FixedLength="false" />
-          <NavigationProperty Name="DX_FILES" Relationship="DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8" FromRole="DX_USER" ToRole="DX_FILES" />
-          <NavigationProperty Name="DX_FILES1" Relationship="DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21" FromRole="DX_USER" ToRole="DX_FILES" />
-          <NavigationProperty Name="DX_FILEVERSION" Relationship="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_USER" ToRole="DX_FILEVERSION" />
-          <NavigationProperty Name="DX_PRIVILEGE" Relationship="DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B" FromRole="DX_USER" ToRole="DX_PRIVILEGE" />
-          <NavigationProperty Name="DX_USERDEPT" Relationship="DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D" FromRole="DX_USER" ToRole="DX_USERDEPT" />
+          <NavigationProperty Name="DX_FILES" Relationship="DocboxModel.FK__DX_FILES__locked__060DEAE8" FromRole="DX_USER" ToRole="DX_FILES" />
+          <NavigationProperty Name="DX_FILES1" Relationship="DocboxModel.FK__DX_FILES__owneri__07020F21" FromRole="DX_USER" ToRole="DX_FILES" />
+          <NavigationProperty Name="DX_FILEVERSION" Relationship="DocboxModel.FK__DX_FILEVE__updat__1920BF5C" FromRole="DX_USER" ToRole="DX_FILEVERSION" />
+          <NavigationProperty Name="DX_PRIVILEGE" Relationship="DocboxModel.FK__DX_PRIVIL__useri__108B795B" FromRole="DX_USER" ToRole="DX_PRIVILEGE" />
+          <NavigationProperty Name="DX_USERDEPT" Relationship="DocboxModel.FK__DX_USERDE__useri__21B6055D" FromRole="DX_USER" ToRole="DX_USERDEPT" />
         </EntityType>
         <EntityType Name="DX_USERDEPT">
           <Key>
@@ -358,14 +359,14 @@
           <Property Name="userdeptid" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="userid" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="deptid" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="DX_DEPARTMENT" Relationship="DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996" FromRole="DX_USERDEPT" ToRole="DX_DEPARTMENT" />
-          <NavigationProperty Name="DX_USER" Relationship="DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D" FromRole="DX_USERDEPT" ToRole="DX_USER" />
+          <NavigationProperty Name="DX_DEPARTMENT" Relationship="DocboxModel.FK__DX_USERDE__depti__22AA2996" FromRole="DX_USERDEPT" ToRole="DX_DEPARTMENT" />
+          <NavigationProperty Name="DX_USER" Relationship="DocboxModel.FK__DX_USERDE__useri__21B6055D" FromRole="DX_USERDEPT" ToRole="DX_USER" />
         </EntityType>
         <Association Name="FK__DX_USERDE__depti__22AA2996">
-          <End Role="DX_DEPARTMENT" Type="DX_DOCBOXModel.DX_DEPARTMENT" Multiplicity="1">
+          <End Role="DX_DEPARTMENT" Type="DocboxModel.DX_DEPARTMENT" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_USERDEPT" Type="DX_DOCBOXModel.DX_USERDEPT" Multiplicity="*" />
+          <End Role="DX_USERDEPT" Type="DocboxModel.DX_USERDEPT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_DEPARTMENT">
               <PropertyRef Name="deptid" />
@@ -376,8 +377,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILES__locked__060DEAE8">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.DX_USER" Multiplicity="0..1" />
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.DX_FILES" Multiplicity="*" />
+          <End Role="DX_USER" Type="DocboxModel.DX_USER" Multiplicity="0..1" />
+          <End Role="DX_FILES" Type="DocboxModel.DX_FILES" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -388,8 +389,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILES__owneri__07020F21">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.DX_USER" Multiplicity="1" />
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.DX_FILES" Multiplicity="*" />
+          <End Role="DX_USER" Type="DocboxModel.DX_USER" Multiplicity="1" />
+          <End Role="DX_FILES" Type="DocboxModel.DX_FILES" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -400,10 +401,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILEVE__filei__182C9B23">
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.DX_FILES" Multiplicity="1">
+          <End Role="DX_FILES" Type="DocboxModel.DX_FILES" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_FILEVERSION" Type="DX_DOCBOXModel.DX_FILEVERSION" Multiplicity="*" />
+          <End Role="DX_FILEVERSION" Type="DocboxModel.DX_FILEVERSION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_FILES">
               <PropertyRef Name="fileid" />
@@ -414,10 +415,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_PRIVIL__check__0F975522">
-          <End Role="DX_FILES" Type="DX_DOCBOXModel.DX_FILES" Multiplicity="1">
+          <End Role="DX_FILES" Type="DocboxModel.DX_FILES" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_PRIVILEGE" Type="DX_DOCBOXModel.DX_PRIVILEGE" Multiplicity="*" />
+          <End Role="DX_PRIVILEGE" Type="DocboxModel.DX_PRIVILEGE" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_FILES">
               <PropertyRef Name="fileid" />
@@ -428,10 +429,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_FILEVE__updat__1920BF5C">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_FILEVERSION" Type="DX_DOCBOXModel.DX_FILEVERSION" Multiplicity="*" />
+          <End Role="DX_FILEVERSION" Type="DocboxModel.DX_FILEVERSION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -442,10 +443,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_PRIVIL__useri__108B795B">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_PRIVILEGE" Type="DX_DOCBOXModel.DX_PRIVILEGE" Multiplicity="*" />
+          <End Role="DX_PRIVILEGE" Type="DocboxModel.DX_PRIVILEGE" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -456,10 +457,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DX_USERDE__useri__21B6055D">
-          <End Role="DX_USER" Type="DX_DOCBOXModel.DX_USER" Multiplicity="1">
+          <End Role="DX_USER" Type="DocboxModel.DX_USER" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="DX_USERDEPT" Type="DX_DOCBOXModel.DX_USERDEPT" Multiplicity="*" />
+          <End Role="DX_USERDEPT" Type="DocboxModel.DX_USERDEPT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="DX_USER">
               <PropertyRef Name="userid" />
@@ -474,63 +475,87 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="DX_DOCBOXModelStoreContainer" CdmEntityContainer="dx_docboxEntities">
-          <EntitySetMapping Name="DX_DEPARTMENT"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_DEPARTMENT"><MappingFragment StoreEntitySet="DX_DEPARTMENT">
-            <ScalarProperty Name="deptid" ColumnName="deptid" />
-            <ScalarProperty Name="name" ColumnName="name" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
-          <EntitySetMapping Name="DX_FILES"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILES"><MappingFragment StoreEntitySet="DX_FILES">
-            <ScalarProperty Name="fileid" ColumnName="fileid" />
-            <ScalarProperty Name="filename" ColumnName="filename" />
-            <ScalarProperty Name="parentpath" ColumnName="parentpath" />
-            <ScalarProperty Name="ownerid" ColumnName="ownerid" />
-            <ScalarProperty Name="latestversion" ColumnName="latestversion" />
-            <ScalarProperty Name="isarchived" ColumnName="isarchived" />
-            <ScalarProperty Name="islocked" ColumnName="islocked" />
-            <ScalarProperty Name="lockedby" ColumnName="lockedby" />
-            <ScalarProperty Name="type" ColumnName="type" />
-            <ScalarProperty Name="creationdate" ColumnName="creationdate" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
-          <EntitySetMapping Name="DX_FILEVERSION"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_FILEVERSION"><MappingFragment StoreEntitySet="DX_FILEVERSION">
-            <ScalarProperty Name="version" ColumnName="version" />
-            <ScalarProperty Name="fileid" ColumnName="fileid" />
-            <ScalarProperty Name="versionid" ColumnName="versionid" />
-            <ScalarProperty Name="versionnumber" ColumnName="versionnumber" />
-            <ScalarProperty Name="updatedate" ColumnName="updatedate" />
-            <ScalarProperty Name="description" ColumnName="description" />
-            <ScalarProperty Name="size" ColumnName="size" />
-            <ScalarProperty Name="updatedby" ColumnName="updatedby" />
-            <ScalarProperty Name="filedata" ColumnName="filedata" />
-            <ScalarProperty Name="isencrypted" ColumnName="isencrypted" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
-          <EntitySetMapping Name="DX_PRIVILEGE"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_PRIVILEGE"><MappingFragment StoreEntitySet="DX_PRIVILEGE">
-            <ScalarProperty Name="reason" ColumnName="reason" />
+        <EntityContainerMapping StorageEntityContainer="DocboxModelStoreContainer" CdmEntityContainer="dx_docboxEntities">
+          <EntitySetMapping Name="DX_DEPARTMENT">
+            <EntityTypeMapping TypeName="DocboxModel.DX_DEPARTMENT">
+              <MappingFragment StoreEntitySet="DX_DEPARTMENT">
+                <ScalarProperty Name="deptid" ColumnName="deptid" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DX_FILES">
+            <EntityTypeMapping TypeName="DocboxModel.DX_FILES">
+              <MappingFragment StoreEntitySet="DX_FILES">
+                <ScalarProperty Name="fileid" ColumnName="fileid" />
+                <ScalarProperty Name="filename" ColumnName="filename" />
+                <ScalarProperty Name="parentpath" ColumnName="parentpath" />
+                <ScalarProperty Name="ownerid" ColumnName="ownerid" />
+                <ScalarProperty Name="latestversion" ColumnName="latestversion" />
+                <ScalarProperty Name="isarchived" ColumnName="isarchived" />
+                <ScalarProperty Name="islocked" ColumnName="islocked" />
+                <ScalarProperty Name="lockedby" ColumnName="lockedby" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="creationdate" ColumnName="creationdate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DX_FILEVERSION">
+            <EntityTypeMapping TypeName="DocboxModel.DX_FILEVERSION">
+              <MappingFragment StoreEntitySet="DX_FILEVERSION">
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="fileid" ColumnName="fileid" />
+                <ScalarProperty Name="versionid" ColumnName="versionid" />
+                <ScalarProperty Name="versionnumber" ColumnName="versionnumber" />
+                <ScalarProperty Name="updatedate" ColumnName="updatedate" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="size" ColumnName="size" />
+                <ScalarProperty Name="updatedby" ColumnName="updatedby" />
+                <ScalarProperty Name="filedata" ColumnName="filedata" />
+                <ScalarProperty Name="isencrypted" ColumnName="isencrypted" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DX_PRIVILEGE">
+            <EntityTypeMapping TypeName="DocboxModel.DX_PRIVILEGE">
+              <MappingFragment StoreEntitySet="DX_PRIVILEGE">
                 <ScalarProperty Name="privilegeid" ColumnName="privilegeid" />
-            <ScalarProperty Name="fileid" ColumnName="fileid" />
-            <ScalarProperty Name="userid" ColumnName="userid" />
-            <ScalarProperty Name="read" ColumnName="read" />
-            <ScalarProperty Name="write" ColumnName="write" />
-            <ScalarProperty Name="update" ColumnName="update" />
-            <ScalarProperty Name="check" ColumnName="check" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
-          <EntitySetMapping Name="DX_USER"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USER"><MappingFragment StoreEntitySet="DX_USER">
-            <ScalarProperty Name="userid" ColumnName="userid" />
-            <ScalarProperty Name="fname" ColumnName="fname" />
-            <ScalarProperty Name="lname" ColumnName="lname" />
-            <ScalarProperty Name="role" ColumnName="role" />
-            <ScalarProperty Name="pwdhash" ColumnName="pwdhash" />
-            <ScalarProperty Name="questionid" ColumnName="questionid" />
-            <ScalarProperty Name="phone" ColumnName="phone" />
-            <ScalarProperty Name="anshash" ColumnName="anshash" />
-            <ScalarProperty Name="actcodehash" ColumnName="actcodehash" />
-            <ScalarProperty Name="accesslevel" ColumnName="accesslevel" />
-            <ScalarProperty Name="salt" ColumnName="salt" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
-          <EntitySetMapping Name="DX_USERDEPT"><EntityTypeMapping TypeName="DX_DOCBOXModel.DX_USERDEPT"><MappingFragment StoreEntitySet="DX_USERDEPT">
-            <ScalarProperty Name="userdeptid" ColumnName="userdeptid" />
-            <ScalarProperty Name="userid" ColumnName="userid" />
-            <ScalarProperty Name="deptid" ColumnName="deptid" />
-          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+                <ScalarProperty Name="fileid" ColumnName="fileid" />
+                <ScalarProperty Name="userid" ColumnName="userid" />
+                <ScalarProperty Name="read" ColumnName="read" />
+                <ScalarProperty Name="delete" ColumnName="delete" />
+                <ScalarProperty Name="update" ColumnName="update" />
+                <ScalarProperty Name="check" ColumnName="check" />
+                <ScalarProperty Name="reason" ColumnName="reason" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DX_USER">
+            <EntityTypeMapping TypeName="DocboxModel.DX_USER">
+              <MappingFragment StoreEntitySet="DX_USER">
+                <ScalarProperty Name="userid" ColumnName="userid" />
+                <ScalarProperty Name="fname" ColumnName="fname" />
+                <ScalarProperty Name="lname" ColumnName="lname" />
+                <ScalarProperty Name="role" ColumnName="role" />
+                <ScalarProperty Name="pwdhash" ColumnName="pwdhash" />
+                <ScalarProperty Name="questionid" ColumnName="questionid" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="anshash" ColumnName="anshash" />
+                <ScalarProperty Name="actcodehash" ColumnName="actcodehash" />
+                <ScalarProperty Name="accesslevel" ColumnName="accesslevel" />
+                <ScalarProperty Name="salt" ColumnName="salt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DX_USERDEPT">
+            <EntityTypeMapping TypeName="DocboxModel.DX_USERDEPT">
+              <MappingFragment StoreEntitySet="DX_USERDEPT">
+                <ScalarProperty Name="userdeptid" ColumnName="userdeptid" />
+                <ScalarProperty Name="userid" ColumnName="userid" />
+                <ScalarProperty Name="deptid" ColumnName="deptid" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -552,52 +577,52 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="DocboxModel">
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_DEPARTMENT" Width="1.5" PointX="0.75" PointY="1.25" Height="1.5956835937499998" IsExpanded="true" />
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_FILES" Width="1.5" PointX="3" PointY="4.25" Height="3.7109993489583317" IsExpanded="true" />
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_FILEVERSION" Width="1.5" PointX="5.25" PointY="4.375" Height="3.3263964843749996" IsExpanded="true" />
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_PRIVILEGE" Width="1.5" PointX="8.25" PointY="4.75" Height="2.7494921874999996" IsExpanded="true" />
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_USER" Width="1.5" PointX="0.75" PointY="4" Height="4.0956022135416656" IsExpanded="true" />
-        <EntityTypeShape EntityType="DX_DOCBOXModel.DX_USERDEPT" Width="1.5" PointX="3" PointY="1.125" Height="1.9802864583333326" IsExpanded="true" />
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_USERDE__depti__22AA2996" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="2.047841796875" />
-          <ConnectorPoint PointX="3" PointY="2.047841796875" />
+        <EntityTypeShape EntityType="DocboxModel.DX_DEPARTMENT" Width="1.5" PointX="0.75" PointY="1.375" Height="1.5956835937499998" IsExpanded="true" />
+        <EntityTypeShape EntityType="DocboxModel.DX_FILES" Width="1.5" PointX="3" PointY="4.375" Height="3.7109993489583317" IsExpanded="true" />
+        <EntityTypeShape EntityType="DocboxModel.DX_FILEVERSION" Width="1.5" PointX="5.25" PointY="4.5" Height="3.3263964843749996" IsExpanded="true" />
+        <EntityTypeShape EntityType="DocboxModel.DX_PRIVILEGE" Width="1.5" PointX="8.25" PointY="4.75" Height="2.9417936197916656" IsExpanded="true" />
+        <EntityTypeShape EntityType="DocboxModel.DX_USER" Width="1.5" PointX="0.75" PointY="4.125" Height="4.0956022135416674" IsExpanded="true" />
+        <EntityTypeShape EntityType="DocboxModel.DX_USERDEPT" Width="1.5" PointX="3" PointY="1.25" Height="1.9802864583333326" IsExpanded="true" />
+        <AssociationConnector Association="DocboxModel.FK__DX_USERDE__depti__22AA2996" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="2.172841796875" />
+          <ConnectorPoint PointX="3" PointY="2.172841796875" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_FILES__locked__060DEAE8" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="6.1054996744791659" />
-          <ConnectorPoint PointX="3" PointY="6.1054996744791659" />
+        <AssociationConnector Association="DocboxModel.FK__DX_FILES__locked__060DEAE8" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="6.2304996744791659" />
+          <ConnectorPoint PointX="3" PointY="6.2304996744791659" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_FILES__owneri__07020F21" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="5.1152498372395829" />
-          <ConnectorPoint PointX="3" PointY="5.1152498372395829" />
+        <AssociationConnector Association="DocboxModel.FK__DX_FILES__owneri__07020F21" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="5.2402498372395829" />
+          <ConnectorPoint PointX="3" PointY="5.2402498372395829" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_FILEVE__filei__182C9B23" ManuallyRouted="false">
-          <ConnectorPoint PointX="4.5" PointY="6.0381982421875" />
-          <ConnectorPoint PointX="5.25" PointY="6.0381982421875" />
+        <AssociationConnector Association="DocboxModel.FK__DX_FILEVE__filei__182C9B23" ManuallyRouted="false">
+          <ConnectorPoint PointX="4.5" PointY="6.1631982421875" />
+          <ConnectorPoint PointX="5.25" PointY="6.1631982421875" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_PRIVIL__check__0F975522" ManuallyRouted="false">
-          <ConnectorPoint PointX="4.5" PointY="7.8624479166666656" />
-          <ConnectorPoint PointX="5.916666666666667" PointY="7.8624479166666648" />
-          <ConnectorPoint PointX="6.083333333333333" PointY="7.8624479166666656" />
-          <ConnectorPoint PointX="8.5104141666666653" PointY="7.8624479166666648" />
-          <ConnectorPoint PointX="8.6770808333333331" PointY="7.8624479166666656" />
-          <ConnectorPoint PointX="9" PointY="7.8624479166666656" />
-          <ConnectorPoint PointX="9" PointY="7.4994921875" />
+        <AssociationConnector Association="DocboxModel.FK__DX_PRIVIL__check__0F975522" ManuallyRouted="false">
+          <ConnectorPoint PointX="4.5" PointY="7.9874479166666656" />
+          <ConnectorPoint PointX="5.916666666666667" PointY="7.9874479166666648" />
+          <ConnectorPoint PointX="6.083333333333333" PointY="7.9874479166666656" />
+          <ConnectorPoint PointX="8.5104141666666653" PointY="7.9874479166666648" />
+          <ConnectorPoint PointX="8.6770808333333331" PointY="7.9874479166666656" />
+          <ConnectorPoint PointX="9" PointY="7.9874479166666656" />
+          <ConnectorPoint PointX="9" PointY="7.6917936197916656" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_FILEVE__updat__1920BF5C" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="8.05955078125" />
-          <ConnectorPoint PointX="6" PointY="8.05955078125" />
-          <ConnectorPoint PointX="6" PointY="7.701396484375" />
+        <AssociationConnector Association="DocboxModel.FK__DX_FILEVE__updat__1920BF5C" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="8.18455078125" />
+          <ConnectorPoint PointX="6" PointY="8.18455078125" />
+          <ConnectorPoint PointX="6" PointY="7.826396484375" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_PRIVIL__useri__108B795B" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="8.0415250651041656" />
-          <ConnectorPoint PointX="8.5937475" PointY="8.0415250651041656" />
-          <ConnectorPoint PointX="8.5937475" PointY="7.4994921875" />
+        <AssociationConnector Association="DocboxModel.FK__DX_PRIVIL__useri__108B795B" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="8.1665250651041656" />
+          <ConnectorPoint PointX="8.5937475" PointY="8.1665250651041656" />
+          <ConnectorPoint PointX="8.5937475" PointY="7.6917936197916656" />
         </AssociationConnector>
-        <AssociationConnector Association="DX_DOCBOXModel.FK__DX_USERDE__useri__21B6055D" ManuallyRouted="false">
-          <ConnectorPoint PointX="2.25" PointY="4" />
-          <ConnectorPoint PointX="2.625" PointY="3.625" />
-          <ConnectorPoint PointX="2.625" PointY="2.6078161276041669" />
-          <ConnectorPoint PointX="3" PointY="2.6078161276041669" />
+        <AssociationConnector Association="DocboxModel.FK__DX_USERDE__useri__21B6055D" ManuallyRouted="false">
+          <ConnectorPoint PointX="2.25" PointY="4.125" />
+          <ConnectorPoint PointX="2.625" PointY="3.75" />
+          <ConnectorPoint PointX="2.625" PointY="2.7328161276041669" />
+          <ConnectorPoint PointX="3" PointY="2.7328161276041669" />
         </AssociationConnector>
       </Diagram>
     </Diagrams>
