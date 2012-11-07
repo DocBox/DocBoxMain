@@ -160,19 +160,10 @@ namespace docbox.Controllers
             List<FileModel> modelList = new List<FileModel>();
             try
             {
-                ////get the role for current user
-                //var userRole = db.DX_USER.Single(d => d.userid == SessionKeyMgmt.UserId).role;
-
-                ////identify all other users in the same department as current user
-                //var otherUsers = from deptTable in db.DX_USERDEPT join userDept in db.DX_USERDEPT on deptTable.deptid equals userDept.deptid where userDept.userid == SessionKeyMgmt.UserId select deptTable.userid;
-
-                ////pull out only those users which are above the hierarchy of current user
-                //var filteredUsers = from userTable in db.DX_USER where otherUsers.Contains(userTable.userid) && getRoleHierarchy(userRole).Contains(userTable.role) select userTable.userid; 
-
-                ////get the files owned by these users and is not archived or shared.
-                //var allFiles = from filetable in db.DX_FILES where filteredUsers.Contains(filetable.ownerid) && filetable.ownerid != SessionKeyMgmt.UserId  && filetable.isarchived == false select filetable;
-
-                var allFiles = from filetable in db.DX_FILES join userprev in db.DX_PRIVILEGE on filetable.fileid equals userprev.fileid where userprev.userid == SessionKeyMgmt.UserId select filetable;
+                //get all the files for the current user which he has inherited.
+                var allFiles = from filetable in db.DX_FILES join userprev in db.DX_PRIVILEGE on filetable.fileid equals userprev.fileid where userprev.userid == SessionKeyMgmt.UserId && userprev.reason=="inherit" select filetable;
+                
+                //if no files exist, throw an error.
                 if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
@@ -194,33 +185,33 @@ namespace docbox.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "No Files available for view");
+                    ModelState.AddModelError("", "No Department Files available for view");
                 }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Error getting the document list " + ex.Message);
+                ModelState.AddModelError("", "Error getting the department document list " + ex.Message);
             }
 
             return modelList;
         }
 
-        private List<FileModel> getPublicFilesModel()
-        {
-            List<FileModel> model = new List<FileModel>();
+        //private List<FileModel> getPublicFilesModel()
+        //{
+        //    List<FileModel> model = new List<FileModel>();
 
-            return model;
-        }
+        //    return model;
+        //}
 
-        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
-        public ActionResult PublicFiles(List<FileModel> model)
-        {
-            if (null != model)
-            {
-                return View("PublicFiles", model);
-            }
-            return View("PublicFiles", getDeptDocsModel());
-        }
+        //[Authorize(Roles = "guest,employee,manager,ceo,vp")]
+        //public ActionResult PublicFiles(List<FileModel> model)
+        //{
+        //    if (null != model)
+        //    {
+        //        return View("PublicFiles", model);
+        //    }
+        //    return View("PublicFiles", getDeptDocsModel());
+        //}
         
         public ViewResult Index()
         {
@@ -287,7 +278,7 @@ namespace docbox.Controllers
                 this.TempData["SearchConditions"] = searchConditions;
                 string fileName = GetConditionValue(searchConditions, "fileName");
                 var result = (from s in model
-                                where (string.IsNullOrEmpty(fileTitle) || s.FileName.StartsWith(fileTitle))
+                                where (string.IsNullOrEmpty(fileTitle) || s.FileName.Contains(fileTitle))
                                 select s).ToList();
                 model = result;
             }
