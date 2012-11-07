@@ -36,7 +36,7 @@ namespace docbox.Models
         { }
         [Required]
         [Display(Name="File Id")]
-        public Int64 FileID { get; set; }
+        public string FileID { get; set; }
 
         [Display(Name = "File Name")]
         public string FileName { get; set; }
@@ -52,7 +52,7 @@ namespace docbox.Models
 
         [DataType(DataType.DateTime)]
         [Display(Name = "Creation Date")]
-        public DateTime CreationDate { get; set; }
+        public string CreationDate { get; set; }
        
         [Display(Name = "Read Access")]
         public bool read { get; set; }

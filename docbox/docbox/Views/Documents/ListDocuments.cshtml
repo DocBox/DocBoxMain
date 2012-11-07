@@ -40,7 +40,7 @@
                     <li class="divider-vertical"><label for="archive" class="btn btn-link"><i class="icon-move"></i>Archive</label>
                         <input id="archive" type="submit" name="action:Archive" value="Go" class="hidden" /></li>
                     <li><label for="txtSearch" class="text-info"></label>
-                        <input id="txtSearch" type="text" name="fileName" value="@conditions1" />               
+                        <input id="txtSearch" type="text" name="fileName" />               
                     <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
                         <input id="search" type="submit" name="action:SearchMyDocs" value="Go" class="hidden" /></li></li>
                 @grid.GetHtml(tableStyle: "webGrid",
@@ -58,7 +58,7 @@
                               grid.Column("FileVersion", header: "Version"),
                               grid.Column("Owner", header: "Created By"),
                               grid.Column("CreationDate", header:" Created On"),
-                 grid.Column(header: "CheckIn"  ,format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
+                              grid.Column(header:"CheckIn/Out"  ,format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
                  grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
                  grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID }))
              ))

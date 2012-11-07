@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -196,6 +196,85 @@ namespace docbox.Controllers
             return modelList;
         }
 
+        private List<FileModel> getArchivedDocsModel()
+        {
+            List<FileModel> model = new List<FileModel>();
+            try
+            {
+                var archivedfiles = from filetable in db.DX_FILES where filetable.isarchived == true && filetable.ownerid == SessionKeyMgmt.UserId select filetable;
+                if (archivedfiles != null && archivedfiles.ToList().Count > 0)
+                {
+                    foreach (DX_FILES file in archivedfiles)
+                    {
+                        DX_FILEVERSION fileversion = db.DX_FILEVERSION.Single(versionObj => versionObj.fileid == file.fileid
+                            && versionObj.versionnumber == file.latestversion);
+                        FileModel archfile = new FileModel();
+                        archfile.FileID = (file.fileid).ToString();
+                        archfile.FileName = file.filename;
+                        archfile.FileVersion = file.latestversion;
+                        archfile.Description = fileversion.description;
+                        archfile.CreationDate = (file.creationdate).ToString();
+                        model.Add(archfile);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "No files have been archived by you");
+                }
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Error getting the archived documents");
+            }
+            return model;
+        }
+
+        private List<FileShared> getSharedDocsModel()
+        {
+            List<FileShared> docs = new List<FileShared>();
+            try
+            {
+                var files = from privilegetable in db.DX_PRIVILEGE
+                            join filetable in db.DX_FILES
+                            on new { key1 = privilegetable.userid, key2 = privilegetable.fileid, key3 = false }
+                                equals new { key1 = SessionKeyMgmt.UserId, key2 = filetable.fileid, key3 = filetable.isarchived }
+                            join versiontable in db.DX_FILEVERSION on filetable.fileid equals versiontable.fileid
+                            select new { filetable, privilegetable, versiontable };
+
+                if (files != null && files.ToList().Count > 0)
+                {
+
+                    foreach (var sharedfile in files)
+                    {
+                        if (sharedfile.filetable.islocked != true)
+                        {
+                            if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                            {
+                                FileShared share = new FileShared();
+                                share.FileID = (sharedfile.filetable.fileid).ToString();
+                                share.FileName = sharedfile.filetable.filename;
+                                share.Description = sharedfile.versiontable.description;
+                                share.FileVersion = sharedfile.versiontable.versionnumber;
+                                share.CreationDate = (sharedfile.filetable.creationdate).ToString();
+                                share.Owner = sharedfile.filetable.ownerid;
+                                share.read = sharedfile.privilegetable.read;
+                                share.delete = sharedfile.privilegetable.delete;
+                                share.update = sharedfile.privilegetable.update;
+                                share.check = sharedfile.privilegetable.check;
+                                docs.Add(share);
+                            }
+                        }
+                    }
+                   
+                }
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Error while getting Shared Documents");
+            }
+            return docs;
+        }
+
         private List<FileModel> getPublicFilesModel()
         {
             List<FileModel> model = new List<FileModel>();
@@ -253,6 +332,60 @@ namespace docbox.Controllers
             }
             List<FileModel> model = Search(filename, getPublicFilesModel());
             return View("PublicFiles", model);
+        }
+
+        [MultipleButton(Name = "action", Argument = "SearchArchivedDocs")]
+        public ActionResult SearchArchivedDocs()
+        {
+            string filename = "";
+            if (this.Request.Form.AllKeys.Length > 0)
+            {
+                filename = Request["fileName"];
+            }
+            List<FileModel> model = Search(filename,getArchivedDocsModel());
+            return View("ArchivedFiles", model);
+        }
+
+        [MultipleButton(Name = "action", Argument = "SearchSharedDocs")]
+        public ActionResult SearchSharedDocs()
+        {
+            string filename = "";
+            if (this.Request.Form.AllKeys.Length > 0)
+            {
+                filename = Request["filename"];
+            }
+            List<FileShared> model = SearchShared(filename, getSharedDocsModel());
+            return View("SharedFiles", model);
+        }
+
+        private List<FileShared> SearchShared(string fileTitle, List<FileShared> model)
+        {
+            if (ModelState.IsValid)
+            {
+                IDictionary<string, string> searchConditions = new Dictionary<string, string>();
+
+                if (!string.IsNullOrEmpty(fileTitle))
+                {
+                    searchConditions.Add("fileName", fileTitle);
+                }
+                else
+                {
+                    object values = null;
+
+                    if (this.TempData.TryGetValue("SearchConditions", out values))
+                    {
+                        searchConditions = values as Dictionary<string, string>;
+                    }
+                }
+
+                this.TempData["SearchConditions"] = searchConditions;
+                string fileName = GetConditionValue(searchConditions, "fileName");
+                var result = (from s in model
+                              where (string.IsNullOrEmpty(fileTitle) || s.FileName.Contains(fileTitle))
+                              select s).ToList();
+                model = result;
+            }
+            return model;
         }
 
         private List<FileModel> Search(string fileTitle, List<FileModel> model)
@@ -314,31 +447,36 @@ namespace docbox.Controllers
                 bool hasAccess = privileges != null ? privileges.check : false;
 
                 // Throw an exception if document is locked/archived/access restricted
-                if (dx_files.isarchived == false || hasAccess)
+                if (dx_files.isarchived == true || !hasAccess)
                 {
                     throw new AccessViolationException("Cannot access the file. File not found or access denied!");
                 }
-                
-                //check if file is locked.
-                if (dx_files.islocked == true)
-                {
-                    var lockedBy = dx_files.lockedby;
 
-                    //if file locked by current user, unlock it
-                    if (lockedBy == SessionKeyMgmt.UserId)
+                try
+                {
+                    //check if file is locked.
+                    if (dx_files.islocked == true)
                     {
-                        dx_files.islocked = false;
-                        dx_files.lockedby = null;
+                        var lockedBy = dx_files.lockedby;
+
+                        //if file locked by current user, unlock it
+                        if (lockedBy == SessionKeyMgmt.UserId)
+                        {
+                            dx_files.islocked = false;
+                            dx_files.lockedby = null;
+                        }
+                        else
+                        {
+                            throw new AccessViolationException("Permission Denied: The file is locked by user " + lockedBy + ".");
+                        }
                     }
                     else
                     {
-                        throw new AccessViolationException("Permission Denied: The file is locked by user " + lockedBy + ".");
+                        dx_files.islocked = true;
+                        dx_files.lockedby = SessionKeyMgmt.UserId;
                     }
-                }
-                else
-                {
-                    dx_files.islocked = true;
-                    dx_files.lockedby = SessionKeyMgmt.UserId;
+                }catch(Exception ex){
+                    ModelState.AddModelError("", "Failed to lock the file: "+ex);
                 }
                 try
                 {
@@ -1053,7 +1191,7 @@ namespace docbox.Controllers
 
         //
         // GET: /Documents/Delete/5
- 
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Delete(long id)
         {
             DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
@@ -1064,7 +1202,8 @@ namespace docbox.Controllers
         // POST: /Documents/Delete/5
 
        // [HttpPost, ActionName("Delete")]
-        
+
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult DeleteConfirmed(long id)
         {
             try
@@ -1119,6 +1258,7 @@ namespace docbox.Controllers
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "Archive")]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Archive(FormCollection form)
         {
             if (ModelState.IsValid)
@@ -1174,6 +1314,7 @@ namespace docbox.Controllers
 
         //GET:/Archived Files on Grid
         //[AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult ArchivedFiles()
         {
             List<FileModel> modelList = new List<FileModel>();
@@ -1219,6 +1360,7 @@ namespace docbox.Controllers
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "UnArchive")]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult UnArchive(FormCollection form)
         {
             if (ModelState.IsValid)
@@ -1288,8 +1430,19 @@ namespace docbox.Controllers
 
                 if (shareFiles != null && shareFiles.ToList().Count > 0)
                 {
-                    model.Files = shareFiles.ToList();
-                    SessionKeyMgmt.SharedFiles = model.Files;
+                    foreach (DX_FILES file in shareFiles)
+                    {
+                        if (file.islocked != true)
+                        {
+                            model.Files = shareFiles.ToList();
+                            SessionKeyMgmt.SharedFiles = model.Files;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "One or more file is checked out please check-In so as to do sharing");
+                            return RedirectToAction("ListDocuments");
+                        }
+                    }
                 }
                 if(listoffiles.Count > shareFiles.ToList().Count)
                 {
@@ -1312,6 +1465,7 @@ namespace docbox.Controllers
         [HttpPost]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [MultipleButton(Name = "action", Argument = "ShareFiles")]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult ShareFiles(ShareDocuments files)
         {
             if (files != null && files.shareWithUsers != null)
@@ -1372,6 +1526,7 @@ namespace docbox.Controllers
         }
 
         [ImportFromTempData]
+        [Authorize(Roles = "employee,manager,ceo,vp,guest")]
         public ActionResult SharedFiles()
         {
             var files = from privilegetable in db.DX_PRIVILEGE
@@ -1385,22 +1540,26 @@ namespace docbox.Controllers
             
             if (files != null && files.ToList().Count > 0)
             {
+                
                 foreach(var sharedfile in files)
                 {
-                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                    if (sharedfile.filetable.islocked != true)
                     {
-                        FileShared share = new FileShared();
-                        share.FileID = sharedfile.filetable.fileid;
-                        share.FileName = sharedfile.filetable.filename;
-                        share.Description = sharedfile.versiontable.description;
-                        share.FileVersion = sharedfile.versiontable.versionnumber;
-                        share.CreationDate = sharedfile.filetable.creationdate;
-                        share.Owner = sharedfile.filetable.ownerid;
-                        share.read = sharedfile.privilegetable.read;
-                        share.delete = sharedfile.privilegetable.delete;
-                        share.update = sharedfile.privilegetable.update;
-                        share.check = sharedfile.privilegetable.check;
-                        docs.Add(share);
+                        if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                        {
+                            FileShared share = new FileShared();
+                            share.FileID = (sharedfile.filetable.fileid).ToString();
+                            share.FileName = sharedfile.filetable.filename;
+                            share.Description = sharedfile.versiontable.description;
+                            share.FileVersion = sharedfile.versiontable.versionnumber;
+                            share.CreationDate = (sharedfile.filetable.creationdate).ToString();
+                            share.Owner = sharedfile.filetable.ownerid;
+                            share.read = sharedfile.privilegetable.read;
+                            share.delete = sharedfile.privilegetable.delete;
+                            share.update = sharedfile.privilegetable.update;
+                            share.check = sharedfile.privilegetable.check;
+                            docs.Add(share);
+                        }
                     }
                 }
                 return View("SharedFiles",docs);

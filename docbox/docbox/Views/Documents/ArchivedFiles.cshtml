@@ -3,6 +3,8 @@
     ViewBag.Title = "ListDocuments";
     Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
+
+
 @Html.ValidationSummary(true)
 @{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
    grid.Pager(WebGridPagerModes.NextPrevious); 
@@ -26,9 +28,9 @@
                     <li class="active"><a class="brand" href="#">Archived Docs</a> </li>
                  <li><input type="submit" value="UnArchive" name="action:UnArchive" /></li>
                 <li><label for="txtSearch" class="text-info"></label>
-                        <input id="txtSearch" type="text" name="fileName" value="@conditions1" />               
+                        <input id="txtSearch" type="text" name="fileName" />               
                  <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
-                        <input id="search" type="submit" name="action:SearchMyDocs" value="Go" class="hidden" /></li>
+                        <input id="search" type="submit" name="action:SearchArchivedDocs" value="Go" class="hidden" /></li>
                         </ul>
                 @grid.GetHtml(tableStyle: "webGrid",
           headerStyle: "webgrid-header",
