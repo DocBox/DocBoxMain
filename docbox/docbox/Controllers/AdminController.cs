@@ -15,7 +15,7 @@ namespace docbox.Controllers
 
     namespace docbox.Controllers
     {
-        [Authorize(Roles = "admin")]
+       
         [DeleteBrowserHistory]
         public class AdminController : Controller
         {
@@ -35,6 +35,7 @@ namespace docbox.Controllers
                 }
             }
             //Edit an existing user
+            [Authorize(Roles = "admin")]
             [HttpPost]
             public ActionResult EditAnExistingUser(EditUser model)
             {
@@ -86,6 +87,7 @@ namespace docbox.Controllers
                 return RedirectToAction("AllExistingUsers");
             }
             //viewing existing user details for updation
+             [Authorize(Roles = "admin")]
             public ActionResult EditAnExistingUser(string id)
             {
 
@@ -122,7 +124,7 @@ namespace docbox.Controllers
             }
 
             //delete an existing user
-
+            [Authorize(Roles = "admin")]
             public ActionResult DeleteExistingUser(string id)
             {
                 try
@@ -147,6 +149,7 @@ namespace docbox.Controllers
             }
 
             //view all existing users
+            [Authorize(Roles = "admin")]
             public ActionResult AllExistingUsers()
             {
 
@@ -184,6 +187,7 @@ namespace docbox.Controllers
             }
 
             //reject a user registration request
+            [Authorize(Roles = "admin")]
             public ActionResult RejectRequest(string id)
             {
                 try
@@ -221,6 +225,7 @@ namespace docbox.Controllers
                 return RedirectToAction("Index");
             }
             //accepting a user request to assign access level
+            [Authorize(Roles = "admin,adminless")]
             public ActionResult AssignAccessLevel(string id)
             {
 
@@ -274,6 +279,7 @@ namespace docbox.Controllers
             //
             // GET: /Admin/
             //view registration requests 
+            [Authorize(Roles = "admin,adminless")]
             public ActionResult Index()
             {
                 List<UserNeedingApproval> AllUsersNeedingApproval = new List<UserNeedingApproval>();

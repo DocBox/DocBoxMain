@@ -169,6 +169,10 @@ namespace docbox.Controllers
             {
                 return RedirectToAction("Index", "Admin");
             }
+            else if (roles.Contains(Constants.ADMINLESS_USER_ACCESS))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
             else
                 if (roles.Contains(Constants.TEMP_USER_ACCESS))
                 {

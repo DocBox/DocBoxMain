@@ -17,6 +17,8 @@ namespace docbox.Controllers
         public static readonly String MANAGER_USER_ACCESS = "manager";
         public static readonly String CEO_USER_ACCESS = "ceo";
         public static readonly String GUEST_USER_ACCESS = "guest";
+        public static readonly String ADMINLESS_USER_ACCESS = "adminless";
+        
 
      
         public static String POSITION_EMPLOYEE_USER= "employee";
