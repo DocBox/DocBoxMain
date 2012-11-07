@@ -92,36 +92,42 @@ namespace docbox.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult EditAnExistingUser(string id)
         {
-
-
             EditUser UserToBeEdited = new EditUser();
-            if (id != null)
+            try
             {
-                var presentUserToBeEdited = from usertable in database.DX_USER where usertable.userid == id select usertable;
-                if (presentUserToBeEdited != null && presentUserToBeEdited.ToList().Count() == 1)
+
+                
+                if (id != null)
                 {
+                    var presentUserToBeEdited = from usertable in database.DX_USER where usertable.userid == id select usertable;
+                    if (presentUserToBeEdited != null && presentUserToBeEdited.ToList().Count() == 1)
+                    {
 
-                    DX_USER user = (DX_USER)presentUserToBeEdited.ToList().First();
+                        DX_USER user = (DX_USER)presentUserToBeEdited.ToList().First();
 
 
 
-                    UserToBeEdited.FirstName = user.fname;
-                    UserToBeEdited.LastName = user.lname;
-                    UserToBeEdited.Email = user.userid;
-                    UserToBeEdited.Position = user.role;
-                    List<int> depts = DbCommonQueries.getDepartmentIds(user.userid, database);
-                    UserToBeEdited.Department = depts;
-                    UserToBeEdited.AccessLevel = user.accesslevel;
+                        UserToBeEdited.FirstName = user.fname;
+                        UserToBeEdited.LastName = user.lname;
+                        UserToBeEdited.Email = user.userid;
+                        UserToBeEdited.Position = user.role;
+                        List<int> depts = DbCommonQueries.getDepartmentIds(user.userid, database);
+                        UserToBeEdited.Department = depts;
+                        UserToBeEdited.AccessLevel = user.accesslevel;
 
+
+                    }
 
                 }
 
+
+                populateDepartmenetsList();
+
             }
-
-
-            populateDepartmenetsList();
-
-
+            catch 
+            {
+                ModelState.AddModelError("","Error occured while editing existing user");
+            }
             return View(UserToBeEdited);
         }
 
@@ -156,35 +162,38 @@ namespace docbox.Controllers
         {
 
             List<ExistingUsers> CurrentUsers = new List<ExistingUsers>();
-            if (ModelState.IsValid)
+            try
             {
-                var allUsersNeeded = from usertable in database.DX_USER where usertable.accesslevel != Constants.TEMP_USER_ACCESS select usertable;
-
-                if (allUsersNeeded != null && allUsersNeeded.ToList().Count >= 1)
+                if (ModelState.IsValid)
                 {
+                    var allUsersNeeded = from usertable in database.DX_USER where usertable.accesslevel != Constants.TEMP_USER_ACCESS select usertable;
 
-                    List<DX_USER> users = (List<DX_USER>)allUsersNeeded.ToList();
-
-                    foreach (DX_USER presentuser in users)
+                    if (allUsersNeeded != null && allUsersNeeded.ToList().Count >= 1)
                     {
-                        ExistingUsers CurrentExistingUser = new ExistingUsers();
-                        CurrentExistingUser.Email = presentuser.userid;
-                        CurrentExistingUser.Name = presentuser.fname + " " + presentuser.lname;
-                        CurrentExistingUser.Position = presentuser.role;
-                        CurrentExistingUser.accessLevel = presentuser.accesslevel;
-                        List<string> depts = DbCommonQueries.getDepartmentName(presentuser.userid, database);
-                        string department = "";
-                        foreach (string dept in depts) { department = department + dept + ", "; };
-                        CurrentExistingUser.Department = department;
-                        CurrentExistingUser.creationDate = new DateTime();
-                        CurrentUsers.Add(CurrentExistingUser);
+
+                        List<DX_USER> users = (List<DX_USER>)allUsersNeeded.ToList();
+
+                        foreach (DX_USER presentuser in users)
+                        {
+                            ExistingUsers CurrentExistingUser = new ExistingUsers();
+                            CurrentExistingUser.Email = presentuser.userid;
+                            CurrentExistingUser.Name = presentuser.fname + " " + presentuser.lname;
+                            CurrentExistingUser.Position = presentuser.role;
+                            CurrentExistingUser.accessLevel = presentuser.accesslevel;
+                            List<string> depts = DbCommonQueries.getDepartmentName(presentuser.userid, database);
+                            string department = "";
+                            foreach (string dept in depts) { department = department + dept + ", "; };
+                            CurrentExistingUser.Department = department;
+                            CurrentExistingUser.creationDate = new DateTime();
+                            CurrentUsers.Add(CurrentExistingUser);
+                        }
+
                     }
 
                 }
 
             }
-
-
+            catch { ModelState.AddModelError("", "Error occured while populating existing users"); }
             return View(CurrentUsers);
         }
 
@@ -230,52 +239,55 @@ namespace docbox.Controllers
         [Authorize(Roles = "admin,adminless")]
         public ActionResult AssignAccessLevel(string id)
         {
-
-
-            if (id != null)
+            try
             {
-                var allusers = from usertabel in database.DX_USER where usertabel.userid == id select usertabel;
-                if (allusers != null && allusers.ToList().Count == 1)
+
+                if (id != null)
                 {
-                    DX_USER user = allusers.ToList().First();
-
-                    switch (user.role)
+                    var allusers = from usertabel in database.DX_USER where usertabel.userid == id select usertabel;
+                    if (allusers != null && allusers.ToList().Count == 1)
                     {
-                        case "ceo": user.accesslevel = Constants.CEO_USER_ACCESS;
-                            break;
-                        case "manager": user.accesslevel = Constants.MANAGER_USER_ACCESS;
-                            break;
-                        case "employee": user.accesslevel = Constants.EMPLOYEE_USER_ACCESS;
-                            break;
-                        case "vp": user.accesslevel = Constants.VP_USER_ACCESS;
-                            break;
-                        default:
-                            break;
-                    }
+                        DX_USER user = allusers.ToList().First();
 
-                    int success = database.SaveChanges();
-                    if (success > 0)
-                    {
-                        String message = Environment.NewLine + "Hi " + user.fname + "," + Environment.NewLine
-                            + "You request has been approved!" + Environment.NewLine
-                            + "You Can now login to your account to access your files" + Environment.NewLine
-                                + "- Docbox Team";
-                        try
+                        switch (user.role)
                         {
-                            EmailMessaging.sendMessage(id, message, "Notification");
-                        }
-                        catch
-                        {
-                            ModelState.AddModelError("", "User approved, but notification not send");
-
-                            return View("Error");
+                            case "ceo": user.accesslevel = Constants.CEO_USER_ACCESS;
+                                break;
+                            case "manager": user.accesslevel = Constants.MANAGER_USER_ACCESS;
+                                break;
+                            case "employee": user.accesslevel = Constants.EMPLOYEE_USER_ACCESS;
+                                break;
+                            case "vp": user.accesslevel = Constants.VP_USER_ACCESS;
+                                break;
+                            default:
+                                break;
                         }
 
-                        //FormsAuthentication.SetAuthCookie(id, false);
-                    }
+                        int success = database.SaveChanges();
+                        if (success > 0)
+                        {
+                            String message = Environment.NewLine + "Hi " + user.fname + "," + Environment.NewLine
+                                + "You request has been approved!" + Environment.NewLine
+                                + "You Can now login to your account to access your files" + Environment.NewLine
+                                    + "- Docbox Team";
+                            try
+                            {
+                                EmailMessaging.sendMessage(id, message, "Notification");
+                            }
+                            catch
+                            {
+                                ModelState.AddModelError("", "User approved, but notification not send");
 
+                                return View("Error");
+                            }
+
+                            //FormsAuthentication.SetAuthCookie(id, false);
+                        }
+
+                    }
                 }
             }
+            catch { ModelState.AddModelError("", "Error occured while assigning access level to the user"); }
             return RedirectToAction("Index");
         }
         //
@@ -285,38 +297,42 @@ namespace docbox.Controllers
         public ActionResult Index()
         {
             List<UserNeedingApproval> AllUsersNeedingApproval = new List<UserNeedingApproval>();
-            if (ModelState.IsValid)
+            try
             {
-
-                var allTempUsers = from usertable in database.DX_USER where usertable.accesslevel.Equals(Constants.TEMP_USER_ACCESS) select usertable;
-
-                if (allTempUsers != null && allTempUsers.ToList().Count >= 1)
+                if (ModelState.IsValid)
                 {
 
-                    List<DX_USER> users = (List<DX_USER>)allTempUsers.ToList();
+                    var allTempUsers = from usertable in database.DX_USER where usertable.accesslevel.Equals(Constants.TEMP_USER_ACCESS) select usertable;
 
-
-                    foreach (DX_USER tempuser in users)
+                    if (allTempUsers != null && allTempUsers.ToList().Count >= 1)
                     {
-                        UserNeedingApproval tempUserNeedingApproval = new UserNeedingApproval();
 
-                        tempUserNeedingApproval.Email = tempuser.userid;
-                        tempUserNeedingApproval.Name = tempuser.fname + " " + tempuser.lname;
-                        tempUserNeedingApproval.Position = tempuser.role;
-                        List<string> depts = DbCommonQueries.getDepartmentName(tempuser.userid, database);
-                        string department = "";
-                        foreach (string dept in depts) { department = department + dept + ", "; };
-                        tempUserNeedingApproval.Department = department;
-                        tempUserNeedingApproval.creationDate = new DateTime();
-                        AllUsersNeedingApproval.Add(tempUserNeedingApproval);
+                        List<DX_USER> users = (List<DX_USER>)allTempUsers.ToList();
+
+
+                        foreach (DX_USER tempuser in users)
+                        {
+                            UserNeedingApproval tempUserNeedingApproval = new UserNeedingApproval();
+
+                            tempUserNeedingApproval.Email = tempuser.userid;
+                            tempUserNeedingApproval.Name = tempuser.fname + " " + tempuser.lname;
+                            tempUserNeedingApproval.Position = tempuser.role;
+                            List<string> depts = DbCommonQueries.getDepartmentName(tempuser.userid, database);
+                            string department = "";
+                            foreach (string dept in depts) { department = department + dept + ", "; };
+                            tempUserNeedingApproval.Department = department;
+                            tempUserNeedingApproval.creationDate = new DateTime();
+                            AllUsersNeedingApproval.Add(tempUserNeedingApproval);
+                        }
+
                     }
-
                 }
             }
+            catch { ModelState.AddModelError("", "Error occured while populating all user requests"); }
             return View(AllUsersNeedingApproval);
         }
 
-        public ICollection<int> dept { get; set; }
+       // public ICollection<int> dept { get; set; }
     }
 }
 
