@@ -381,7 +381,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult MyDocDetails(long fileId)
         {
-            return Details(fileId, "ListDocuments");
+            return Details(fileId, "MyDocuments");
         }
         
         // GET: /Documents/SharedDocDetails/
@@ -389,7 +389,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult SharedDocDetails(long fileId)
         {
-            return Details(fileId, "SharedFiles");
+            return Details(fileId, "SharedDocuments");
         }
 
         // GET: /Documents/DeptDocDetails/5
@@ -397,9 +397,10 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeptDocDetails(long fileId)
         {
-            // TODO: Check the name of the caller view
-            return Details(fileId, "DepartmentFiles");
+            return Details(fileId, "DepartmentDocuments");
         }
+
+        // TODO: Downloading for Guest Users
 
         [AcceptVerbs(HttpVerbs.Post)]
         [Authorize(Roles = "guest,employee,manager,ceo,vp")]
@@ -489,9 +490,9 @@ namespace docbox.Controllers
                 // In case of error, return the view where the download was requested from
                 switch (callerName)
                 {
-                    case "ListDocuments": return RedirectToAction("ListDocuments");
-                    case "SharedFiles": return RedirectToAction("SharedFiles");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "MyDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedDocuments": return RedirectToAction("SharedFiles");
+                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -503,7 +504,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Download()
         {
-            string originalView = "ListDocuments";
+            string originalView = "MyDocuments";
             try
             {
                 // Get the parameters from request
@@ -598,9 +599,9 @@ namespace docbox.Controllers
                 // On error, return to the page where download was requested from
                 switch (originalView)
                 {
-                    case "ListDocuments": return RedirectToAction("ListDocuments");
-                    case "SharedFiles": return RedirectToAction("SharedFiles");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "MyDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedDocuments": return RedirectToAction("SharedFiles");
+                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1410,6 +1411,89 @@ namespace docbox.Controllers
                 return View("SharedFiles",docs);
             }
             
+        }
+
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult UpdateMyDocs(long fileId)
+        {
+            return UpdateDocumentDetails(fileId, "MyDocuments");
+        }
+
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult UpdateSharedDocs(long fileId)
+        {
+            return UpdateDocumentDetails(fileId, "SharedDocuments");
+        }
+
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult UpdateDepartmentDocs(long fileId)
+        {
+            return UpdateDocumentDetails(fileId, "DepartmentDocuments");
+        }
+
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        private ActionResult UpdateDocumentDetails(long fileId, string calledFrom)
+        {
+            try
+            {
+                // Check if the given fileId is valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                {
+                    throw new FileNotFoundException("File not found!");
+                }
+
+                // Get the current user
+                string userId = SessionKeyMgmt.UserId;
+
+                // Check if user has update privileges for this document
+                DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
+                bool hasUpdatePrivileges = documentPrivilege == null ? false : documentPrivilege.check;
+
+                // Check if document is checked out by current user
+                bool isFileLocked = false;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
+
+                bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
+
+                // Check if document is not archived
+                if (dx_files.isarchived || (isDocumentCheckedOutByUser == false) ||
+                    (hasUpdatePrivileges == false))
+                {
+                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
+                }
+
+                // Send the file name
+                ViewBag.originalCaller = calledFrom;
+                ViewBag.fileId = fileId;
+                ViewBag.fileName = dx_files.filename;
+
+                return View("Update");
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException || ex is AccessViolationException)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error getting details about document to be updated");
+                }
+
+                switch (calledFrom)
+                {
+                    case "MyDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedDocuments": return RedirectToAction("SharedFiles");
+                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                    default: return RedirectToAction("ListDocuments");
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)
