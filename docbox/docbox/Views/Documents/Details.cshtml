@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
 <h2>Download Document</h2>
@@ -20,6 +21,7 @@
             document.getElementById("encStatus").value = "false";
         }
     }
+
 </script>
 
 @using (Html.BeginForm("Download", "Documents", FormMethod.Post,new {enctype="multipart/form-data"})){
@@ -59,6 +61,11 @@
         for(i=0;i<count;i++){
          @Html.Raw("<option value=\"" + version[i] + "\">" + (i+1) + "</option>");  
         }
+    string firstEle = "";
+    if (!version[0])
+    {
+        firstEle = "disabled";
+    }
         }
     </select>
     </div>
@@ -67,7 +74,7 @@
     <div class="control-group">
     <label class="control-label"  for="file">Key File</label>
     <div class="controls">
-            <input type="file" name="keyFile" id="keyFile"/>
+            <input type="file" name="keyFile" id="keyFile" @Html.Raw(firstEle)/>
     </div>
 </div>
 
@@ -80,6 +87,7 @@
     
     @Html.ActionLink("Back to List", "ListDocuments")
     </fieldset>
-
+    
 
     }
+    </body>

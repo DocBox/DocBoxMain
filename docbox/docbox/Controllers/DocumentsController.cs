@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -196,22 +196,22 @@ namespace docbox.Controllers
             return modelList;
         }
 
-        //private List<FileModel> getPublicFilesModel()
-        //{
-        //    List<FileModel> model = new List<FileModel>();
+        private List<FileModel> getPublicFilesModel()
+        {
+            List<FileModel> model = new List<FileModel>();
 
-        //    return model;
-        //}
+            return model;
+        }
 
-        //[Authorize(Roles = "guest,employee,manager,ceo,vp")]
-        //public ActionResult PublicFiles(List<FileModel> model)
-        //{
-        //    if (null != model)
-        //    {
-        //        return View("PublicFiles", model);
-        //    }
-        //    return View("PublicFiles", getDeptDocsModel());
-        //}
+        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
+        public ActionResult PublicFiles(List<FileModel> model)
+        {
+            if (null != model)
+            {
+                return View("PublicFiles", model);
+            }
+            return View("PublicFiles", getDeptDocsModel());
+        }
         
         public ViewResult Index()
         {
@@ -778,7 +778,7 @@ namespace docbox.Controllers
                                                 mgrPriv.reason = "inherit";
                                                 mgrPriv.delete = true;
 
-                                                //TODO DELETE
+                   
                                             }
                                         }
 
@@ -948,12 +948,12 @@ namespace docbox.Controllers
                             }
                             else
                             {
-                                throw new Exception("Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
+                                ModelState.AddModelError("","Invalid file type. Accepted file types are PDF, Word, Excel, PowerPoint, Text and Image Files");
                             }
                         }
                         else
                         {
-                            throw new Exception("Please enter a valid description");
+                            ModelState.AddModelError("","Please enter a valid description");
                         }
                     }
                     else
@@ -964,12 +964,14 @@ namespace docbox.Controllers
                 }                
                 else
                 {
-                    throw new Exception("Please select the file to be uploaded");
+                    ModelState.AddModelError("","Please select the file to be uploaded");
                 }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("","Error uploading the document: ");
+                ModelState.AddModelError("","Error uploading the document ");
+                db.DX_FILES.DeleteObject(dx_files);
+                db.SaveChanges();
             }
             return View();
             
