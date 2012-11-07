@@ -293,13 +293,7 @@
     <Content Include="Views\Admin\EditAnExistingUser.cshtml" />
     <Content Include="Views\Documents\SharedFiles.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <EntityDeploy Include="Models\DocboxModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>DocboxModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-  </ItemGroup>
-  <ItemGroup>
+    <ItemGroup>
     <Content Include="Views\Shared\_GuestLogOnPartial.cshtml" />
   </ItemGroup>
  
