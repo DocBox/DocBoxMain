@@ -23,13 +23,13 @@
             string conditions1 = searchConditions.Keys.Contains("fileName") ? searchConditions["fileName"] : string.Empty;
             <div class="container">
                 <ul class="nav">
-                    <li class="active"><a class="brand" href="#">MyDocs</a> </li>
-                    <input type="submit" value="UnArchive" name="action:UnArchive" />
-                </ul>
-                <div align="right">@Html.TextBox("fileName", @conditions1)
-                    <input type="submit" name="action:Search" value="Search" />
-                </div>
-                <!-- Html.ActionLink("Search", "Search", "Documents", new { fileTitle = @conditions1 }, new { name="action:Search"})</div -->
+                    <li class="active"><a class="brand" href="#">Archived Docs</a> </li>
+                 <li><input type="submit" value="UnArchive" name="action:UnArchive" /></li>
+                <li><label for="txtSearch" class="text-info"></label>
+                        <input id="txtSearch" type="text" name="fileName" value="@conditions1" />               
+                 <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
+                        <input id="search" type="submit" name="action:SearchMyDocs" value="Go" class="hidden" /></li>
+                        </ul>
                 @grid.GetHtml(tableStyle: "webGrid",
           headerStyle: "webgrid-header",
         footerStyle: "webgrid-footer",

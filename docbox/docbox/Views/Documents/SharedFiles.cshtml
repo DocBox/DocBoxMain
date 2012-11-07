@@ -7,7 +7,7 @@
     function updateChk(parameter) {
         $.ajax({
             type: "POST",
-            url: '@Url.Action("CheckInOut","Documents")',
+            url: '@Url.Action("CheckInOutShared","Documents")',
             data: { fileid: parameter },
             success: function () {
             }
@@ -34,10 +34,12 @@
             string conditions1 = searchConditions.Keys.Contains("fileName") ? searchConditions["fileName"] : string.Empty;
             <div class="container">
                 <ul class="nav">
-                    <li class="active"><a class="brand" href="#">MyDocs</a> </li>
-                    <li class="divider-vertical">@Html.TextBox("fileName", @conditions1) 
-                <input type="submit" value="Search" name="action:SearchMyDocs" /></li>
-                </ul>
+                    <li class="active"><a class="brand" href="#">Shared Docs</a> </li>
+                <li><label for="txtSearch" class="text-info"></label>
+                        <input id="txtSearch" type="text" name="fileName" value="@conditions1" />               
+                 <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
+                        <input id="search" type="submit" name="action:SearchMyDocs" value="Go" class="hidden" /></li></li>
+               </ul>
                 @grid.GetHtml(tableStyle: "webGrid",
                         headerStyle: "webgrid-header",
                         footerStyle: "webgrid-footer",

@@ -24,7 +24,7 @@ namespace docbox.Controllers
         public string Argument { get; set; }
 
         public override bool IsValidName(ControllerContext controllerContext,
-    string actionName, MethodInfo methodInfo)
+         string actionName, MethodInfo methodInfo)
         {
             try
             {
@@ -358,6 +358,14 @@ namespace docbox.Controllers
         {
             SaveCheckInOut(fileid);
             return RedirectToAction("ListDocuments");
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        public ActionResult CheckInOutShared(string fileid)
+        {
+            SaveCheckInOut(fileid);
+            return RedirectToAction("SharedFiles");
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
@@ -1376,8 +1384,10 @@ namespace docbox.Controllers
             {
                 foreach(var sharedfile in files)
                 {
-                        FileShared share =new FileShared();                      
-                        share.FileID=sharedfile.filetable.fileid;
+                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                    {
+                        FileShared share = new FileShared();
+                        share.FileID = sharedfile.filetable.fileid;
                         share.FileName = sharedfile.filetable.filename;
                         share.Description = sharedfile.versiontable.description;
                         share.FileVersion = sharedfile.versiontable.versionnumber;
@@ -1388,6 +1398,7 @@ namespace docbox.Controllers
                         share.update = sharedfile.privilegetable.update;
                         share.check = sharedfile.privilegetable.check;
                         docs.Add(share);
+                    }
                 }
                 return View("SharedFiles",docs);
             }
