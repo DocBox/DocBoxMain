@@ -39,7 +39,7 @@ namespace docbox.Controllers
                     return isValidName;
                 }
             }
-            catch (HttpException e)
+            catch (HttpException)
             {
                   
             }
@@ -62,6 +62,7 @@ namespace docbox.Controllers
                                                         ".jpeg", ".jpg", 
                                                         ".png", ".bmp", 
                                                         ".tiff", ".tif" };
+        public static Int64 MAX_FILE_SIZE = 5 * 1024 * 1024;
 
         //GET : //Documents/ListDocuments
 
@@ -686,31 +687,38 @@ namespace docbox.Controllers
                     // Read the encrytion key
                     if (Request.Files[0].InputStream.Length != 0)
                     {
-                        HttpPostedFileBase keyFile = Request.Files[0];
-                        System.IO.Stream keyStream = keyFile.InputStream;
-                        byte[] keyData = new byte[keyStream.Length];
-                        keyStream.Read(keyData, 0, (int)keyStream.Length);
+                        try
+                        {
+                            HttpPostedFileBase keyFile = Request.Files[0];
+                            System.IO.Stream keyStream = keyFile.InputStream;
+                            byte[] keyData = new byte[keyStream.Length];
+                            keyStream.Read(keyData, 0, (int)keyStream.Length);
 
-                        RijndaelManaged Crypto = new RijndaelManaged();
-                        Crypto.BlockSize = 128;
-                        Crypto.KeySize = 256;
-                        Crypto.Mode = CipherMode.CBC;
-                        Crypto.Padding = PaddingMode.PKCS7;
-                        Crypto.Key = keyData;
+                            RijndaelManaged Crypto = new RijndaelManaged();
+                            Crypto.BlockSize = 128;
+                            Crypto.KeySize = 256;
+                            Crypto.Mode = CipherMode.CBC;
+                            Crypto.Padding = PaddingMode.PKCS7;
+                            Crypto.Key = keyData;
 
-                        // Convert the ivString to a byte array
-                        byte[] ivArray = new byte[16];
-                        System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
-                            ivArray, 0, ivArray.Length);
-                        Crypto.IV = ivArray;
+                            // Convert the ivString to a byte array
+                            byte[] ivArray = new byte[16];
+                            System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
+                                ivArray, 0, ivArray.Length);
+                            Crypto.IV = ivArray;
 
-                        ICryptoTransform Decryptor = Crypto.CreateDecryptor(Crypto.Key, Crypto.IV);
-                        byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+                            ICryptoTransform Decryptor = Crypto.CreateDecryptor(Crypto.Key, Crypto.IV);
+                            byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 0, fileData.Length);
 
-                        // Copy the encrypted data to the file data buffer
-                        Array.Clear(fileData, 0, fileData.Length);
-                        Array.Resize(ref fileData, originalFile.Length);
-                        Array.Copy(originalFile, fileData, originalFile.Length);
+                            // Copy the encrypted data to the file data buffer
+                            Array.Clear(fileData, 0, fileData.Length);
+                            Array.Resize(ref fileData, originalFile.Length);
+                            Array.Copy(originalFile, fileData, originalFile.Length);
+                        }
+                        catch (Exception)
+                        {
+                            throw new ArgumentException("Error decrypting the document to be downloaded");
+                        }
                     }
                     else
                     {
@@ -724,7 +732,8 @@ namespace docbox.Controllers
             }
             catch (Exception ex)
             {
-                if (ex is FileNotFoundException || ex is AccessViolationException)
+                if (ex is FileNotFoundException || ex is AccessViolationException ||
+                    ex is ArgumentException)
                 {
                     // Throw a file not found error
                     ModelState.AddModelError("", ex.Message);
@@ -810,7 +819,7 @@ namespace docbox.Controllers
             {
                 if (Request.Files[0].InputStream.Length != 0)
                 {
-                    if (Request.Files[0].InputStream.Length < (5 * 1024 * 1024))
+                    if (Request.Files[0].InputStream.Length < MAX_FILE_SIZE)
                     {
                         HttpPostedFileBase file = Request.Files[0];
                         System.IO.Stream stream = file.InputStream;
@@ -1040,7 +1049,6 @@ namespace docbox.Controllers
                                     db.DX_FILES.AddObject(dx_files);
                                     db.SaveChanges();
 
-
                                     fileversion.versionnumber = (int)dx_files.latestversion;
                                     fileversion.updatedate = System.DateTime.Now;
                                     fileversion.description = description;
@@ -1106,7 +1114,7 @@ namespace docbox.Controllers
                     ModelState.AddModelError("","Please select the file to be uploaded");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("","Error uploading the document ");
                 db.DX_FILES.DeleteObject(dx_files);
@@ -1182,7 +1190,7 @@ namespace docbox.Controllers
                     return View();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError("","Exception occured while editing the document");
                 return View();
@@ -1247,7 +1255,7 @@ namespace docbox.Controllers
                     return View();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Exception caught, Please contact admin for more info");
             }
@@ -1652,6 +1660,181 @@ namespace docbox.Controllers
                     case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        public ActionResult Update()
+        {
+            string originalCaller = "MyDocuments";
+            try
+            {
+                // Get the parameters from request
+                long fileId = long.Parse(Request.Params.Get("fileId"));
+                string encryptionStatus = Request.Params.Get("encrypted");
+                bool isEncrypted = encryptionStatus.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
+                originalCaller = Request.Params.Get("originalCaller");
+
+                // Basics validations and permission checking
+                // Check if the fileId to be updated is still valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                {
+                    throw new FileNotFoundException("File not found!");
+                }
+
+                // Get the current userId
+                string userId = SessionKeyMgmt.UserId;
+
+                // Check if user has update privileges for this document
+                DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
+                bool hasUpdatePrivileges = documentPrivilege == null ? false : documentPrivilege.check;
+
+                // Check if document is checked out by current user
+                bool isFileLocked = false;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
+
+                bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
+
+                // Check if document is not archived
+                if (dx_files.isarchived || (isDocumentCheckedOutByUser == false) ||
+                    (hasUpdatePrivileges == false))
+                {
+                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
+                }
+
+                // Validate the input file length
+                Int64 inputFileLength = Request.Files[0].InputStream.Length;
+                if (inputFileLength <= 0)
+                {
+                    throw new ArgumentException("File uploaded cannot be empty. Please try again.");
+                }
+                else if (inputFileLength > MAX_FILE_SIZE)
+                {
+                    throw new ArgumentException("File uploaded cannot be exceed 5 MB. Please try again.");
+                }
+                else
+                {
+                    // Check if the new file uploaded will exceed the overall file size
+                    var allFiles = from fileversions in db.DX_FILEVERSION
+                                   select fileversions;
+                    double totalSize = 0;
+                    if (allFiles.Count() > 0)
+                    {
+                        totalSize = allFiles.Sum(w => w.size);
+                        totalSize /= (1024 * 1024);
+                    }
+
+                    if ((totalSize + (inputFileLength / (1024 * 1024)) > 1024))
+                    {
+                        ModelState.AddModelError("", "Disk space exceeded. Please contact admin");
+                        throw new Exception();
+                    }
+                }
+
+                // Get the input file and validate the file name
+                HttpPostedFileBase inputFile = Request.Files[0];
+                if (inputFile.FileName != dx_files.filename)
+                    throw new ArgumentException("Name of file uploaded should match the exisiting file getting updated");
+
+                // Validate the description given
+                string fileDescription = Request.Params.Get("description");
+                if (fileDescription.Length <= 0 || fileDescription.Length > 75)
+                    throw new ArgumentException("Description text should be atleast 1 character and can be a maximum of 75 characters");
+
+                // Read the given file data
+                System.IO.Stream inFileStream = inputFile.InputStream;
+                byte[] inputFileData = new byte[inFileStream.Length];
+                inFileStream.Read(inputFileData, 0, inputFileData.Length);
+
+                DX_FILEVERSION fileVersion = new DX_FILEVERSION();
+                fileVersion.isencrypted = false;
+
+                // Check if file needs to be encrpted before storing it
+                if (isEncrypted)
+                {
+                    Int64 keyFileLength = Request.Files[1].InputStream.Length;
+                    if (keyFileLength <= 0)
+                        throw new ArgumentException("Invalid key file size. Please try again.");
+
+                    try
+                    {
+                        HttpPostedFileBase keyFile = Request.Files[1];
+                        System.IO.Stream keyStream = keyFile.InputStream;
+                        byte[] keyData = new byte[keyStream.Length];
+                        keyStream.Read(keyData, 0, (int)keyStream.Length);
+
+                        RijndaelManaged Crypto = new RijndaelManaged();
+                        Crypto.BlockSize = 128;
+                        Crypto.KeySize = 256;
+                        Crypto.Mode = CipherMode.CBC;
+                        Crypto.Padding = PaddingMode.PKCS7;
+                        Crypto.Key = keyData;
+
+                        // Convert the ivString to a byte array
+                        byte[] ivArray = new byte[16];
+                        System.Buffer.BlockCopy(ivStringConstant.ToCharArray(), 0,
+                            ivArray, 0, ivArray.Length);
+                        Crypto.IV = ivArray;
+
+                        ICryptoTransform Encryptor = Crypto.CreateEncryptor(Crypto.Key, Crypto.IV);
+                        byte[] cipherText = Encryptor.TransformFinalBlock(inputFileData, 0, inputFileData.Length);
+
+                        // Copy the encrypted data to the file data buffer
+                        Array.Clear(inputFileData, 0, inputFileData.Length);
+                        Array.Resize(ref inputFileData, cipherText.Length);
+                        Array.Copy(cipherText, inputFileData, cipherText.Length);
+
+                        fileVersion.isencrypted = true;
+                    }
+                    catch (Exception)
+                    {
+                        throw new ArgumentException("Error encrypting the document");
+                    }
+                }
+
+                int newVersionNumber = Convert.ToInt32(dx_files.latestversion) + 1;
+
+                // Construct the fileversion object and update database
+                fileVersion.fileid = fileId;
+                fileVersion.versionnumber = newVersionNumber;
+                fileVersion.updatedate = System.DateTime.Now;
+                fileVersion.description = fileDescription;
+                fileVersion.size = Convert.ToInt32(inputFileLength);
+                fileVersion.filedata = inputFileData;
+                fileVersion.updatedby = userId;
+
+                db.DX_FILEVERSION.AddObject(fileVersion);
+
+                // Update the version number in DX_FILES
+                dx_files.latestversion++;
+
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException || ex is AccessViolationException ||
+                    ex is ArgumentException)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error updating the document");
+                }
+            }
+
+            // Irrespective of whether document was updated or error
+            // return to the original view
+            switch (originalCaller)
+            {
+                case "MyDocuments": return RedirectToAction("ListDocuments");
+                case "SharedDocuments": return RedirectToAction("SharedFiles");
+                case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                default: return RedirectToAction("ListDocuments");
             }
         }
 

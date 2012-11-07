@@ -67,12 +67,12 @@ namespace docbox.Utilities
                 {
                     client.Send(message);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw new Exception("messaginerror");
                 }
                 message.Dispose();
-            }catch(Exception e){
+            }catch(Exception){
                 throw new Exception("messaginerror");
             }
            }       

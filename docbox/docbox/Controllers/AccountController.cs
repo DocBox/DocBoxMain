@@ -96,7 +96,7 @@ namespace docbox.Controllers
                 }
                 // If we got this far, something failed, redisplay form
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Can not process request, please try after some time!");
             }
@@ -159,7 +159,7 @@ namespace docbox.Controllers
                 }
                 // If we got this far, something failed, redisplay form
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Can not process request, please try after some time!");
             }
@@ -293,7 +293,7 @@ namespace docbox.Controllers
                 }
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 isValid = false;
                 ModelState.AddModelError("", "Invalid request Please try after some time!");
@@ -399,7 +399,7 @@ namespace docbox.Controllers
 
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Invalid request please try after some time! ");
             }
@@ -507,7 +507,7 @@ namespace docbox.Controllers
                         }
 
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                         ModelState.AddModelError("", "Could not reset the password please try after some time");
@@ -595,7 +595,7 @@ namespace docbox.Controllers
 
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
                 return false;

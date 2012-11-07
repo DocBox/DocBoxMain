@@ -66,7 +66,7 @@ namespace docbox.Controllers
                     ModelState.AddModelError("", "Invalid passphrase entered");
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Error while generating key");
             }
