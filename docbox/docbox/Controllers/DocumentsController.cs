@@ -838,7 +838,13 @@ namespace docbox.Controllers
 
                                     var allFiles = from fileversions in db.DX_FILEVERSION
                                                    select fileversions;
-                                    double totalSize = allFiles.Sum(w => w.size);
+                                    double totalSize;
+                                    if (allFiles.Count() != 0)
+                                    {
+                                        totalSize = allFiles.Sum(w => w.size);
+                                    }
+                                    else
+                                        totalSize=0;
                                     totalSize /= (1024 * 1024);
 
                                     if ((totalSize + (fileData.Length / (1024 * 1024)) > 1024))
@@ -929,7 +935,7 @@ namespace docbox.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("","Error uploading the document: " + ex.Message);
+                ModelState.AddModelError("","Error uploading the document: ");
             }
             return View();
             
