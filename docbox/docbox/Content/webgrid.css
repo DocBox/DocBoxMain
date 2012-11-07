@@ -1,4 +1,9 @@
-﻿
+﻿.adminwebgrid
+{
+      width: 80%;
+        border: 0px;
+        border-collapse: collapse;
+}
 .webgrid
     {
         width: 100%;
@@ -35,8 +40,7 @@
    {
        padding: 6px 5px;
        background-color: ThreeDLightShadow;
-       color: ThreeDLightShadow;
-       /*#e8eef4;*/
+       color: Blue;    
        border-bottom: 2px solid #3966A2;
        height: 40px;
    }

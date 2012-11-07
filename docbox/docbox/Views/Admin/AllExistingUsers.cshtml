@@ -1,6 +1,6 @@
-﻿@model List<docbox.Models.UserNeedingApproval>
+﻿@model List<docbox.Models.ExistingUsers>
 @{
-    ViewBag.Title = "User Requests";
+    ViewBag.Title = "Existing Users";
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
 @{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
@@ -11,7 +11,7 @@
     @{  <div class="navbar-inner">
         <div class="container">
             <ul class="nav">
-                <li class="active"><a class="brand" href="#">User Requests</a> </li>
+                <li class="active"><a class="brand" href="#">Existing Users</a> </li>
             </ul>
         </div>
     </div>
@@ -28,8 +28,11 @@
                                       grid.Column("Department"),
                                       grid.Column("Position"),
                                       grid.Column("Email"),
-                                      grid.Column(header: "Assign", format: (item) => Html.ActionButton("", "AssignAccessLevel", "Admin", "icon-thumbs-up", new { id = item.Email} ), canSort: true),
-                                      grid.Column(header: "Reject", format: (item) => Html.ActionButton("", "RejectRequest", "Admin", "icon-thumbs-down", new { id = item.Email }), canSort: true)
+                                               grid.Column("AccessLevel"),
+                                      
+                                      grid.Column(header: "Modify", format: (item) => Html.ActionButton("", "EditAnExistingUser", "Admin", "icon-edit", new { id = item.Email} ), canSort: true),
+                                      
+                                     grid.Column(header: "Delete User", format: (item) => Html.ActionButton("", "DeleteExistingUser", "Admin", "icon-trash", new { id = item.Email }), canSort: true)
 
         ));
         

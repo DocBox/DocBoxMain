@@ -29,6 +29,7 @@ namespace docbox.Utilities
             return departmentNames;
         }
 
+
         public static bool FileExistence(Int64 FileID)
         {
             var fileIdList = from filetable in db.DX_FILES select filetable;
@@ -48,5 +49,23 @@ namespace docbox.Utilities
         }
 
        
+
+        public static List<int> getDepartmentIds(string userId, dx_docboxEntities database)
+        {
+            List<int> departmentIdsUser = new List<int>();
+
+            if (database != null)
+            {
+                var departmentsIds = from userDepts in database.DX_USERDEPT where userDepts.userid == userId.Trim() select userDepts.deptid;
+
+                if (departmentsIds.ToList().Count > 0)
+                {
+
+                        departmentIdsUser = (List<int>)(departmentsIds.ToList());
+                }
+            }
+            return departmentIdsUser;
+        }
+
     }
 }
