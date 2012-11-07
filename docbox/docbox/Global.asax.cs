@@ -23,6 +23,12 @@ namespace docbox
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                "PublicFiles",
+                "Documents/PublicFiles",
+                new { controller = "Documents", action = "PublicFiles" }
+            );
+
+            routes.MapRoute(
                 "MyDocs",
                 "Documents/",
                 new { controller = "Documents", action = "ListDocuments" }

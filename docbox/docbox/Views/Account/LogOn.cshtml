@@ -36,13 +36,10 @@
             </div>
 
            <div class="editor-label">
-               @Html.CheckBoxFor(m => m.RememberMe)
-               @Html.LabelFor(m => m.RememberMe)
+               @Html.CheckBoxFor(m => m.RememberMe) @Html.LabelFor(m => m.RememberMe)
            </div>
            
-            <p>
-                <input type="submit" value="Log On" />
-            </p>
+            <p> <input type="submit" value="Log On" /></p>
         </fieldset>
     </div>
 }
@@ -50,3 +47,4 @@
 <p>
    @Html.ActionLink("Forgot password ?", "ForgetPassword")
 </p>
+<p>  @Html.ActionLink("Login as Guest","PublicFiles", "Documents") </p>

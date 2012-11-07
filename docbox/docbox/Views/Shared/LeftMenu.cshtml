@@ -7,7 +7,8 @@
     <li>@Html.ActionButton("Shared","SharedFiles","Documents","icon-share",null)</li>
     <li>@Html.ActionButton("Department Files", "DepartmentFiles", "Documents", "icon-book", null)</li>
     <li>@Html.ActionButton("Get Key","GenerateKey","Security","icon-folder-close",null)</li>
-    <li><a href="#"><i class="icon-user"></i> My Account</a></li>
+    <li>@Html.ActionButton("My Account","","","icon-user",null)</li>
+    <li>@Html.ActionLink("Guest User", "PublicFiles", "Documents", "icon-briefcase", null)</li>
     </ul>
     </div>
     </div>

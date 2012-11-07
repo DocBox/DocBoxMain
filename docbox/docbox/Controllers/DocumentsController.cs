@@ -204,6 +204,28 @@ namespace docbox.Controllers
 
             return modelList;
         }
+
+        private List<FileModel> getPublicFilesModel()
+        {
+            List<FileModel> model = new List<FileModel>();
+
+            return model;
+        }
+
+        public ActionResult PublicFiles()
+        {
+            return View("PublicFiles", getDeptDocsModel());
+        }
+
+        //[Authorize(Roles = "guest,employee,manager,ceo,vp")]
+        //public ActionResult PublicFiles(List<FileModel> model)
+        //{
+        //    if (null != model)
+        //    {
+        //        return View("PublicFiles", model);
+        //    }
+        //    return View("PublicFiles", getDeptDocsModel());
+        //}
         
         public ViewResult Index()
         {
@@ -235,7 +257,19 @@ namespace docbox.Controllers
             return View("DepartmentFiles", model);
         }
 
-        public List<FileModel> Search(string fileTitle, List<FileModel> model)
+        [MultipleButton(Name = "action", Argument = "SearchPublicDocs")]
+        public ActionResult SearchPublicDocs()
+        {
+            string filename = "";
+            if (this.Request.Form.AllKeys.Length > 0)
+            {
+                filename = Request["fileName"];
+            }
+            List<FileModel> model = Search(filename, getPublicFilesModel());
+            return View("PublicFiles", model);
+        }
+
+        private List<FileModel> Search(string fileTitle, List<FileModel> model)
         {
             if (ModelState.IsValid)
             {
@@ -256,7 +290,7 @@ namespace docbox.Controllers
                 }
 
                 this.TempData["SearchConditions"] = searchConditions;
-                string fileName = GetSearchConditionValue(searchConditions, "fileName");
+                string fileName = GetConditionValue(searchConditions, "fileName");
                 var result = (from s in model
                                 where (string.IsNullOrEmpty(fileTitle) || s.FileName.StartsWith(fileTitle))
                                 select s).ToList();
@@ -265,15 +299,15 @@ namespace docbox.Controllers
             return model;
         }
 
-        private static string GetSearchConditionValue(IDictionary<string, string> searchConditions, string key)
+        private static string GetConditionValue(IDictionary<string, string> searchConditions, string key)
         {
-            string tempValue = string.Empty;
+            string tmpValue = string.Empty;
 
             if (searchConditions != null)
             {
-                searchConditions.TryGetValue(key, out tempValue);
+                searchConditions.TryGetValue(key, out tmpValue);
             }
-            return tempValue;
+            return tmpValue;
         }
 
         private void SaveCheckInOut(string fileid)
@@ -352,6 +386,14 @@ namespace docbox.Controllers
         {
             // TODO: Check the name of the caller view
             return Details(fileId, "DepartmentDocuments");
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
+        public ActionResult CheckInOutPublic(string fileid)
+        {
+            SaveCheckInOut(fileid);
+            return RedirectToAction("PublicFiles");
         }
 
         //
@@ -520,7 +562,6 @@ namespace docbox.Controllers
                 }
             }
         }
-
         //
         // GET: /Documents/Create
         [Authorize(Roles = "employee,manager,ceo,vp")]
