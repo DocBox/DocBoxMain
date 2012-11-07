@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="2.0" xmlns:edmx="http://schemas.microsoft.com/ado/2008/10/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="DX_LOGGERModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="DX_LOGGERModelStoreContainer">
+          <EntitySet Name="adminlog" EntityType="DX_LOGGERModel.Store.adminlog" store:Type="Tables" store:Schema="dbo" store:Name="adminlog">
+            <DefiningQuery>SELECT 
+      [adminlog].[id] AS [id], 
+      [adminlog].[datetime] AS [datetime], 
+      [adminlog].[docboxthread] AS [docboxthread], 
+      [adminlog].[loglevel] AS [loglevel], 
+      [adminlog].[logger] AS [logger], 
+      [adminlog].[logmessage] AS [logmessage]
+      FROM [dbo].[adminlog] AS [adminlog]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="exceptionlog" EntityType="DX_LOGGERModel.Store.exceptionlog" store:Type="Tables" store:Schema="dbo" store:Name="exceptionlog">
+            <DefiningQuery>SELECT 
+      [exceptionlog].[id] AS [id], 
+      [exceptionlog].[date] AS [date], 
+      [exceptionlog].[thread] AS [thread], 
+      [exceptionlog].[loglevel] AS [loglevel], 
+      [exceptionlog].[logger] AS [logger], 
+      [exceptionlog].[exceptionmessage] AS [exceptionmessage]
+      FROM [dbo].[exceptionlog] AS [exceptionlog]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'DX_LOGGER.dbo.adminlog' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="adminlog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="datetime" Type="datetime" />
+          <Property Name="docboxthread" Type="varchar" MaxLength="300" />
+          <Property Name="loglevel" Type="varchar" MaxLength="20" />
+          <Property Name="logger" Type="varchar" MaxLength="300" />
+          <Property Name="logmessage" Type="varchar" MaxLength="600" />
+        </EntityType>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'DX_LOGGER.dbo.exceptionlog' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="exceptionlog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="date" Type="datetime" />
+          <Property Name="thread" Type="varchar" MaxLength="300" />
+          <Property Name="loglevel" Type="varchar" MaxLength="20" />
+          <Property Name="logger" Type="varchar" MaxLength="300" />
+          <Property Name="exceptionmessage" Type="varchar" MaxLength="300" />
+        </EntityType>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="DX_LOGGERModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="DX_LOGGEREntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="adminlogs" EntityType="DX_LOGGERModel.adminlog" />
+          <EntitySet Name="exceptionlogs" EntityType="DX_LOGGERModel.exceptionlog" />
+        </EntityContainer>
+        <EntityType Name="adminlog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="datetime" Type="DateTime" />
+          <Property Name="docboxthread" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+          <Property Name="loglevel" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
+          <Property Name="logger" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+          <Property Name="logmessage" Type="String" MaxLength="600" Unicode="false" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="exceptionlog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="date" Type="DateTime" />
+          <Property Name="thread" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+          <Property Name="loglevel" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
+          <Property Name="logger" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+          <Property Name="exceptionmessage" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="DX_LOGGERModelStoreContainer" CdmEntityContainer="DX_LOGGEREntities">
+          <EntitySetMapping Name="adminlogs"><EntityTypeMapping TypeName="DX_LOGGERModel.adminlog"><MappingFragment StoreEntitySet="adminlog">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="datetime" ColumnName="datetime" />
+            <ScalarProperty Name="docboxthread" ColumnName="docboxthread" />
+            <ScalarProperty Name="loglevel" ColumnName="loglevel" />
+            <ScalarProperty Name="logger" ColumnName="logger" />
+            <ScalarProperty Name="logmessage" ColumnName="logmessage" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="exceptionlogs"><EntityTypeMapping TypeName="DX_LOGGERModel.exceptionlog"><MappingFragment StoreEntitySet="exceptionlog">
+            <ScalarProperty Name="id" ColumnName="id" />
+            <ScalarProperty Name="date" ColumnName="date" />
+            <ScalarProperty Name="thread" ColumnName="thread" />
+            <ScalarProperty Name="loglevel" ColumnName="loglevel" />
+            <ScalarProperty Name="logger" ColumnName="logger" />
+            <ScalarProperty Name="exceptionmessage" ColumnName="exceptionmessage" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2008/10/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="DocboxLogger">
+        <EntityTypeShape EntityType="DX_LOGGERModel.adminlog" Width="1.5" PointX="0.75" PointY="0.75" Height="2.172587890625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DX_LOGGERModel.exceptionlog" Width="1.5" PointX="2.75" PointY="0.75" Height="2.1725878906249996" IsExpanded="true" />
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>

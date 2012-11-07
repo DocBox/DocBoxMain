@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
-using docbox.Models;
 
 namespace docbox
 {
@@ -46,8 +41,13 @@ namespace docbox
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
-
-            //ModelBinders.Binders[typeof(docbox.Models.Files)] = new DocumentBinder();
+            //Adding configuration for log4net for audit and exception logggig
+            log4net.Config.XmlConfigurator.Configure();
+           // var container = new UnityContainer();
+           // container.RegisterType<DocboxLoggingSerivce,DocboxLogger>(new InjectionConstructor(LogManager.GetLogger
+           // (MethodBase.GetCurrentMethod().DeclaringType)));           
+            //DependencyResolver.SetResolver(new UnityServiceLocator(container));
+           
         }
     }
 }

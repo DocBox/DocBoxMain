@@ -1,0 +1,35 @@
+﻿@model List<docbox.Models.adminlog>
+@{
+    ViewBag.Title = "View Audit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>
+    View Audit</h2>
+@Html.ValidationSummary(true, "")
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 100);
+   grid.Pager(WebGridPagerModes.NextPrevious); 
+}
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav">
+                <li class="active"><a class="brand" href="#">Audit</a> </li>
+             </ul>
+            @grid.GetHtml(tableStyle: "webGrid",
+                        headerStyle: "webgrid-header",
+                        footerStyle: "webgrid-footer",
+                        alternatingRowStyle: "webgrid-alternating-row",
+                        selectedRowStyle: "webgrid-selected-row",
+                        rowStyle: "webgrid-row-style",
+                        htmlAttributes: new { id = "myGrid", name = "myGrid" },
+                        columns: grid.Columns(
+                            
+                        grid.Column(columnName:"id",header:"Log Id"),
+                        grid.Column(columnName:"datetime",header:"Date Time"),
+                        grid.Column(columnName:"logmessage",header:"Audit")
+                             
+                
+             ))
+        </div>
+    </div>
+</div>

@@ -37,7 +37,19 @@
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.4.1.10331.0\lib\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity">
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration">
+      <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
@@ -91,13 +103,18 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SecurityController.cs" />
     <Compile Include="Controllers\TempUserController.cs" />
-    <Compile Include="Filters\CustomRoleAttribute.cs" />
+    <Compile Include="Filters\AuditLogAttribute.cs" />
     <Compile Include="Filters\DeleteBrowserHistory.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\AdminModels.cs" />
+    <Compile Include="Models\DocboxLogger.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DocboxLogger.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Models\DocboxModel.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -108,6 +125,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ApplicationRoleProvider.cs" />
     <Compile Include="Utilities\DbCommonQueries.cs" />
+    <Compile Include="Utilities\DocboxLogger.cs" />
+    <Compile Include="Utilities\DocboxLogginService.cs" />
     <Compile Include="Utilities\EmailMessaging.cs" />
     <Compile Include="Models\HmlExtensions.cs" />
     <Compile Include="Utilities\SessionKeyMgmt.cs" />
@@ -298,6 +317,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Documents\Update.cshtml" />
+    <EntityDeploy Include="Models\DocboxLogger.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>DocboxLogger.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Admin\ViewAudit.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

@@ -15,7 +15,6 @@ namespace docbox.Filters
             usersContext.HttpContext.Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
             usersContext.HttpContext.Response.Cache.SetCacheability(HttpCacheability.NoCache);
             usersContext.HttpContext.Response.Cache.SetNoStore();
-
          
         }
     }
