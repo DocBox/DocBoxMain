@@ -715,24 +715,7 @@ namespace docbox.Controllers
             base.Dispose(disposing);
         }
 
-        // GET: /Account/MainDashboard
-
-        public ActionResult MainDashboard(List<docbox.Models.dx_docboxEntities> model)
-        {
-            if (ModelState.IsValid)
-            {
-                var allFiles = database.DX_FILES.Include("DX_USER").Include("DX_USER1");
-                if (allFiles.ToList().Count >= 1)
-                {
-                    return View(allFiles.ToList());
-                }
-                else
-                {
-                    ModelState.AddModelError("", "No Files available for view");
-                }
-            }
-            return View(model);
-        }
+       
 
     }
 }
