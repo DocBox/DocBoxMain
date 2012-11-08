@@ -698,7 +698,7 @@ namespace docbox.Controllers
                             Crypto.IV = ivArray;
 
                             ICryptoTransform Decryptor = Crypto.CreateDecryptor(Crypto.Key, Crypto.IV);
-                            byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 8, fileData.Length-8);
+                            byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 0, fileData.Length);
 
                             // Copy the encrypted data to the file data buffer
                             Array.Clear(fileData, 0, fileData.Length);
@@ -1085,8 +1085,11 @@ namespace docbox.Controllers
             catch (Exception)
             {
                 ModelState.AddModelError("","Error uploading the document ");
-                db.DX_FILES.DeleteObject(dx_files);
-                db.SaveChanges();
+                if (dx_files.fileid != null)
+                {
+                    db.DX_FILES.DeleteObject(dx_files);
+                    db.SaveChanges();
+                }
             }
             return View();
             
