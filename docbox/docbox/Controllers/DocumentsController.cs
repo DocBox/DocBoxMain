@@ -867,21 +867,6 @@ namespace docbox.Controllers
                                     DX_USER user = db.DX_USER.Single(d => d.userid == userid);
                                     string accesslevel = user.accesslevel;
 
-                                    int vpCount = 0, managerCount = 0, ceoCount = 0;
-
-                                    //Share with the owner
-                                    DX_PRIVILEGE empPriv = new DX_PRIVILEGE();
-                                    DX_PRIVILEGE mgrPriv = new DX_PRIVILEGE();
-                                    DX_PRIVILEGE vpPriv = new DX_PRIVILEGE();
-                                    DX_PRIVILEGE ceoPriv = new DX_PRIVILEGE();
-
-                                    empPriv.userid = userid;
-                                    empPriv.read = true;
-                                    empPriv.update = true;
-                                    empPriv.reason = "owner";
-                                    empPriv.check = true;
-                                    empPriv.delete = true;
-
                                     if(accesslevel !="employee" && accesslevel!="manager" && accesslevel!="vp" && accesslevel!="ceo")
                                     {
                                         ModelState.AddModelError("", "You are not authorized to upload a file");
@@ -889,88 +874,6 @@ namespace docbox.Controllers
                                     }
 
                                     //Based on the role, the file should be shared with managers
-                                    if (accesslevel == "employee")
-                                    {
-                                        //Getting the dept id of employee
-                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
-                                        int deptid = userdept.deptid;
-
-                                        //Getting the user id of manager
-                                        var managers = from usersTable in db.DX_USER
-                                                       where usersTable.accesslevel == "manager"
-                                                       join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
-                                                       select usersTable;
-                                        if (managers.Count() != 0)
-                                        {
-                                            managerCount = managers.Count();
-                                            foreach (DX_USER managerUser in managers)
-                                            {
-                                                //Providing manager the respective rights
-                                                string managerId = managerUser.userid;
-
-                                                mgrPriv.userid = managerId;
-                                                mgrPriv.read = true;
-                                                mgrPriv.check = true;
-                                                mgrPriv.update = true;
-                                                mgrPriv.reason = "inherit";
-                                                mgrPriv.delete = true;
-
-                   
-                                            }
-                                        }
-
-
-                                    }
-                                    if (accesslevel == "manager" || accesslevel == "employee")
-                                    {
-                                        //Getting the dept id of employee
-                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
-                                        int deptid = userdept.deptid;
-
-                                        var vp = from usersTable in db.DX_USER
-                                                 where usersTable.accesslevel == "vp"
-                                                 join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
-                                                 select usersTable;
-                                        if (vp.Count() != 0)
-                                        {
-                                            vpCount = vp.Count();
-                                            foreach (DX_USER vpUser in vp)
-                                            {
-                                                string vpId = vpUser.userid;
-
-                                                vpPriv.userid = vpId;
-                                                vpPriv.read = true;
-                                                vpPriv.check = true;
-                                                vpPriv.update = true;
-                                                vpPriv.reason = "inherit";
-                                                vpPriv.delete = true;
-                                            }
-                                        }
-
-                                    }
-                                    if (accesslevel == "vp" || accesslevel == "manager" || accesslevel == "employee")
-                                    {
-                                        var ceo = from usersTable in db.DX_USER
-                                                  where usersTable.accesslevel == "ceo"
-                                                  select usersTable;
-                                        if (ceo.Count() != 0)
-                                        {
-                                            ceoCount = ceo.Count();
-                                            foreach (DX_USER ceoUser in ceo)
-                                            {
-                                                string ceoId = ceoUser.userid;
-
-                                                ceoPriv.userid = ceoId;
-                                                ceoPriv.read = true;
-                                                ceoPriv.check = true;
-                                                ceoPriv.update = true;
-                                                ceoPriv.reason = "inherit";
-                                                ceoPriv.delete = true;
-                                            }
-                                        }
-
-                                    }
-
                                     // Create a new file version object
                                     DX_FILEVERSION fileversion = new DX_FILEVERSION();
                                     fileversion.isencrypted = false;
@@ -1027,7 +930,9 @@ namespace docbox.Controllers
                                         totalSize=0;
                                     totalSize /= (1024 * 1024);
 
-                                    if ((totalSize + (fileData.Length / (1024 * 1024)) > 1024))
+                                    long maxSize = long.Parse(System.Configuration.ConfigurationSettings.AppSettings["filestreamMaxSize"]);
+
+                                    if ((totalSize + (fileData.Length / (1024 * 1024)) > maxSize))
                                     {
                                         ModelState.AddModelError("", "Disk space exceeded. Please contact admin");
                                         return View();
@@ -1052,29 +957,104 @@ namespace docbox.Controllers
 
                                     db.DX_FILEVERSION.AddObject(fileversion);
 
+                                    //Share with the owner
+                                    DX_PRIVILEGE empPriv = new DX_PRIVILEGE();
+                                    
+                                    empPriv.userid = userid;
+                                    empPriv.read = true;
+                                    empPriv.update = true;
+                                    empPriv.reason = "owner";
+                                    empPriv.check = true;
+                                    empPriv.delete = true;
+
                                     empPriv.fileid = dx_files.fileid;
                                     db.DX_PRIVILEGE.AddObject(empPriv);
 
-                                    if (managerCount != 0)
+                                    if (accesslevel == "employee")
                                     {
-                                        mgrPriv.fileid = dx_files.fileid;
-                                        db.DX_PRIVILEGE.AddObject(mgrPriv);
-                                    }
-                                    
+                                        //Getting the dept id of employee
+                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                        int deptid = userdept.deptid;
 
-                                    if (vpCount != 0)
-                                    {
-                                        vpPriv.fileid = dx_files.fileid;
-                                        db.DX_PRIVILEGE.AddObject(vpPriv);
-                                    }
-                                   
+                                        //Getting the user id of manager
+                                        var managers = from usersTable in db.DX_USER
+                                                       where usersTable.accesslevel == "manager"
+                                                       join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                       select usersTable;
+                                        if (managers.Count() != 0)
+                                        {
+                                            DX_PRIVILEGE mgrPriv = new DX_PRIVILEGE();
+                                            foreach (DX_USER managerUser in managers)
+                                            {
+                                                //Providing manager the respective rights
+                                                string managerId = managerUser.userid;
 
-                                    if (ceoCount != 0)
-                                    {
-                                        ceoPriv.fileid = dx_files.fileid;
-                                        db.DX_PRIVILEGE.AddObject(ceoPriv);
+                                                mgrPriv.userid = managerId;
+                                                mgrPriv.read = true;
+                                                mgrPriv.check = true;
+                                                mgrPriv.update = true;
+                                                mgrPriv.reason = "inherit";
+                                                mgrPriv.delete = true;
+                                                mgrPriv.fileid = dx_files.fileid;
+                                                db.DX_PRIVILEGE.AddObject(mgrPriv);
+                                            }
+                                        }
+
+
                                     }
-                                    
+                                    if (accesslevel == "manager" || accesslevel == "employee")
+                                    {
+                                        //Getting the dept id of employee
+                                        DX_USERDEPT userdept = db.DX_USERDEPT.Single(d => d.userid == userid);
+                                        int deptid = userdept.deptid;
+
+                                        var vp = from usersTable in db.DX_USER
+                                                 where usersTable.accesslevel == "vp"
+                                                 join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                 select usersTable;
+                                        if (vp.Count() != 0)
+                                        {
+                                            foreach (DX_USER vpUser in vp)
+                                            {
+                                                DX_PRIVILEGE vpPriv = new DX_PRIVILEGE();
+                                                string vpId = vpUser.userid;
+
+                                                vpPriv.userid = vpId;
+                                                vpPriv.read = true;
+                                                vpPriv.check = true;
+                                                vpPriv.update = true;
+                                                vpPriv.reason = "inherit";
+                                                vpPriv.delete = true;
+                                                vpPriv.fileid = dx_files.fileid;
+                                                db.DX_PRIVILEGE.AddObject(vpPriv);
+                                            }
+                                        }
+
+                                    }
+                                    if (accesslevel == "vp" || accesslevel == "manager" || accesslevel == "employee")
+                                    {
+                                        var ceo = from usersTable in db.DX_USER
+                                                  where usersTable.accesslevel == "ceo"
+                                                  select usersTable;
+                                        if (ceo.Count() != 0)
+                                        {
+                                            foreach (DX_USER ceoUser in ceo)
+                                            {
+                                                DX_PRIVILEGE ceoPriv = new DX_PRIVILEGE();
+                                                string ceoId = ceoUser.userid;
+
+                                                ceoPriv.userid = ceoId;
+                                                ceoPriv.read = true;
+                                                ceoPriv.check = true;
+                                                ceoPriv.update = true;
+                                                ceoPriv.reason = "inherit";
+                                                ceoPriv.delete = true;
+                                                ceoPriv.fileid = dx_files.fileid;
+                                                db.DX_PRIVILEGE.AddObject(ceoPriv);
+                                            }
+                                        }
+
+                                    }
 
                                     db.SaveChanges();
 
@@ -1213,42 +1193,56 @@ namespace docbox.Controllers
                     {
                         if (dx_files.isarchived != true)
                         {
-                            //TODO - CHECK IF THE USER HAS DELETE PRIV
-                            if (user == dx_files.ownerid)
+                            var privileges = from privTable in db.DX_PRIVILEGE
+                                             where privTable.fileid == dx_files.fileid
+                                             join users in db.DX_USER on privTable.userid equals users.userid
+                                             select privTable;
+
+                            if (privileges.Count() != 0)
                             {
-                                long fileid = dx_files.fileid;
-                                db.DX_FILES.DeleteObject(dx_files);
-                                db.SaveChanges();
-                                return RedirectToAction("ListDocuments");
+                                DX_PRIVILEGE privUser = privileges.First();
+                                if (privUser.delete)
+                                {
+                                    long fileid = dx_files.fileid;
+                                    db.DX_FILES.DeleteObject(dx_files);
+                                    db.SaveChanges();
+                                    return RedirectToAction("ListDocuments");
+                                }
+                                else
+                                {
+                                    ModelState.AddModelError("", "You do not have privileges to delete this file");
+                                    return RedirectToAction("ListDocuments");
+                                }
                             }
                             else
                             {
-                                ModelState.AddModelError("", "You do not have privileges to delete this file");
-                                return View();
+                                ModelState.AddModelError("", "You do not have privileges to access this file");
+                                return RedirectToAction("ListDocuments");
                             }
                         }
                         else
                         {
                             ModelState.AddModelError("", "The file has been archived. Hence cannot be deleted");
+                            return RedirectToAction("ListDocuments");
                         }
                     }
                     else
                     {
                         ModelState.AddModelError("", "The file has been checked out by other user and cannot be deleted");
-                        return View();
+                        return RedirectToAction("ListDocuments");
                     }
                 }
                 else
                 {
                     ModelState.AddModelError("", "The file has already been deleted");
-                    return View();
+                    return RedirectToAction("ListDocuments");
                 }
             }
             catch (Exception)
             {
                 ModelState.AddModelError("", "Exception caught, Please contact admin for more info");
             }
-            return View();
+            return RedirectToAction("ListDocuments");
         }
 
 

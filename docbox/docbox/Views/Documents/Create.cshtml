@@ -33,8 +33,8 @@
 @*@using (Html.BeginForm()) {*@
     
     
-
-  <form class="form-horizontal"  method="post" enctype="multipart/form-data">
+@using (Html.BeginForm("Create", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
  <fieldset>
 <div class="control-group">
     <label class="control-label"  for="file">Select File</label>
@@ -46,17 +46,16 @@
 <div class="control-group">
     <label class="control-label"  for="filename">Description</label>
     <div class="controls">
-            <input type="text" id="description" name="description" class="input-xlarge" maxlength=75/>
+            <input type="text" id="description" name="description" class="input-xlarge" maxlength="75"/>
     </div>
 </div>
 <div class="control-group">
- <label class="checkbox">
-            <div class="controls">
-                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"> Encrypt? </input>
-                <input type="file" name="keyFile" id="keyFile" disabled/>
-                </div>
-            </label>
-           
+<div class="controls">
+            
+                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"/> Encrypt? 
+                <input type="file" name="keyFile" id="keyFile" disabled="disabled"/>
+                
+           </div>
             </div>
             
             <div class="control-group">
@@ -72,8 +71,7 @@
     @Html.ActionLink("Back to List", "ListDocuments")
     </div>
 </div>
-        </form>
-
+</div>
     
+}    
     
-    </div>

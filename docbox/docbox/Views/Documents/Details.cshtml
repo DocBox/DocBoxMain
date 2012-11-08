@@ -85,9 +85,8 @@
                         </div>
 
     
-    @Html.ActionLink("Back to List", "ListDocuments")
+    @Html.ActionLink("Back to List", "@ViewData[\"originalCaller\"]")
     </fieldset>
     
 
     }
-    </body>
