@@ -1,9 +1,9 @@
 ﻿@model docbox.Models.ShareDocuments
 @{
     ViewBag.Title = "Share";
-    
+    Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
-<h2>
+<h2 class="text-info">
     Share</h2>
 @using (Html.BeginForm())
 {
@@ -14,7 +14,7 @@
         @Html.ValidationMessageFor(m => m.shareWithUsers)
     </div>
     <div class="editor-field">
-        @Html.ListBoxFor(m => m.shareWithUsers, new MultiSelectList(ViewBag.UsersList, "userid", "userid", Model.shareWithUsers))
+        @Html.ListBoxFor(m => m.shareWithUsers, new MultiSelectList(ViewBag.UsersList, "userid", "userid", Model.shareWithUsers), new { style = "height:200px" })
     </div>
     
      <div class="editor-label">
@@ -31,17 +31,24 @@
      </div>
     <div class="editor-label">
       <table>
-      <tr> @Html.CheckBoxFor(m => m.update)  
-       @Html.LabelFor(m => m.update) 
-       @Html.Label("Updating the meta-data of the file")</tr>
+      <tr><td>@Html.CheckBoxFor(m => m.update)</td>
+      <td>@Html.LabelFor(m => m.update)</td>
+       <td><span class="label label-success">Updating the meta-data of the file</span></td>
+       </tr>
       </table>
       
     </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.check)   
-       @Html.LabelFor(m => m.check) 
-       @Html.Label("Updating a the current file")
+       <table>
+       <tr><td>@Html.CheckBoxFor(m => m.check)</td>   
+       <td>@Html.LabelFor(m => m.check)</td> 
+       <td><span class="label label-success">Updating a the current file</span></td>
+       </tr></table>
     </div>
-    <input type="submit" value="Share" name="action:ShareFiles"/>
-
+    <div class="control-group">
+            <div class="controls">
+                        <input type="submit" value="Share" name="action:ShareFiles" class="btn btn-primary"/>
+                        </div>
+                        </div>
+   
 }
