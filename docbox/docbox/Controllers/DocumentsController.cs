@@ -67,7 +67,7 @@ namespace docbox.Controllers
         //GET : //Documents/ListDocuments
 
         [ImportFromTempData]
-        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult ListDocuments(List<FileModel> model)
         {
             if (null != model)
