@@ -358,18 +358,16 @@ namespace docbox.Models
         /// </summary>
         /// <param name="fileid">Initial value of the fileid property.</param>
         /// <param name="filename">Initial value of the filename property.</param>
-        /// <param name="parentpath">Initial value of the parentpath property.</param>
         /// <param name="ownerid">Initial value of the ownerid property.</param>
         /// <param name="latestversion">Initial value of the latestversion property.</param>
         /// <param name="isarchived">Initial value of the isarchived property.</param>
         /// <param name="type">Initial value of the type property.</param>
         /// <param name="creationdate">Initial value of the creationdate property.</param>
-        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String parentpath, global::System.String ownerid, global::System.Int64 latestversion, global::System.Boolean isarchived, global::System.String type, global::System.DateTime creationdate)
+        public static DX_FILES CreateDX_FILES(global::System.Int64 fileid, global::System.String filename, global::System.String ownerid, global::System.Int64 latestversion, global::System.Boolean isarchived, global::System.String type, global::System.DateTime creationdate)
         {
             DX_FILES dX_FILES = new DX_FILES();
             dX_FILES.fileid = fileid;
             dX_FILES.filename = filename;
-            dX_FILES.parentpath = parentpath;
             dX_FILES.ownerid = ownerid;
             dX_FILES.latestversion = latestversion;
             dX_FILES.isarchived = isarchived;
@@ -432,30 +430,6 @@ namespace docbox.Models
         private global::System.String _filename;
         partial void OnfilenameChanging(global::System.String value);
         partial void OnfilenameChanged();
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
-        public global::System.String parentpath
-        {
-            get
-            {
-                return _parentpath;
-            }
-            set
-            {
-                OnparentpathChanging(value);
-                ReportPropertyChanging("parentpath");
-                _parentpath = StructuralObject.SetValidValue(value, false);
-                ReportPropertyChanged("parentpath");
-                OnparentpathChanged();
-            }
-        }
-        private global::System.String _parentpath;
-        partial void OnparentpathChanging(global::System.String value);
-        partial void OnparentpathChanged();
     
         /// <summary>
         /// No Metadata Documentation available.

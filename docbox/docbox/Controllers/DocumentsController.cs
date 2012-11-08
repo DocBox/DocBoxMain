@@ -524,7 +524,7 @@ namespace docbox.Controllers
         }
         
         // GET: /Documents/SharedDocDetails/
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [Authorize(Roles = "employee, manager, ceo, vp, guest")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult SharedDocDetails(long fileId)
         {
@@ -639,7 +639,7 @@ namespace docbox.Controllers
 
         [HttpPost]
        // [MultipleButton(Name = "action", Argument = "Details")]
-        [Authorize(Roles = "employee,manager,ceo,vp")]
+        [Authorize(Roles = "employee,manager,ceo,vp, guest")]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Download()
         {
@@ -835,7 +835,6 @@ namespace docbox.Controllers
                         {
                             dx_files.ownerid = userid;
                             dx_files.isarchived = false;
-                            dx_files.parentpath = "/" + userid;
                             dx_files.islocked = false;
 
                             // Get the filename and its extension
@@ -1495,7 +1494,7 @@ namespace docbox.Controllers
                             {
                                 foreach (DX_PRIVILEGE existingfile in listofsharedfiles)
                                 {
-                                    if (existingfile.reason != "inherit" && existingfile.reason!="owner")
+                                    if (existingfile.reason != "inherit" && existingfile.reason != "owner")
                                     {
                                         existingfile.read = true;
                                         existingfile.delete = false;

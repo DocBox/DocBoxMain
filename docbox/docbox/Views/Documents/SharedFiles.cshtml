@@ -51,10 +51,10 @@
                         grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" hidden="hidden" value=@item.FileID  /></text>),
                         grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
                         "SharedDocDetails", "Documents", new { @fileId = item.FileId}, null)</text>),
-                        grid.Column("Description"),
-                        grid.Column("FileVersion"),
-                        grid.Column("Owner"),
-                        grid.Column("CreationDate"),
+                grid.Column(header:"Description",columnName:"Description"),
+                grid.Column(header:"FileVersion",columnName:"FileVersion"),
+                grid.Column(header:"Owner",columnName:"Owner"),
+                grid.Column(header:"CreationDate",columnName:"CreationDate"),
                         grid.Column("Update",format: (item) => item.update == true ? Html.ActionButton("","update","Documents","icon-pencil",null): Html.Raw("NA")),
                         grid.Column("Check-in/Out", format: (item) => item.check == true ? Html.CheckBox("checkLock", item.check == true ? false : true, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" }) : Html.Raw("NA"))
                         ))

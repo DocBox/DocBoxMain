@@ -10,7 +10,7 @@
 
 
     <div class="editor-label">
-        @Html.LabelFor(m => m.shareWithUsers)
+        <b>@Html.LabelFor(m => m.shareWithUsers)</b>
         @Html.ValidationMessageFor(m => m.shareWithUsers)
     </div>
     <div class="editor-field">
@@ -18,7 +18,7 @@
     </div>
     
      <div class="editor-label">
-        @Html.LabelFor(m => m.Files)
+        <b>@Html.LabelFor(m => m.Files)</b>
     </div>
     <div class="editor-field">
     <ul>
@@ -30,14 +30,17 @@
     </ul>
      </div>
     <div class="editor-label">
-       @Html.CheckBoxFor(m => m.update)  
+      <table>
+      <tr> @Html.CheckBoxFor(m => m.update)  
        @Html.LabelFor(m => m.update) 
-       @Html.Label("Updating the meta-data of the file");
+       @Html.Label("Updating the meta-data of the file")</tr>
+      </table>
+      
     </div>
     <div class="editor-label">
        @Html.CheckBoxFor(m => m.check)   
        @Html.LabelFor(m => m.check) 
-       @Html.Label("Updating a the current file");
+       @Html.Label("Updating a the current file")
     </div>
     <input type="submit" value="Share" name="action:ShareFiles"/>
 

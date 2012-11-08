@@ -4,13 +4,11 @@
     Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
-
-@Html.ValidationSummary(true)
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
-    <div class="navbar-inner">
+    <div>
         @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
         {
             IDictionary<string, string> searchConditions = new Dictionary<string, string>();
@@ -26,7 +24,8 @@
             <div class="container">
                 <ul class="nav">
                     <li class="active"><a class="brand" href="#">Archived Docs</a> </li>
-                 <li><input type="submit" value="UnArchive" name="action:UnArchive" /></li>
+                 <li class="divider-vertical"><label for="archive" class="btn btn-link"><i class="icon-move"></i>Unarchive</label>
+                        <input id="archive" type="submit" name="action:Archive" value="Go" class="hidden" /></li>
                 <li><label for="txtSearch" class="text-info"></label>
                         <input id="txtSearch" type="text" name="fileName" />               
                  <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
