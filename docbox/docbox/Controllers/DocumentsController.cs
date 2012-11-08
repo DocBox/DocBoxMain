@@ -430,9 +430,9 @@ namespace docbox.Controllers
             return tmpValue;
         }
 
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         private void SaveCheckInOut(string fileid)
         {
-
             long intID = Convert.ToInt64(fileid);
             if (ModelState.IsValid)
             {
@@ -450,7 +450,7 @@ namespace docbox.Controllers
                 // Throw an exception if document is locked/archived/access restricted
                 if (dx_files.isarchived == true || !hasAccess)
                 {
-                    throw new AccessViolationException("Cannot access the file. File not found or access denied!");
+                    ModelState.AddModelError("Permission Denied:", "Cannot access the file. File not found or access denied!");
                 }
 
                 try
@@ -468,7 +468,7 @@ namespace docbox.Controllers
                         }
                         else
                         {
-                            throw new AccessViolationException("Permission Denied: The file is locked by user " + lockedBy + ".");
+                            ModelState.AddModelError("Permission Denied:", "The file is locked by user " + lockedBy + ".");
                         }
                     }
                     else
@@ -491,24 +491,26 @@ namespace docbox.Controllers
             }
         }
 
-        [AcceptVerbs(HttpVerbs.Post)]
         [Authorize(Roles = "employee,manager,ceo,vp")]
+        [AcceptVerbs(HttpVerbs.Post), ImportFromTempData]
         public ActionResult CheckInOut(string fileid)
         {
             SaveCheckInOut(fileid);
             return RedirectToAction("ListDocuments");
         }
 
+        [Authorize(Roles = "employee,manager,ceo,vp,guest")]
         [AcceptVerbs(HttpVerbs.Post)]
-        [Authorize(Roles = "employee,manager,ceo,vp")]
+        [ImportFromTempData]
         public ActionResult CheckInOutShared(string fileid)
         {
             SaveCheckInOut(fileid);
             return RedirectToAction("SharedFiles");
         }
 
-        [AcceptVerbs(HttpVerbs.Post)]
         [Authorize(Roles = "manager,ceo,vp")]
+        [AcceptVerbs(HttpVerbs.Post)]
+        [ImportFromTempData]
         public ActionResult CheckInOutDept(string fileid)
         {
             SaveCheckInOut(fileid);
@@ -1538,23 +1540,25 @@ namespace docbox.Controllers
                 
                 foreach(var sharedfile in files)
                 {
-                    if (sharedfile.filetable.islocked != true)
+                    if (sharedfile.filetable.isarchived == true)
                     {
-                        if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
-                        {
-                            FileShared share = new FileShared();
-                            share.FileID = (sharedfile.filetable.fileid).ToString();
-                            share.FileName = sharedfile.filetable.filename;
-                            share.Description = sharedfile.versiontable.description;
-                            share.FileVersion = sharedfile.versiontable.versionnumber;
-                            share.CreationDate = (sharedfile.filetable.creationdate).ToString();
-                            share.Owner = sharedfile.filetable.ownerid;
-                            share.read = sharedfile.privilegetable.read;
-                            share.delete = sharedfile.privilegetable.delete;
-                            share.update = sharedfile.privilegetable.update;
-                            share.check = sharedfile.privilegetable.check;
-                            docs.Add(share);
-                        }
+                        ModelState.AddModelError("", "Permission Denied: The file is in archived state");
+                    }
+                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                    {
+                        FileShared share = new FileShared();
+                        share.FileID = (sharedfile.filetable.fileid).ToString();
+                        share.FileName = sharedfile.filetable.filename;
+                        share.Description = sharedfile.versiontable.description;
+                        share.FileVersion = sharedfile.versiontable.versionnumber;
+                        share.CreationDate = (sharedfile.filetable.creationdate).ToString();
+                        share.Owner = sharedfile.filetable.ownerid;
+                        share.read = sharedfile.privilegetable.read;
+                        share.delete = sharedfile.privilegetable.delete;
+                        share.update = sharedfile.privilegetable.update;
+                        share.check = sharedfile.privilegetable.check;
+                        share.islocked = Convert.ToBoolean(sharedfile.filetable.islocked);
+                        docs.Add(share);
                     }
                 }
                 return View("SharedFiles",docs);

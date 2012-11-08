@@ -50,6 +50,9 @@ namespace docbox.Models
         [Display(Name = "Owner")]
         public string Owner { get; set; }
 
+        [Display(Name = "Is Locked")]
+        public bool islocked { get; set; }
+
         [DataType(DataType.DateTime)]
         [Display(Name = "Creation Date")]
         public string CreationDate { get; set; }

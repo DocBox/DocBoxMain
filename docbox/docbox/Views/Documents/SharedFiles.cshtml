@@ -56,7 +56,7 @@
                 grid.Column(header:"Owner",columnName:"Owner"),
                 grid.Column(header:"CreationDate",columnName:"CreationDate"),
                         grid.Column("Update",format: (item) => item.update == true ? Html.ActionButton("","update","Documents","icon-pencil",null): Html.Raw("NA")),
-                        grid.Column("Check-in/Out", format: (item) => item.check == true ? Html.CheckBox("checkLock", item.check == true ? false : true, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" }) : Html.Raw("NA"))
+                        grid.Column("Check-in/Out", format: (item) => item.check == true ? Html.CheckBox("checkLock", item.islocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" }) : Html.Raw("NA"))
                         ))
     </div>
 }
