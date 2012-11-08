@@ -698,7 +698,7 @@ namespace docbox.Controllers
                             Crypto.IV = ivArray;
 
                             ICryptoTransform Decryptor = Crypto.CreateDecryptor(Crypto.Key, Crypto.IV);
-                            byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 0, fileData.Length);
+                            byte[] originalFile = Decryptor.TransformFinalBlock(fileData, 8, fileData.Length-8);
 
                             // Copy the encrypted data to the file data buffer
                             Array.Clear(fileData, 0, fileData.Length);
@@ -1109,14 +1109,14 @@ namespace docbox.Controllers
         // POST: /Documents/Edit/5
 
         [HttpPost]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Edit(DX_FILEVERSION filever)
         {
             try
             {
                 string description = Request.Params.Get("description");
-                if (description.Length != 0 || description.Length>75)
-                {
+                
                     string fileidtrap = Request.Params.Get("fileid");
                     long fileid = long.Parse(fileidtrap.Substring(0, fileidtrap.IndexOf('_')));
                     int fileversion = int.Parse(fileidtrap.Substring(fileidtrap.IndexOf(' ')));
@@ -1124,12 +1124,25 @@ namespace docbox.Controllers
 
                     DX_FILES mainFile = db.DX_FILES.Single(d => d.fileid == fileid);
 
+                    if (mainFile == null)
+                    {
+                        ModelState.AddModelError("", "The file does not exist anymore");
+                        return View(filever);
+                    }
+
                     DX_PRIVILEGE userPriv = db.DX_PRIVILEGE.Single(d => d.fileid == fileid && d.userid == userid);
 
+                    DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileid && d.versionnumber == fileversion);
+                    if (description.Length != 0 || description.Length > 75)
+                    {
                     if (userPriv.update == true)
                     {
 
-                        DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileid && d.versionnumber == fileversion);
+                        if (fileObj == null)
+                        {
+                            ModelState.AddModelError("", "The file does not exist anymore");
+                            return RedirectToAction("ListDocuments");
+                        }
 
                         if (fileObj.description != description)
                         {
@@ -1143,19 +1156,19 @@ namespace docbox.Controllers
                         else
                         {
                             ModelState.AddModelError("", "File description is same as earlier and hence not updated");
-                            return View();
+                            return View(fileObj);
                         }
                     }
                     else
                     {
                         ModelState.AddModelError("", "You do not have edit permissions on this file");
-                        return View();
+                        return View(fileObj);
                     }
                 }
                 else
                 {
                     ModelState.AddModelError("", "Please enter a valid description");
-                    return View();
+                    return View(fileObj);
                 }
             }
             catch (Exception)
