@@ -1572,7 +1572,7 @@ namespace docbox.Controllers
             return UpdateDocumentDetails(fileId, "MyDocuments");
         }
 
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [Authorize(Roles = "employee, manager, ceo, vp, guest")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult UpdateSharedDocs(long fileId)
         {
@@ -1651,7 +1651,7 @@ namespace docbox.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [Authorize(Roles = "employee, manager, ceo, vp, guest")]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Update()
         {
