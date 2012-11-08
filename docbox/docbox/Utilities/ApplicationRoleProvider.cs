@@ -32,7 +32,7 @@ namespace docbox.Utilities
                     string[] roles = {""};
                     
                     if(userInfo.ToList().Count==1){
-                        roles[0] = userInfo.ToList().First().role;
+                        roles[0] = userInfo.ToList().First().accesslevel;
                     }
                     return roles;
 
