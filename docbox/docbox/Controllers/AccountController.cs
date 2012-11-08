@@ -288,7 +288,7 @@ namespace docbox.Controllers
 
                 if (model.FirstName == null || model.LastName == null
                     || model.Phone == null || model.Password == null || model.Position == null
-                    || model.Squestion == null || model.Email == null || model.ConfirmPassword == null
+                    || model.Email == null || model.ConfirmPassword == null
                     || model.Captcha == null || model.Answer == null)
                 {
 
