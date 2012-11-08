@@ -522,7 +522,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult MyDocDetails(long fileId)
         {
-            return Details(fileId, "MyDocuments");
+            return Details(fileId, "ListDocuments");
         }
         
         // GET: /Documents/SharedDocDetails/
@@ -530,7 +530,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult SharedDocDetails(long fileId)
         {
-            return Details(fileId, "SharedDocuments");
+            return Details(fileId, "SharedFiles");
         }
 
         // GET: /Documents/DeptDocDetails/5
@@ -538,7 +538,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeptDocDetails(long fileId)
         {
-            return Details(fileId, "DepartmentDocuments");
+            return Details(fileId, "DepartmentFiles");
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
@@ -624,9 +624,9 @@ namespace docbox.Controllers
                 // In case of error, return the view where the download was requested from
                 switch (callerName)
                 {
-                    case "MyDocuments": return RedirectToAction("ListDocuments");
-                    case "SharedDocuments": return RedirectToAction("SharedFiles");
-                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -638,7 +638,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Download()
         {
-            string originalView = "MyDocuments";
+            string originalView = "ListDocuments";
             try
             {
                 // Get the parameters from request
@@ -736,9 +736,9 @@ namespace docbox.Controllers
                 // On error, return to the page where download was requested from
                 switch (originalView)
                 {
-                    case "MyDocuments": return RedirectToAction("ListDocuments");
-                    case "SharedDocuments": return RedirectToAction("SharedFiles");
-                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1568,21 +1568,21 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult UpdateMyDocs(long fileId)
         {
-            return UpdateDocumentDetails(fileId, "MyDocuments");
+            return UpdateDocumentDetails(fileId, "ListDocuments");
         }
 
         [Authorize(Roles = "employee, manager, ceo, vp, guest")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult UpdateSharedDocs(long fileId)
         {
-            return UpdateDocumentDetails(fileId, "SharedDocuments");
+            return UpdateDocumentDetails(fileId, "SharedFiles");
         }
 
         [Authorize(Roles = "employee, manager, ceo, vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult UpdateDepartmentDocs(long fileId)
         {
-            return UpdateDocumentDetails(fileId, "DepartmentDocuments");
+            return UpdateDocumentDetails(fileId, "DepartmentFiles");
         }
 
         [Authorize(Roles = "employee, manager, ceo, vp")]
@@ -1641,9 +1641,9 @@ namespace docbox.Controllers
 
                 switch (calledFrom)
                 {
-                    case "MyDocuments": return RedirectToAction("ListDocuments");
-                    case "SharedDocuments": return RedirectToAction("SharedFiles");
-                    case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1654,7 +1654,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         public ActionResult Update()
         {
-            string originalCaller = "MyDocuments";
+            string originalCaller = "ListDocuments";
             try
             {
                 // Get the parameters from request
@@ -1820,9 +1820,9 @@ namespace docbox.Controllers
             // return to the original view
             switch (originalCaller)
             {
-                case "MyDocuments": return RedirectToAction("ListDocuments");
-                case "SharedDocuments": return RedirectToAction("SharedFiles");
-                case "DepartmentDocuments": return RedirectToAction("DepartmentFiles");
+                case "ListDocuments": return RedirectToAction("ListDocuments");
+                case "SharedFiles": return RedirectToAction("SharedFiles");
+                case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
                 default: return RedirectToAction("ListDocuments");
             }
         }
