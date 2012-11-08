@@ -31,11 +31,16 @@ namespace docbox.Controllers
 
         public static Dictionary<int, string> secrateQuestionList = new Dictionary<int, string>()
     {
-        {1,"What is your father's middle name?"},
-        {2,"What was the last name of your favorite teacher?"},
-        {3,"What was your first pet's name?"},
-        {4,"Where did you meet your spouse"},
-        {5,"What was your favorite food as child?"},
+        {1,"What is name of your favorite childhood friend?"},
+        {2,"What was the last name of your favorite teacher in primary school?"},
+        {3,"In what city or town did your father and mother meet"},
+        {4,"Waht is your maternal grandmother's maiden name?"},
+        {5,"What was name of your first stuffed animal?"},
+        {6,"What street did you lived in 1st grade?"},
+        {7,"Which is your favorite Airport?"},
+        {8,"What is the name of a University you applied to but didn't attend?"},
+        {9,"In what city and country do you want to retire?"},
+
     };
 
     }

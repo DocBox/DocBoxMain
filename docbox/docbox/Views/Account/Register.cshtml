@@ -104,12 +104,20 @@
             </div>
             <div class="editor-field">
              @Html.DropDownListFor(m => m.Squestion, new[] {
-                new SelectListItem() {Text = "What is your father's middle name?", Value="1"},
-                new SelectListItem() {Text = "What was the last name of your favorite teacher?", Value = "2"},
-                new SelectListItem() {Text = "What was your first pet's name?", Value = "3"},
-                new SelectListItem() {Text = "Where did you meet your spouse", Value = "4"},
-                new SelectListItem() {Text = "What was your favorite food as child?", Value = "5"},
+                new SelectListItem() {Text = "What is name of your favorite childhood friend?", Value="1"},
+                new SelectListItem() {Text = "What was the last name of your favorite teacher in primary school?", Value = "2"},
+                new SelectListItem() {Text = "In what city or town did your father and mother meet", Value = "3"},
+                new SelectListItem() {Text = "Waht is your maternal grandmother's maiden name?", Value = "4"},
+                new SelectListItem() {Text = "What was name of your first stuffed animal?", Value = "5"},
+                new SelectListItem() {Text = "What street did you lived in 1st grade?", Value = "6"},
+                new SelectListItem() {Text = "Which is your favorite Airport?", Value = "7"},
+                new SelectListItem() {Text = "What is the name of a University you applied to but didn't attend?", Value = "8"},
+                new SelectListItem() {Text = "In what city and country do you want to retire?", Value = "9"},
+                
                    }, "-Select One-")
+
+
+       
             </div>
 
             <div class="editor-label">
@@ -120,7 +128,7 @@
                 @Html.ValidationMessageFor(m => m.Answer)
             </div>
             <p>
-                <input type="submit" value="Register" />
+                <input type="submit" value="Register" class="btn btn-primary" />
             </p>
         </fieldset>
     </div>

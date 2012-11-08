@@ -44,7 +44,7 @@ namespace docbox.Models
         public string LastName { get; set; }
 
         [Required]
-        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage = "Not valid email address ")]
+        [RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Not valid email address")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email address")]
         public string Email { get; set; }
@@ -53,10 +53,6 @@ namespace docbox.Models
         [Required]
         [Display(Name = "Enter Characters")]
         public string Captcha { get; set; }
-
-
-
-
        
 
     }
@@ -64,12 +60,11 @@ namespace docbox.Models
     public class VerifySecrete
     {
         
-
         [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name needs only characters and max 20 characters")]
         [Display(Name = "Answer")]
         public string Answer { get; set; }
 
-        [Required]
         [Display(Name = "Enter Characters")]
         public string Captcha { get; set; }
 
@@ -89,14 +84,15 @@ namespace docbox.Models
     public class LogOnModel
     {
         [Required]
-        [RegularExpression(@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", ErrorMessage = "Not valid email address")]
+        [RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Not valid email address")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string UserName { get; set; }
 
         [Required]
+        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [Display(Name = "Remember me?")]
@@ -110,8 +106,6 @@ namespace docbox.Models
 
     
     public class RegisterModel
-
-
     {
 
        public RegisterModel()
@@ -169,9 +163,10 @@ namespace docbox.Models
 
         [Required]
         [Display(Name = "Secret Question")]
-        public string Squestion { get; set; }
+        public int Squestion { get; set; }
 
         [Required]
+        [RegularExpression(@"^[a-zA-Z]{1,20}$", ErrorMessage = "Not a valid name needs only characters and max 20 characters")]
         [Display(Name = "Answer")]
         public string Answer { get; set; }
 

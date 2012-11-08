@@ -20,16 +20,22 @@ namespace docbox.Utilities
         
         public override string[] GetRolesForUser(string userid)
         {
-           
-                var userInof = database.DX_USER.FirstOrDefault(x => x.userid == userid);
-                if (userInof == null)
+               
+                
+                var userInfo = from users in database.DX_USER where users.userid== userid select  users;
+                if (userInfo == null)
                 {
                     return null;
                 }
                 else
                 {
-                    string[] roles = {userInof.accesslevel};
+                    string[] roles = {""};
+                    
+                    if(userInfo.ToList().Count==1){
+                        roles[0] = userInfo.ToList().First().role;
+                    }
                     return roles;
+
                 }
            
         }

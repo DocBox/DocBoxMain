@@ -11,6 +11,7 @@ using System.Text;
 using System.Net;
 using docbox.Utilities;
 using docbox.Filters;
+using System.Text.RegularExpressions;
 
 namespace docbox.Controllers
 {
@@ -41,6 +42,22 @@ namespace docbox.Controllers
         //
         // POST: /Account/LogOn
 
+        private bool logonValidations(LogOnModel model)
+        {
+            if (!Regex.IsMatch(model.UserName, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
+            {
+                ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                return false;
+            }
+
+            if (!Regex.IsMatch(model.Password, @"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$"))
+            {
+                ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                return false;
+            }
+
+            return true;
+        }
         [HttpPost]
         [DeleteBrowserHistory]
         public ActionResult LogOn(LogOnModel model, string returnUrl)
@@ -48,8 +65,15 @@ namespace docbox.Controllers
             try
             {
 
+                if (logonValidations(model) == false)
+                {
+                    return View(model);
+                }
+
                 if (ModelState.IsValid)
                 {
+                   
+
 
                     var allusers = from usertabel in database.DX_USER where usertabel.userid == model.UserName select usertabel;
                     if (allusers != null && allusers.ToList().Count == 1)
@@ -67,6 +91,7 @@ namespace docbox.Controllers
                             //Get the department
                             SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName, database);
 
+
                             //Security checkpoint for preventing open redirect attack
                             if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                                 && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
@@ -80,19 +105,19 @@ namespace docbox.Controllers
                         }
                         else
                         {
-                            ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                            ModelState.AddModelError("", "Password provided is incorrect.");
                         }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Could not connect to database!!.");
+                        ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
                     }
 
 
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                    ModelState.AddModelError("", "This is invalid request. Please provide email and passwod");
                 }
                 // If we got this far, something failed, redisplay form
             }
@@ -143,19 +168,19 @@ namespace docbox.Controllers
                         }
                         else
                         {
-                            ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                            ModelState.AddModelError("", "password provided is incorrect.");
                         }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Could not connect to database!!.");
+                        ModelState.AddModelError("", "Email id incorrect please try again!");
                     }
 
 
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                    ModelState.AddModelError("", "Email id and password provided is incorrect.");
                 }
                 // If we got this far, something failed, redisplay form
             }
@@ -271,6 +296,35 @@ namespace docbox.Controllers
                     return false;
                 }
 
+                if (isRegisterRegexValid(model) == false)
+                {
+                    return false;
+                }
+
+                if (!("ceo".Equals(model.Position) || "vp".Equals(model.Position) || "employee".Equals(model.Position) || "manager".Equals(model.Position)))
+                {
+                    ModelState.AddModelError("", "Invalid Role");
+                    return false;
+                }
+
+                foreach (int i in model.Department)
+                {
+                    if (i < 1 || i > 7)
+                    {
+                        ModelState.AddModelError("", "Incorrect department");
+                        return false;
+                    }
+
+                }
+
+                if (model.Squestion > 9 || model.Squestion < 1)
+                {
+                    ModelState.AddModelError("", "Incorrect secrate question");
+                    return false;
+                }
+
+           
+           
                 //Validate captcha
 
                 WebClient captchaCliden = new WebClient();
@@ -286,12 +340,13 @@ namespace docbox.Controllers
 
 
 
-                if ((Constants.POSITION_MANAGER_USER.Equals(model.Position) && Constants.POSITION_EMPLOYEE_USER.Equals(model.Position)) && model.Department.ToList().Count > 1)
+                if ((Constants.POSITION_MANAGER_USER.Equals(model.Position) || Constants.POSITION_EMPLOYEE_USER.Equals(model.Position)) && model.Department.ToList().Count > 1)
                 {
                     ModelState.AddModelError("", "Your position can not have multiple departments!");
                     return false;
                 }
 
+                
             }
             catch (Exception)
             {
@@ -301,6 +356,56 @@ namespace docbox.Controllers
             }
             return isValid;
         }
+        
+
+        private bool isRegisterRegexValid(RegisterModel model){
+            if (!Regex.IsMatch(model.FirstName, @"^[a-zA-Z]{1,20}$"))
+            {
+                ModelState.AddModelError("", "First name incorrect please try agian!!.");
+                return false;
+            }
+            if (!Regex.IsMatch(model.LastName, @"^[a-zA-Z]{1,20}$"))
+            {
+                ModelState.AddModelError("", "Last name incorrect please try agian!!.");
+                return false;
+            }
+
+            if (!Regex.IsMatch(model.Email, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
+            {
+                ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                return false;
+            }
+
+            if (!Regex.IsMatch(model.Phone, @"^(\d{10})$"))
+            {
+                ModelState.AddModelError("", "Phone incorrect please try agian!!.");
+                return false;
+            }
+            if (!Regex.IsMatch(model.Password, @"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$"))
+            {
+                ModelState.AddModelError("", "Password incorrect please try agian!!.");
+                return false;
+            }
+            if (!Regex.IsMatch(model.ConfirmPassword, @"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$"))
+            {
+                ModelState.AddModelError("", "Confirm Password incorrect please try agian!!.");
+                return false;
+            }
+            if (!Regex.IsMatch(model.Position, @"^[a-zA-Z]{1,20}$"))
+            {
+                ModelState.AddModelError("", "Position incorrect please try agian!!.");
+                return false;
+            }
+            if (!Regex.IsMatch(model.Answer, @"^[a-zA-Z]{1,20}$"))
+            {
+                ModelState.AddModelError("", "Answer incorrect please try agian!!.");
+                return false;
+            }            
+
+            return true;
+        }
+        
+        
         //
         // POST: /Account/Register
 
@@ -333,29 +438,33 @@ namespace docbox.Controllers
                         return View(model);
 
                     }
+                    var alldepartment= from usertabel in database.DX_DEPARTMENT where model.Department.Contains(usertabel.deptid) select usertabel;
+                    
+                    if (Constants.POSITION_CEO_USER.Equals(model.Position))
+                    {
 
-                    var alldepartment = from usertabel in database.DX_DEPARTMENT where model.Department.Contains(usertabel.deptid) select usertabel;
-                    //var alldepartment = from usertabel in database.DX_DEPARTMENT where usertabel.name == model.Department select usertabel;
+                         alldepartment = from usertabel in database.DX_DEPARTMENT select usertabel;
+                 
 
+                    }
+                   
                     if (alldepartment.ToList().Count >= 1)
                     {
 
-                        var DepartmentRecord = alldepartment.First();
-
-
-                        DX_USER user = new DX_USER();
+                       DX_USER user = new DX_USER();
                         user.fname = model.FirstName;
                         user.lname = model.LastName;
                         user.phone = model.Phone;
-                        user.questionid = Int32.Parse(model.Squestion);
+                        user.questionid = model.Squestion;
                         user.role = model.Position;
                         user.userid = model.Email;
-                        user.anshash = generateHash(model.Answer);
+                        user.anshash = generateHash(model.Answer.ToLower());
                         user.accesslevel = Constants.TEMP_USER_ACCESS;
                         user.salt = generateSalt();
                         user.pwdhash = generateHash(user.salt, model.Password);
                         user.actcodehash = "dummycode";
                         database.DX_USER.AddObject(user);//Add user
+
                         foreach (DX_DEPARTMENT dept in alldepartment.ToList())
                         {
                             DX_USERDEPT userDept = new DX_USERDEPT();
@@ -434,7 +543,7 @@ namespace docbox.Controllers
                     if (allusers != null && allusers.ToList().Count == 1)
                     {
                         DX_USER user = allusers.ToList().First();
-                        if (secretModel.Answer != null && !"".Equals(secretModel.Answer) && generateHash(secretModel.Answer).Equals(user.anshash))
+                        if (secretModel.Answer != null && !"".Equals(secretModel.Answer) && generateHash(secretModel.Answer.ToLower()).Equals(user.anshash))
                         {
                             if (sendNotificationCode())
                             {

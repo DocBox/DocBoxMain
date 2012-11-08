@@ -24,10 +24,11 @@ namespace docbox.Filters
             string userId = filterContext.HttpContext.User.Identity.Name.ToString();
             DateTime dateTime = filterContext.HttpContext.Timestamp;
             string routeId = string.Empty;
+            
             StringBuilder auditMessage = new StringBuilder();
-            auditMessage.Append("UserName=").Append(userId + "|").Append("Controller=");
-            auditMessage.Append(Controller + "|").Append("Action=").Append(Action + "|");
-            auditMessage.Append("TimeStamp=").Append(dateTime.ToString() + "|");
+            auditMessage.Append("UserName=").Append(userId + " | ").Append("Controller=");
+            auditMessage.Append(Controller + " | ").Append("Action=").Append(Action + " | ");
+            auditMessage.Append("TimeStamp=").Append(dateTime.ToString() + " | ");
             if (!string.IsNullOrEmpty(routeId))
             {
                 auditMessage.Append("RouteId=");
