@@ -62,7 +62,7 @@
                             grid.Column(header: "CheckIn/Out", format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
                             grid.Column(format: (item) => Html.ActionButton("", "UpdateDepartmentDocs", "Documents", "icon-refresh", new { @fileId = item.FileID })),
                             grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-                            grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-trash", new { id = item.FileID }))
+                            grid.Column(format: (item) => Html.ActionButton("", "DeleteDepartmentDocument", "Documents", "icon-trash", new { id = item.FileID }))
                                     ))
     </div>
 }

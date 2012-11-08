@@ -805,6 +805,7 @@ namespace docbox.Controllers
         [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult Create(DX_FILES dx_files)
         {
+            long newFileId = -1;
             try
             {
                 if (Request.Files[0].InputStream.Length != 0)
@@ -941,6 +942,8 @@ namespace docbox.Controllers
                                     // auto generated.
                                     db.DX_FILES.AddObject(dx_files);
                                     db.SaveChanges();
+
+                                    newFileId = dx_files.fileid;
 
                                     fileversion.versionnumber = (int)dx_files.latestversion;
                                     fileversion.updatedate = System.DateTime.Now;
@@ -1085,7 +1088,9 @@ namespace docbox.Controllers
             catch (Exception)
             {
                 ModelState.AddModelError("","Error uploading the document ");
-                if (dx_files.fileid != null)
+                // Check if a document information has been uploaded to DX_FILES
+                // and delete it
+                if (newFileId != -1)
                 {
                     db.DX_FILES.DeleteObject(dx_files);
                     db.SaveChanges();
@@ -1184,80 +1189,140 @@ namespace docbox.Controllers
         //
         // GET: /Documents/Delete/5
         [Authorize(Roles = "employee,manager,ceo,vp")]
-        public ActionResult Delete(long id)
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult DeleteMyDocument(long fileId)
         {
-            DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-            return View(dx_files);
+            return DeleteDocumentDetails(fileId, "ListDocuments");
         }
 
-        //
-        // POST: /Documents/Delete/5
-
-       // [HttpPost, ActionName("Delete")]
-
         [Authorize(Roles = "employee,manager,ceo,vp")]
-        public ActionResult DeleteConfirmed(long id)
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult DeleteDepartmentDocument(long fileId)
+        {
+            return DeleteDocumentDetails(fileId, "DepartmentDocuments");
+        }
+
+        private ActionResult DeleteDocumentDetails(long fileId, string callerName)
         {
             try
             {
-                string user = SessionKeyMgmt.UserId;
-                DX_FILES dx_files = db.DX_FILES.Single(d => d.fileid == id);
-                if (dx_files != null)
-                {
-                    if (dx_files.islocked != true)
-                    {
-                        if (dx_files.isarchived != true)
-                        {
-                            var privileges = from privTable in db.DX_PRIVILEGE
-                                             where privTable.fileid == dx_files.fileid
-                                             join users in db.DX_USER on privTable.userid equals users.userid
-                                             select privTable;
+                // Check if the given fileId is valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                    throw new FileNotFoundException("File not found!");
 
-                            if (privileges.Count() != 0)
-                            {
-                                DX_PRIVILEGE privUser = privileges.First();
-                                if (privUser.delete)
-                                {
-                                    long fileid = dx_files.fileid;
-                                    db.DX_FILES.DeleteObject(dx_files);
-                                    db.SaveChanges();
-                                    return RedirectToAction("ListDocuments");
-                                }
-                                else
-                                {
-                                    ModelState.AddModelError("", "You do not have privileges to delete this file");
-                                    return RedirectToAction("ListDocuments");
-                                }
-                            }
-                            else
-                            {
-                                ModelState.AddModelError("", "You do not have privileges to access this file");
-                                return RedirectToAction("ListDocuments");
-                            }
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", "The file has been archived. Hence cannot be deleted");
-                            return RedirectToAction("ListDocuments");
-                        }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "The file has been checked out by other user and cannot be deleted");
-                        return RedirectToAction("ListDocuments");
-                    }
+                // Get the current user
+                string userId = SessionKeyMgmt.UserId;
+
+                // Check if user has update privileges for this document
+                DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
+                bool hasDeletePrivileges = documentPrivilege == null ? false : documentPrivilege.delete;
+
+                if (hasDeletePrivileges == false)
+                    throw new AccessViolationException("Document cannot be deleted. Access Denied. Please try later.");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is archived and cannot be deleted");
+
+                // Check if document is checked out by current user
+                bool isFileLocked = true;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
+
+                // Do not delete if file is locked
+                if (isFileLocked)
+                    throw new AccessViolationException("Document is currently checkedout and cannot be deleted.");
+
+                ViewBag.originalCaller = callerName;
+                ViewBag.fileId = fileId;
+                ViewBag.fileName = dx_files.filename;
+                ViewBag.createdBy = dx_files.ownerid;
+
+                return View("Delete");
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException || ex is AccessViolationException)
+                {
+                    ModelState.AddModelError("", ex.Message);
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The file has already been deleted");
-                    return RedirectToAction("ListDocuments");
+                    ModelState.AddModelError("", "Error getting details about document to be updated");
+                }
+
+                switch (callerName)
+                {
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    default: return RedirectToAction("ListDocuments");
                 }
             }
-            catch (Exception)
+        }
+
+        //
+        [HttpPost]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
+        public ActionResult DeleteConfirmed()
+        {
+            string originalCaller = "ListDocuments";
+            try
             {
-                ModelState.AddModelError("", "Exception caught, Please contact admin for more info");
+                // Get the parameters from request
+                long fileId = long.Parse(Request.Params.Get("fileId"));
+                originalCaller = Request.Params.Get("originalCaller");
+
+                // Basics validations and permission checking
+                // Check if the fileId to be updated is still valid
+                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
+                if (dx_files == null)
+                    throw new FileNotFoundException("File not found!");
+
+                // Get the current userId
+                string userId = SessionKeyMgmt.UserId;
+
+                // Check if user has update privileges for this document
+                DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
+                bool hasDeletePrivileges = documentPrivilege == null ? false : documentPrivilege.delete;
+
+                if (hasDeletePrivileges == false)
+                    throw new AccessViolationException("Document cannot be deleted. Access Denied. Please try later.");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is archived and cannot be updated");
+
+                // Check if document is checked out by current user
+                bool isFileLocked = true;
+                if (dx_files.islocked.HasValue)
+                    isFileLocked = (bool)dx_files.islocked;
+
+                if (isFileLocked)
+                    throw new AccessViolationException("Document is currently checked out and cannot be deleted");
+
+                // All checks are done. Go ahead and delete the document
+                db.DX_FILES.DeleteObject(dx_files);
+                db.SaveChanges();
             }
-            return RedirectToAction("ListDocuments");
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException || ex is AccessViolationException ||
+                    ex is ArgumentException)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error deleting the document");
+                }
+            }
+
+            // Irrespective of whether document was updated or error
+            // return to the original view
+            switch (originalCaller)
+            {
+                case "ListDocuments": return RedirectToAction("ListDocuments");
+                case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                default: return RedirectToAction("ListDocuments");
+            }
         }
 
 

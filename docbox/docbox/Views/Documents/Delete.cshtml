@@ -5,44 +5,33 @@
      Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
-<h2>Delete</h2>
+<h2 class="info-text">Delete</h2>
     
-<h3>Are you sure you want to delete this?</h3>
-<form class="form-horizontal">
+<h3>Are you sure you want to delete the file?</h3>
+@using (Html.BeginForm("DeleteConfirmed", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
+    <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
+    
 <div class="control-group">
 <label class="control-label">File Name</label>
     
-  <div class="controls">   @Html.DisplayFor(model => model.filename)</div>
+  <div class="controls"> 
+  <label class="control-label">@ViewData["fileName"]</label>
+    </div>
   </div>
   <div class="control-group">
         <label class="control-label">Owner</label>
     <div class="controls">
-        @Html.DisplayFor(model => model.DX_USER1.fname)
+        @ViewData["createdBy"]
     </div>
     </div>
 
-    <div class="control-group">
-        <label class="control-label">Locked By</label>
-    <div class="controls">
-        @Html.DisplayFor(model => model.DX_USER.fname)
-    </div>
-    </div>
-
-    <div class="control-group">
-        <label class="control-label">Created on </label>
-    <div class="controls">
-        @Html.DisplayFor(model => model.creationdate)
- </div>
-    </div>
-</form>
-@*@using (Html.BeginForm())
-{*@
-    <form method="post">
+    
   <div class="control-group">
             <div class="controls">
         <input type="submit" value="Delete" class="btn btn-primary"/>
 </div>
                         </div>
-                        </form>
-@*}
-*@
+    
+}
