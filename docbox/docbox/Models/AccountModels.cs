@@ -13,8 +13,8 @@ namespace docbox.Models
 
 
         [Required]
-        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
-        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
+        [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,50})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[Minimum characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
@@ -90,8 +90,8 @@ namespace docbox.Models
         public string UserName { get; set; }
 
         [Required]
-        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
-        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
+        [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,50})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Incorrect password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
@@ -136,8 +136,8 @@ namespace docbox.Models
 
 
         [Required]
-        [StringLength(18, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
-        [RegularExpression(@"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[10-18 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
+        [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
+        [RegularExpression(@"^.*(?=.{10,50})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Password doesn't meet the requirements[Minimum 10 characters, atleast one letter, one digit, one special character from (@,%,&,#) ]")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
