@@ -15,10 +15,15 @@
         function update() {
             if (document.getElementById("encCheck").checked) {
                 document.getElementById("keyFile").disabled = false;
+                document.getElementById("encrypted").value = "true";
+                document.getElementById("keyFile").value = "";
             }
-            else
+            else {
                 document.getElementById("keyFile").disabled = true;
-            document.getElementById("keyFile").value = "";
+                document.getElementById("encrypted").value = "false";
+                document.getElementById("keyFile").value = "";
+            }
+            
         }
 
       function checkSize() {
@@ -35,6 +40,7 @@
     
 @using (Html.BeginForm("Create", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
+    <input type="hidden" name="encrypted" id="encrypted" value="false" />
  <fieldset>
 <div class="control-group">
     <label class="control-label"  for="file">Select File</label>
@@ -52,7 +58,7 @@
 <div class="control-group">
 <div class="controls">
             
-                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"/> Encrypt? 
+                <input type="checkbox" name="encryptedCheck" onchange="update()" id="encCheck"/> Encrypt? 
                 <input type="file" name="keyFile" id="keyFile" disabled="disabled"/>
                 
            </div>

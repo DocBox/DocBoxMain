@@ -28,7 +28,7 @@
 <fieldset>
 
     <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
-    <input type="hidden" name="fileVersion" value=1 />
+    <input type="hidden" name="fileVersion" value="1" />
     <input type='hidden' name="encStatus" value="false" />
     <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
     <div class="control-group">
@@ -85,7 +85,7 @@
                         </div>
 
     
-    @Html.ActionLink("Back to List", "@ViewData[\"originalCaller\"]")
+    @Html.ActionLink("Back to List", @Html.ViewData["originalCaller"].ToString())
     </fieldset>
     
 

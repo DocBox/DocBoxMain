@@ -830,12 +830,11 @@ namespace docbox.Controllers
                             // Get the filename and its extension
                             string filetype = System.IO.Path.GetExtension(file.FileName);
                             string filename = System.IO.Path.GetFileName(file.FileName);
-                            string filenamewoext = System.IO.Path.GetFileNameWithoutExtension(file.FileName);
-                            bool validFile = (filenamewoext.IndexOf('.') == -1);
+                            
                             dx_files.type = filetype;
                             dx_files.filename = filename;
 
-                            if (supportedFileTypes.Contains(filetype) && validFile)
+                            if (supportedFileTypes.Contains(filetype))
                             {
                                 // Find if there are any files with the same filename
                                 var existingFiles = from filesTable in db.DX_FILES
@@ -930,7 +929,7 @@ namespace docbox.Controllers
                                         totalSize=0;
                                     totalSize /= (1024 * 1024);
 
-                                    long maxSize = long.Parse(System.Configuration.ConfigurationSettings.AppSettings["filestreamMaxSize"]);
+                                    long maxSize = long.Parse(System.Configuration.ConfigurationManager.AppSettings["filestreamMaxSize"]);
 
                                     if ((totalSize + (fileData.Length / (1024 * 1024)) > maxSize))
                                     {

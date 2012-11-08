@@ -21,12 +21,14 @@ namespace docbox.Controllers
             return View();
         }
 
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult GenerateKey()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles = "employee,manager,ceo,vp")]
         public ActionResult GenerateKey(string password)
         {
             try

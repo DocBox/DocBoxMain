@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
-<h2>Generate Key</h2>
+<h2 class="text-info">Generate Key</h2>
 
    <fieldset>
 
@@ -13,7 +13,9 @@
     <label class="control-label"  for="file">Passphrase</label>
     <div class="controls">
             <input type="password" maxlength="30" name="passph" id="pass"/>
+            <span class="label label-info">Atleast 10 characters long</span>
     </div>
+    
 </div>
 
     <div class="control-group">
