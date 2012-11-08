@@ -35,10 +35,10 @@
             <div class="container">
                 <ul class="nav">
                     <li class="active"><a class="brand" href="#">Shared Docs</a> </li>
-                <li><label for="txtSearch" class="text-info"></label>
-                        <input id="txtSearch" type="text" name="fileName"  />               
-                 <li class="divider-vertical"><label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
-                        <input id="search" type="submit" name="action:SearchSharedDocs" value="Go" class="hidden" /></li></li>
+                <li class="divider-vertical">
+                        <input id="txtSearch" type="text" name="fileName" class="search-query pull-left" placeholder="Search" />               
+                 <label for="search" class="btn btn-link"><i class="icon-search"></i>Search</label>
+                        <input id="search" type="submit" name="action:SearchSharedDocs" value="Go" class="hidden" /></li>
                </ul>
                 @grid.GetHtml(tableStyle: "webGrid",
                         headerStyle: "webgrid-header",
