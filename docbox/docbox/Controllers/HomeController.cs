@@ -18,6 +18,12 @@ namespace docbox.Controllers
             return RedirectToAction("ListDocuments", "Documents");
         }
 
+        public ActionResult IndexOfGuest()
+        {
+            ViewBag.Message = "";
+            return RedirectToAction("SharedFiles", "Documents");
+        }
+
        
         [HttpGet]
         public ActionResult About()

@@ -2,12 +2,18 @@
     <div class="well" style="width:200px; padding: 8px 0;">
     <ul class="nav nav-list">
     <li class="nav-header"></li>
+    @if (User.IsInRole("employee") || User.IsInRole("manager") || User.IsInRole("vp") || User.IsInRole("ceo"))
+        {
     <li>@Html.ActionButton("My Docs", "ListDocuments", "Documents", "icon-home",null)</li>
     <li>@Html.ActionButton("Archived","ArchivedFiles","Documents","icon-briefcase",null)</li>
+    }
     <li>@Html.ActionButton("Shared","SharedFiles","Documents","icon-share",null)</li>
+    @if (User.IsInRole("employee") || User.IsInRole("manager") || User.IsInRole("vp") || User.IsInRole("ceo"))
+        {
     <li>@Html.ActionButton("Department Files", "DepartmentFiles", "Documents", "icon-book", null)</li>
     <li>@Html.ActionButton("Get Key","GenerateKey","Security","icon-folder-close",null)</li>
     <li>@Html.ActionButton("My Account","","","icon-user",null)</li>
+        }
     </ul>
     </div>
     </div>

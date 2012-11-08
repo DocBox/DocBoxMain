@@ -203,7 +203,7 @@ namespace docbox.Controllers
                 }
                 else if (roles.Contains(Constants.GUEST_USER_ACCESS))
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("IndexOfGuest", "Home");
                 }
                 else
                 {
