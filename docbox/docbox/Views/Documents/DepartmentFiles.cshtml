@@ -14,7 +14,7 @@
         })
     }
  </script>
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 3);
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
@@ -56,12 +56,13 @@
                             grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
                                         "DeptDocDetails", "Documents", new { @fileId = item.FileId }, null)</text>),
                             grid.Column("Description"),
-                            grid.Column("FileVersion"),
-                            grid.Column("Owner"),
-                            grid.Column("CreationDate"),
-            grid.Column(format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
-            grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-            grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID }))
+                            grid.Column("FileVersion", header: "File Version"),
+                            grid.Column("Owner", header: "Created By"),
+                            grid.Column("CreationDate", header: " Created On"),
+                            grid.Column(header: "CheckIn/Out", format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
+                            grid.Column(format: (item) => Html.ActionButton("", "UpdateDepartmentDocs", "Documents", "icon-refresh", new { @fileId = item.FileID })),
+                            grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
+                            grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-trash", new { id = item.FileID }))
                                     ))
     </div>
 }

@@ -58,8 +58,9 @@
                               grid.Column("Owner", header: "Created By"),
                               grid.Column("CreationDate", header:" Created On"),
                               grid.Column(header:"CheckIn/Out"  ,format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
-                 grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
-                 grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-remove", new { id = item.FileID }))
+                              grid.Column(format: (item) => Html.ActionButton("", "UpdateMyDocs", "Documents", "icon-refresh", new { @fileId = item.FileID })),
+                              grid.Column(format: (item) => Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID })),
+                              grid.Column(format: (item) => Html.ActionButton("", "DeleteConfirmed", "Documents", "icon-trash", new { id = item.FileID }))
              ))
              </ul>
     </div>

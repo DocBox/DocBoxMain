@@ -40,10 +40,10 @@
                 columns: grid.Columns(
                                     grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
                                                           grid.Column("FileName"),
-                                                                      grid.Column("Description"),
-                                                                      grid.Column("FileVersion"),
-                                                                      grid.Column("Owner"),
-                                                                      grid.Column("CreationDate")
+                                                          grid.Column("Description"),
+                                                          grid.Column("FileVersion", header: "File Version"),
+                                                          grid.Column("Owner", header: "Created By"),
+                                                          grid.Column("CreationDate", header: " Created On")
                                             ))
             </div>
             //@Html.ImageActionLink("", "Search", "ListDocuments", "Documents", new { filename = conditions1 }, new { name = "Search"}, new { @class = "icon-search"})

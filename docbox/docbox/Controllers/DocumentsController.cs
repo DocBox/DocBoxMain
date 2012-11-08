@@ -108,9 +108,9 @@ namespace docbox.Controllers
                     ModelState.AddModelError("", "No Files available for view");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ModelState.AddModelError("", "Error getting the document list " + ex.Message);
+                ModelState.AddModelError("", "Error getting the document list");
             }
 
             return modelList;
@@ -539,8 +539,6 @@ namespace docbox.Controllers
             return Details(fileId, "DepartmentDocuments");
         }
 
-        // TODO: Downloading for Guest Users
-
         [AcceptVerbs(HttpVerbs.Post)]
         [Authorize(Roles = "guest,employee,manager,ceo,vp")]
         public ActionResult CheckInOutPublic(string fileid)
@@ -571,15 +569,10 @@ namespace docbox.Controllers
                 var privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == currentUserId && r.fileid == fileId);
                 bool hasReadAccess = privileges != null ? privileges.read : false;
 
-                bool isFileLocked = true;
-                if (dx_files.islocked.HasValue)
-                    isFileLocked = (bool)dx_files.islocked;
-
-                // Throw an exception if document is locked/archived/access restricted
-                if (isFileLocked == true || dx_files.isarchived == true
-                    || hasReadAccess == false)
+                // Throw an exception if document is archived/access restricted
+                if (dx_files.isarchived == true || hasReadAccess == false)
                 {
-                    throw new AccessViolationException("Cannot access the file. File not found or access denied!");
+                    throw new AccessViolationException("Insufficient privileges to access the file or file might be archived!");
                 }
 
                 // Construct an array of boolean values indicating if every version 
@@ -667,15 +660,10 @@ namespace docbox.Controllers
                 DX_PRIVILEGE privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == currentUserId && r.fileid == fileId);
                 bool hasReadAccess = privileges != null ? privileges.read : false;
 
-                bool isFileLocked = true;
-                if (dx_files.islocked.HasValue)
-                    isFileLocked = (bool)dx_files.islocked;
-
                 // Throw an exception if document is locked/archived/access restricted
-                if (isFileLocked == true || dx_files.isarchived == true
-                    || hasReadAccess == false)
+                if (dx_files.isarchived == true || hasReadAccess == false)
                 {
-                    throw new AccessViolationException("Cannot access the file. File not found or access denied!");
+                    throw new AccessViolationException("Insufficient access privileges or file might be archived!");
                 }
 
                 // Get the file data
@@ -987,7 +975,7 @@ namespace docbox.Controllers
 
                                     // Encrypt the file data if requested
                                     string encrypted = Request.Params.Get("encrypted");
-                                    if (encrypted == "on")
+                                    if (encrypted == "true")
                                     {
                                         // Read the encrytion key
                                         if (Request.Files[1].InputStream.Length != 0)
@@ -1620,6 +1608,11 @@ namespace docbox.Controllers
                 DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
                 bool hasUpdatePrivileges = documentPrivilege == null ? false : documentPrivilege.check;
 
+                if (hasUpdatePrivileges == false)
+                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is archived and cannot be updated");
+
                 // Check if document is checked out by current user
                 bool isFileLocked = false;
                 if (dx_files.islocked.HasValue)
@@ -1628,11 +1621,8 @@ namespace docbox.Controllers
                 bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
 
                 // Check if document is not archived
-                if (dx_files.isarchived || (isDocumentCheckedOutByUser == false) ||
-                    (hasUpdatePrivileges == false))
-                {
-                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
-                }
+                if (isDocumentCheckedOutByUser == false)
+                    throw new AccessViolationException("Document cannot be updated. Please check out the document before updating.");
 
                 // Send the file name
                 ViewBag.originalCaller = calledFrom;
@@ -1672,8 +1662,8 @@ namespace docbox.Controllers
             {
                 // Get the parameters from request
                 long fileId = long.Parse(Request.Params.Get("fileId"));
-                string encryptionStatus = Request.Params.Get("encrypted");
-                bool isEncrypted = encryptionStatus.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
+                string encryptionStatus = Request.Params.Get("encryptionStatus");
+                bool isEncrypted = encryptionStatus == "true" ? true : false;
                 originalCaller = Request.Params.Get("originalCaller");
 
                 // Basics validations and permission checking
@@ -1691,6 +1681,11 @@ namespace docbox.Controllers
                 DX_PRIVILEGE documentPrivilege = db.DX_PRIVILEGE.SingleOrDefault(d => d.fileid == fileId && d.userid == userId);
                 bool hasUpdatePrivileges = documentPrivilege == null ? false : documentPrivilege.check;
 
+                if (hasUpdatePrivileges == false)
+                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is archived and cannot be updated");
+
                 // Check if document is checked out by current user
                 bool isFileLocked = false;
                 if (dx_files.islocked.HasValue)
@@ -1699,11 +1694,8 @@ namespace docbox.Controllers
                 bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
 
                 // Check if document is not archived
-                if (dx_files.isarchived || (isDocumentCheckedOutByUser == false) ||
-                    (hasUpdatePrivileges == false))
-                {
-                    throw new AccessViolationException("Document cannot be updated. Access Denied. Please try later.");
-                }
+                if (isDocumentCheckedOutByUser == false)
+                    throw new AccessViolationException("Document cannot be updated. Please check out the document before updating.");
 
                 // Validate the input file length
                 Int64 inputFileLength = Request.Files[0].InputStream.Length;
@@ -1737,7 +1729,7 @@ namespace docbox.Controllers
                 // Get the input file and validate the file name
                 HttpPostedFileBase inputFile = Request.Files[0];
                 if (inputFile.FileName != dx_files.filename)
-                    throw new ArgumentException("Name of file uploaded should match the exisiting file getting updated");
+                    throw new ArgumentException("Name of file uploaded should match the existing file getting updated");
 
                 // Validate the description given
                 string fileDescription = Request.Params.Get("description");
@@ -1799,6 +1791,7 @@ namespace docbox.Controllers
 
                 // Construct the fileversion object and update database
                 fileVersion.fileid = fileId;
+                fileVersion.versionid = Guid.NewGuid();
                 fileVersion.versionnumber = newVersionNumber;
                 fileVersion.updatedate = System.DateTime.Now;
                 fileVersion.description = fileDescription;

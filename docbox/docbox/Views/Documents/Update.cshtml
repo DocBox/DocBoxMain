@@ -15,9 +15,12 @@
         function update() {
             if (document.getElementById("encCheck").checked) {
                 document.getElementById("keyFile").disabled = false;
+                document.getElementById("encryptionStatus").value = "true";
             }
-            else
+            else {
                 document.getElementById("keyFile").disabled = true;
+                document.getElementById("encryptionStatus").value = "false";
+            }
             document.getElementById("keyFile").value = "";
         }
         
@@ -34,14 +37,16 @@
     
     
 
-  <form class="form-horizontal"  method="post" enctype="multipart/form-data">
+  @using(Html.BeginForm("Update", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" })){
   <fieldset>
 
-  <input type="hidden" name="fileid" name="fileId" value="@Html.ViewData["fileId"]" />
+  <input type="hidden" name="fileId" value="@Html.ViewData["fileId"]" />
+  <input type="hidden" name="originalCaller" value="@Html.ViewData["originalCaller"]" />
+  <input type="hidden" name="encryptionStatus" id="encryptionStatus" value="false" />
 
  <div class="control-group">
  <label class="control-label"  for="file">File Name</label>
- <label class="control-label"  for="file" value="@Html.ViewData["fileName"]"></label>
+ <label class="control-label"  for="file" >@Html.ViewData["fileName"]</label>
  </div>
 <div class="control-group">
     <label class="control-label"  for="file">Select File</label>
@@ -73,14 +78,12 @@
                         </div>
 
  </fieldset>
+  }
  <div>
  <div class="control-group">
             <div class="controls">
     @Html.ActionLink("Back to List", "ListDocuments")
     </div>
 </div>
-        </form>
-
-    
     
     </div>
