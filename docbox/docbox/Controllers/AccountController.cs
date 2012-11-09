@@ -21,15 +21,14 @@ namespace docbox.Controllers
 
         dx_docboxEntities database = new dx_docboxEntities();
 
-
         // GET: /Account/LogOn
         //[RequireHttps]
         [DeleteBrowserHistory]
         public ActionResult LogOn()
         {
-           // FormsAuthentication.SignOut();
-            
-            return View();
+            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+            LogOnModel model = new LogOnModel();
+            return View(model);
         }
         //[RequireHttps]
         [DeleteBrowserHistory]
@@ -64,6 +63,34 @@ namespace docbox.Controllers
         {
             try
             {
+                //Login attempts
+                if (SessionKeyMgmt.LoginAttempts == 0)
+                {
+                    SessionKeyMgmt.LoginAttempts = 1;
+                }
+                else
+                {
+                    int count = SessionKeyMgmt.LoginAttempts;
+                    count++;
+                    SessionKeyMgmt.LoginAttempts = count;
+
+                    if (model.Captcha != null)
+                    {
+                        if (verifyCaptcha() == false)
+                        {
+                            ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+                            return View(model);
+
+                        }
+                        ViewBag.CaptchaGuid = Guid.NewGuid().ToString("N");
+                    }
+                }
+
+                if (model.Captcha == null)
+                {
+                    model.Captcha = "";
+                }
+                //Login attempts end
 
                 if (logonValidations(model) == false)
                 {
@@ -72,8 +99,6 @@ namespace docbox.Controllers
 
                 if (ModelState.IsValid)
                 {
-                   
-
 
                     var allusers = from usertabel in database.DX_USER where usertabel.userid == model.UserName select usertabel;
                     if (allusers != null && allusers.ToList().Count == 1)
@@ -91,6 +116,7 @@ namespace docbox.Controllers
                             //Get the department
                             SessionKeyMgmt.UserDept = DbCommonQueries.getDepartmentName(model.UserName, database);
 
+                            SessionKeyMgmt.LoginAttempts = 0;
 
                             //Security checkpoint for preventing open redirect attack
                             if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
@@ -128,12 +154,12 @@ namespace docbox.Controllers
             return View(model);
         }
 
-        public ActionResult LogOnAsGuestUser( string returnUrl)
+        public ActionResult LogOnAsGuestUser(string returnUrl)
         {
             LogOnModel model = new LogOnModel();
             model.UserName = "guest@docbox.com";
             model.Password = "AmR/O3@Qw5l5Z&o";
-               
+
             try
             {
                 if (ModelState.IsValid)
@@ -243,18 +269,19 @@ namespace docbox.Controllers
         [DeleteBrowserHistory]
         public ActionResult LogOff()
         {
-           
+
             SessionKeyMgmt.UserId = "";
             SessionKeyMgmt.UserDept = new List<string>();
             SessionKeyMgmt.SharedFiles = new List<DX_FILES>();
             SessionKeyMgmt.SecreteQuestion = "";
-                Session.Clear();
-                Session.Abandon();
-                FormsAuthentication.SignOut();
-             
-                return RedirectToAction("LogOn");
-           
-          
+            SessionKeyMgmt.LoginAttempts = 0;
+            Session.Clear();
+            Session.Abandon();
+            FormsAuthentication.SignOut();
+
+            return RedirectToAction("LogOn");
+
+
         }
 
         private void populateDepartmenetsList()
@@ -323,8 +350,8 @@ namespace docbox.Controllers
                     return false;
                 }
 
-           
-           
+
+
                 //Validate captcha
 
                 WebClient captchaCliden = new WebClient();
@@ -346,7 +373,7 @@ namespace docbox.Controllers
                     return false;
                 }
 
-                
+
             }
             catch (Exception)
             {
@@ -356,9 +383,10 @@ namespace docbox.Controllers
             }
             return isValid;
         }
-        
 
-        private bool isRegisterRegexValid(RegisterModel model){
+
+        private bool isRegisterRegexValid(RegisterModel model)
+        {
             if (!Regex.IsMatch(model.FirstName, @"^[a-zA-Z]{1,20}$"))
             {
                 ModelState.AddModelError("", "First name incorrect please try agian!!.");
@@ -400,12 +428,12 @@ namespace docbox.Controllers
             {
                 ModelState.AddModelError("", "Answer incorrect please try agian!!.");
                 return false;
-            }            
+            }
 
             return true;
         }
-        
-        
+
+
         //
         // POST: /Account/Register
 
@@ -438,20 +466,20 @@ namespace docbox.Controllers
                         return View(model);
 
                     }
-                    var alldepartment= from usertabel in database.DX_DEPARTMENT where model.Department.Contains(usertabel.deptid) select usertabel;
-                    
+                    var alldepartment = from usertabel in database.DX_DEPARTMENT where model.Department.Contains(usertabel.deptid) select usertabel;
+
                     if (Constants.POSITION_CEO_USER.Equals(model.Position))
                     {
 
-                         alldepartment = from usertabel in database.DX_DEPARTMENT select usertabel;
-                 
+                        alldepartment = from usertabel in database.DX_DEPARTMENT select usertabel;
+
 
                     }
-                   
+
                     if (alldepartment.ToList().Count >= 1)
                     {
 
-                       DX_USER user = new DX_USER();
+                        DX_USER user = new DX_USER();
                         user.fname = model.FirstName;
                         user.lname = model.LastName;
                         user.phone = model.Phone;
@@ -920,7 +948,7 @@ namespace docbox.Controllers
             base.Dispose(disposing);
         }
 
-       
+
 
     }
 }

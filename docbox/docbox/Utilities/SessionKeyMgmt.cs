@@ -18,7 +18,24 @@ namespace docbox.Utilities
         private const string userDept = "userDepartment";
         private const string sQuestion = "secretequestion";
         private const string notification = "notificationpreference";
+        private const string loginAttempts = "loginattempts";
       
+        public static int LoginAttempts{
+            get{
+                if(HttpContext.Current.Session[loginAttempts]==null){
+                    return 0;
+                }else{
+                int attempts = (int)HttpContext.Current.Session[loginAttempts];
+                return attempts;
+                }
+
+            }
+            set{
+
+                   HttpContext.Current.Session[loginAttempts] = value;
+           
+            }
+        }
         public static List<DX_FILES> SharedFiles
         {
             get
