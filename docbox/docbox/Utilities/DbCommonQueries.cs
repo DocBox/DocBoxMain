@@ -73,9 +73,9 @@ namespace docbox.Utilities
             {
                 try
                 {
-                    var deptid = database.DX_DEPARTMENT.Single(department => department.name == deptname).deptid;
+                    var deptid = database.DX_DEPARTMENT.SingleOrDefault(department => department.name == deptname).deptid;
 
-                    if (deptid != null)
+                    if (deptid > 0)
                     {
                         return Convert.ToInt32(deptid);
                     }
