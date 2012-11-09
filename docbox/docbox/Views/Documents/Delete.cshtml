@@ -5,29 +5,29 @@
      Layout = "~/Views/Shared/_DocumentLayout.cshtml";
 }
 
-<h2 class="info-text">Delete</h2>
+<h2 class="text-info">Delete</h2>
     
-<h3>Are you sure you want to delete the file?</h3>
+<h4><strong>Are you sure you want to delete the file?</strong></h4>
 @using (Html.BeginForm("DeleteConfirmed", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
     <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
     
 <div class="control-group">
-<label class="control-label">File Name</label>
+<label class="control-label"><strong>File Name</strong></label>
     
   <div class="controls"> 
   <label class="control-label">@ViewData["fileName"]</label>
     </div>
   </div>
   <div class="control-group">
-        <label class="control-label">Owner</label>
+        <label class="control-label"><strong>Owner</strong></label>
     <div class="controls">
         @ViewData["createdBy"]
     </div>
     </div>
 
-    
+<h5><span class="badge badge-important">Note: This operation will delete all the file versions of this document</span></h5>    
   <div class="control-group">
             <div class="controls">
         <input type="submit" value="Delete" class="btn btn-primary"/>

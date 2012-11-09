@@ -1099,18 +1099,95 @@ namespace docbox.Controllers
             return View();
             
         }
-        
+
+        // GET: /Documents/MyDocDetails/5
+        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult MyDocEdit(long fileId)
+        {
+            return EditDocumentDesc(fileId, "ListDocuments");
+        }
+
+        // GET: /Documents/SharedDocDetails/
+        [Authorize(Roles = "employee, manager, ceo, vp, guest")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult SharedDocEdit(long fileId)
+        {
+            return EditDocumentDesc(fileId, "SharedFiles");
+        }
+
+        // GET: /Documents/DeptDocDetails/5
+        [Authorize(Roles = "manager, ceo, vp")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult DeptDocEdit(long fileId)
+        {
+            return EditDocumentDesc(fileId, "DepartmentFiles");
+        }
+
         //
         // GET: /Documents/Edit/5
- 
-        public ActionResult Edit(long id)
+
+        [Authorize(Roles = "employee,manager,ceo,vp,guest")]
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
+        public ActionResult EditDocumentDesc(long id, string originalCaller)
         {
-            DX_FILES fileObj = db.DX_FILES.Single(d => d.fileid == id);
-            
-            DX_FILEVERSION fileVer = db.DX_FILEVERSION.Single(d => d.fileid == id && d.versionnumber == fileObj.latestversion);
-            ViewBag.lockedby = new SelectList(db.DX_USER, "userid", "fname", fileObj.lockedby);
-            ViewBag.ownerid = new SelectList(db.DX_USER, "userid", "fname", fileObj.ownerid);
-            return View(fileVer);
+            try
+            {
+                DX_FILES fileObj = db.DX_FILES.Single(d => d.fileid == id);
+                if (fileObj == null)
+                {
+                    throw new FileNotFoundException();
+                }
+
+                string userid = SessionKeyMgmt.UserId;
+
+                var privileges = from priv in db.DX_PRIVILEGE
+                                 where priv.userid == userid && priv.fileid == fileObj.fileid
+                                 select priv;
+
+                if (privileges.Count() == 0)
+                {
+                    throw new AccessViolationException("You do not have privileges to edit this file");
+                }
+
+                if (privileges.First().update == false)
+                {
+                    throw new AccessViolationException("Insufficient privileges to access the file or file might be archived");
+                }
+
+                if ((fileObj.islocked == true) || (fileObj.isarchived==true))
+                {
+                    throw new AccessViolationException("Insufficient privileges to access the file or file might be archived or locked");
+                }
+
+                DX_FILEVERSION fileVer = db.DX_FILEVERSION.Single(d => d.fileid == id && d.versionnumber == fileObj.latestversion);
+                ViewData["originalCaller"] = originalCaller;
+                ViewData["fileId"] = fileObj.fileid;
+                
+                return View("Edit");
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException)
+                {
+                    ModelState.AddModelError("", "The requested file is not found");
+                }
+                else if (ex is AccessViolationException)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error reading the document information");
+                }
+                switch (originalCaller)
+                {
+                    case "ListDocuments": return RedirectToAction("ListDocuments");
+                    case "SharedFiles": return RedirectToAction("SharedFiles");
+                    case "DepartMentFiles": return RedirectToAction("DepartmentFiles");
+                    default: return RedirectToAction("ListDocuments");
+                }
+            }
         }
 
         //
@@ -1119,37 +1196,47 @@ namespace docbox.Controllers
         [HttpPost]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         [Authorize(Roles = "employee,manager,ceo,vp")]
-        public ActionResult Edit(DX_FILEVERSION filever)
+        public ActionResult EditDescription()
         {
+            string originalCaller = Request.Params.Get("originalCaller");
             try
             {
+                string userId = SessionKeyMgmt.UserId;
+
+                long fileId = long.Parse(Request.Params.Get("fileId"));
+                
+
                 string description = Request.Params.Get("description");
                 
-                    string fileidtrap = Request.Params.Get("fileid");
-                    long fileid = long.Parse(fileidtrap.Substring(0, fileidtrap.IndexOf('_')));
-                    int fileversion = int.Parse(fileidtrap.Substring(fileidtrap.IndexOf(' ')));
-                    string userid = SessionKeyMgmt.UserId;
-
-                    DX_FILES mainFile = db.DX_FILES.Single(d => d.fileid == fileid);
+                DX_FILES mainFile = db.DX_FILES.Single(d => d.fileid == fileId);
 
                     if (mainFile == null)
                     {
                         ModelState.AddModelError("", "The file does not exist anymore");
-                        return View(filever);
                     }
 
-                    DX_PRIVILEGE userPriv = db.DX_PRIVILEGE.Single(d => d.fileid == fileid && d.userid == userid);
+                    DX_PRIVILEGE userPriv = db.DX_PRIVILEGE.Single(d => d.fileid == fileId && d.userid == userId);
 
-                    DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileid && d.versionnumber == fileversion);
-                    if (description.Length != 0 || description.Length > 75)
+                    if (userPriv == null)
                     {
-                    if (userPriv.update == true)
+                        ModelState.AddModelError("", "You do not have sufficient privileges to edit this file");
+                    }
+
+                    if (userPriv.update == false || userPriv.update == null)
                     {
+                        ModelState.AddModelError("", "You do not have sufficient privileges to edit this file");
+                    }
+
+                    DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileId && d.versionnumber == mainFile.latestversion);
+
+                    if (description.Length != 0 && description.Length < 75)
+                    {
+                    
 
                         if (fileObj == null)
                         {
                             ModelState.AddModelError("", "The file does not exist anymore");
-                            return RedirectToAction("ListDocuments");
+                            
                         }
 
                         if (fileObj.description != description)
@@ -1159,30 +1246,31 @@ namespace docbox.Controllers
                             fileObj.updatedby = SessionKeyMgmt.UserId;
                             db.ObjectStateManager.ChangeObjectState(fileObj, EntityState.Modified);
                             db.SaveChanges();
-                            return RedirectToAction("ListDocuments");
+                            
                         }
                         else
                         {
                             ModelState.AddModelError("", "File description is same as earlier and hence not updated");
-                            return View(fileObj);
+                            
                         }
                     }
                     else
                     {
                         ModelState.AddModelError("", "You do not have edit permissions on this file");
-                        return View(fileObj);
+                        
                     }
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Please enter a valid description");
-                    return View(fileObj);
-                }
+               
             }
             catch (Exception)
             {
-                ModelState.AddModelError("","Exception occured while editing the document");
-                return View();
+                
+            }
+            switch (originalCaller)
+            {
+                case "ListDocuments": return RedirectToAction("ListDocuments");
+                case "SharedFiles": return RedirectToAction("SharedFiles");
+                case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                default: return RedirectToAction("SharedFiles");
             }
         }
 
