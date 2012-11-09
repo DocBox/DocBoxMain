@@ -1,0 +1,89 @@
+USE [DX_DOCBOX]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_FILES__locked__060DEAE8]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_FILES]'))
+ALTER TABLE [dbo].[DX_FILES] DROP CONSTRAINT [FK__DX_FILES__locked__060DEAE8]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_FILES__owneri__07020F21]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_FILES]'))
+ALTER TABLE [dbo].[DX_FILES] DROP CONSTRAINT [FK__DX_FILES__owneri__07020F21]
+GO
+
+USE [DX_DOCBOX]
+GO
+
+/****** Object:  Table [dbo].[DX_FILES]    Script Date: 11/08/2012 22:02:18 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DX_FILES]') AND type in (N'U'))
+DROP TABLE [dbo].[DX_FILES]
+GO
+
+
+
+USE [DX_DOCBOX]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_FILEVE__filei__182C9B23]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_FILEVERSION]'))
+ALTER TABLE [dbo].[DX_FILEVERSION] DROP CONSTRAINT [FK__DX_FILEVE__filei__182C9B23]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_FILEVE__updat__1920BF5C]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_FILEVERSION]'))
+ALTER TABLE [dbo].[DX_FILEVERSION] DROP CONSTRAINT [FK__DX_FILEVE__updat__1920BF5C]
+GO
+
+USE [DX_DOCBOX]
+GO
+
+/****** Object:  Table [dbo].[DX_FILEVERSION]    Script Date: 11/08/2012 22:04:29 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DX_FILEVERSION]') AND type in (N'U'))
+DROP TABLE [dbo].[DX_FILEVERSION]
+GO
+
+
+
+USE [DX_DOCBOX]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_PRIVIL__check__0F975522]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_PRIVILEGE]'))
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [FK__DX_PRIVIL__check__0F975522]
+GO
+
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK__DX_PRIVIL__useri__108B795B]') AND parent_object_id = OBJECT_ID(N'[dbo].[DX_PRIVILEGE]'))
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [FK__DX_PRIVIL__useri__108B795B]
+GO
+
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[DF__DX_PRIVILE__read__0BC6C43E]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [DF__DX_PRIVILE__read__0BC6C43E]
+END
+
+GO
+
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[DF__DX_PRIVIL__write__0CBAE877]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [DF__DX_PRIVIL__write__0CBAE877]
+END
+
+GO
+
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[DF__DX_PRIVIL__updat__0DAF0CB0]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [DF__DX_PRIVIL__updat__0DAF0CB0]
+END
+
+GO
+
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[DF__DX_PRIVIL__check__0EA330E9]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[DX_PRIVILEGE] DROP CONSTRAINT [DF__DX_PRIVIL__check__0EA330E9]
+END
+
+GO
+
+USE [DX_DOCBOX]
+GO
+
+/****** Object:  Table [dbo].[DX_PRIVILEGE]    Script Date: 11/08/2012 22:05:18 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DX_PRIVILEGE]') AND type in (N'U'))
+DROP TABLE [dbo].[DX_PRIVILEGE]
+GO
+
