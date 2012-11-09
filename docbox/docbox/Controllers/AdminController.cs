@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using docbox.Models;
 using docbox.Filters;
 using docbox.Utilities;
+using System.Data;
 
 namespace docbox.Controllers
 {
@@ -61,7 +62,7 @@ namespace docbox.Controllers
                             default:
                                 break;
                         }
-
+                        database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
                         int success = database.SaveChanges();
 
                 }
@@ -86,6 +87,8 @@ namespace docbox.Controllers
                     DX_USER user = (DX_USER)editedUser.ToList().First();
                     user.accesslevel = model.AccessLevel;
                     user.role = model.Position;
+                    database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                      
                 }
                 var userCurrentdepartments = from usertable in database.DX_USERDEPT where usertable.userid == model.Email select usertable;
 
@@ -295,7 +298,7 @@ namespace docbox.Controllers
                             default:
                                 break;
                         }
-
+                        database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
                         int success = database.SaveChanges();
                         if (success > 0)
                         {
@@ -381,7 +384,8 @@ namespace docbox.Controllers
                             user.accesslevel = user.role;
 
                         }
-
+                        database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                     
                         int success = database.SaveChanges();
 
                 }

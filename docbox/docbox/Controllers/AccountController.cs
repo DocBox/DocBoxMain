@@ -113,6 +113,7 @@ namespace docbox.Controllers
                         if (UserRecord.pwdhash.Equals(generateHash(UserRecord.salt, model.Password)))
                         {
 
+
                             FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
 
                             //Set userid in session
@@ -123,6 +124,8 @@ namespace docbox.Controllers
 
                             SessionKeyMgmt.LoginAttempts = 0;
 
+                          //  Roles.DeleteCookie();
+                           
                             //Security checkpoint for preventing open redirect attack
                             if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                                 && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
@@ -295,9 +298,17 @@ namespace docbox.Controllers
 
         private void populateDepartmenetsList()
         {
-            var departments = (from departmenttable in database.DX_DEPARTMENT select departmenttable);
-            List<DX_DEPARTMENT> depList = departments == null ? new List<DX_DEPARTMENT>() : departments.ToList();
-            ViewBag.Departments = depList;
+            try
+            {
+                var departments = (from departmenttable in database.DX_DEPARTMENT select departmenttable);
+                List<DX_DEPARTMENT> depList = departments == null ? new List<DX_DEPARTMENT>() : departments.ToList();
+                ViewBag.Departments = depList;
+            }
+            catch (Exception e)
+            {
+                ViewBag.Departments = new List<DX_DEPARTMENT>();
+                ModelState.AddModelError("","Some error occured please try after some time");
+            }
         }
         //
         // GET: /Account/Register
@@ -471,7 +482,7 @@ namespace docbox.Controllers
                     var allusers = from usertabel in database.DX_USER where usertabel.userid == model.Email select usertabel;
                     if (allusers.ToList().Count == 1)
                     {
-                        ModelState.AddModelError("", "A user with this email already present in teh system please use correct email id!");
+                        ModelState.AddModelError("", "Email id not unique, please enter a diffrent valid email id!");
                         return View(model);
 
                     }

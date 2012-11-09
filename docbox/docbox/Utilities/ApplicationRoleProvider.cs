@@ -20,9 +20,12 @@ namespace docbox.Utilities
         
         public override string[] GetRolesForUser(string userid)
         {
-               
+            
                 
                 var userInfo = from users in database.DX_USER where users.userid== userid select  users;
+
+                database.Refresh(System.Data.Objects.RefreshMode.StoreWins, userInfo);
+                
                 if (userInfo == null)
                 {
                     return null;
@@ -39,9 +42,10 @@ namespace docbox.Utilities
                 }
            
         }
-
+        
         public override void AddUsersToRoles(string[] usernames, string[] roleNames)
         {
+       
             throw new NotImplementedException();
         }
 
@@ -96,5 +100,6 @@ namespace docbox.Utilities
         {
             throw new NotImplementedException();
         }
+        
     }
 }
