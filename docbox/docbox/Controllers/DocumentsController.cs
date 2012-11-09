@@ -1185,7 +1185,7 @@ namespace docbox.Controllers
 
         [HttpPost]
         [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
-        [Authorize(Roles = "employee,manager,ceo,vp")]
+        [Authorize(Roles = "employee,manager,ceo,vp,guest")]
         public ActionResult EditDescription()
         {
             string originalCaller = Request.Params.Get("originalCaller");
