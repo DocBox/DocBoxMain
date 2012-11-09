@@ -50,13 +50,13 @@ namespace docbox.Controllers
         {
             if (!Regex.IsMatch(model.UserName, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
             {
-                ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                ModelState.AddModelError("", "Email-id or password incorrect please try agian!!.");
                 return false;
             }
 
             if (!Regex.IsMatch(model.Password, @"^.*(?=.{10,18})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$"))
             {
-                ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                ModelState.AddModelError("", "Email-id or password incorrect please try agian!!.");
                 return false;
             }
 
@@ -136,12 +136,12 @@ namespace docbox.Controllers
                         }
                         else
                         {
-                            ModelState.AddModelError("", "Password provided is incorrect.");
+                            ModelState.AddModelError("", "Email-id or password provided is incorrect please try again!!");
                         }
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Email-id incorrect please try agian!!.");
+                        ModelState.AddModelError("", "Email-id or password incorrect please try agian!!");
                     }
 
 

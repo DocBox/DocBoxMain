@@ -84,14 +84,11 @@ namespace docbox.Models
     public class LogOnModel
     {
         [Required]
-        [RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Not valid email address")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
         public string UserName { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 10)]
-        [RegularExpression(@"^.*(?=.{10,50})(?=.*\d)(?=.*[A-Za-z])(?=.*[@%&#]{0,}).*$", ErrorMessage = "Incorrect password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
