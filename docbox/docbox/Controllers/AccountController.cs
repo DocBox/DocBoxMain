@@ -37,7 +37,12 @@ namespace docbox.Controllers
 
             return View();
         }
-
+        //[RequireHttps]
+         [Authorize(Roles = "deactivated")]
+        public ActionResult IndexOfDeactivatedUser()
+        {
+            return View();
+        }
         //
         // POST: /Account/LogOn
 
@@ -255,6 +260,10 @@ namespace docbox.Controllers
                 else if (roles.Contains(Constants.GUEST_USER_ACCESS))
                 {
                     return RedirectToAction("IndexOfGuest", "Home");
+                }
+                else if (roles.Contains(Constants.DEACTIVATED_USER_ACCESS))
+                {
+                    return RedirectToAction("IndexOfDeactivatedUser", "Account");
                 }
                 else
                 {

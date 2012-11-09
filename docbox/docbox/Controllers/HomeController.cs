@@ -24,7 +24,7 @@ namespace docbox.Controllers
             return RedirectToAction("SharedFiles", "Documents");
         }
 
-       
+        
         [HttpGet]
         public ActionResult About()
         {

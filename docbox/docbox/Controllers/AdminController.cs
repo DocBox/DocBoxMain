@@ -37,6 +37,39 @@ namespace docbox.Controllers
                 ModelState.AddModelError("", "error while populating Department");
             }
         }
+         public ActionResult DeactivateAnExistingUser(string id)
+        {
+            try
+            {
+
+                
+                    var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
+                    if (allusers != null && allusers.ToList().Count == 1)
+                    {
+                        DX_USER user = allusers.ToList().First();
+
+                        switch (user.role)
+                        {
+                            case "ceo": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                                break;
+                            case "manager": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                                break;
+                            case "employee": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                                break;
+                            case "vp": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        int success = database.SaveChanges();
+
+                }
+            }
+            catch { ModelState.AddModelError("", "Error occured while tdeactivating the user"); }
+            return RedirectToAction("AllExistingUsers");
+        }
+
         //Edit an existing user
         [Authorize(Roles = "admin")]
         [HttpPost]
@@ -331,6 +364,32 @@ namespace docbox.Controllers
             catch { ModelState.AddModelError("", "Error occured while populating all user requests"); }
             return View(AllUsersNeedingApproval);
         }
+
+         public ActionResult ActivateAnExistingUser(string id)
+        {
+            try
+            {
+
+                
+                    var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
+                    if (allusers != null && allusers.ToList().Count == 1)
+                    {
+                        DX_USER user = allusers.ToList().First();
+
+                        if (user.accesslevel==Constants.DEACTIVATED_USER_ACCESS)
+                        {
+                            user.accesslevel = user.role;
+
+                        }
+
+                        int success = database.SaveChanges();
+
+                }
+            }
+            catch { ModelState.AddModelError("", "Error occured while activating the user"); }
+            return RedirectToAction("AllExistingUsers");
+        }
+
 
        // public ICollection<int> dept { get; set; }
     }

@@ -10,7 +10,7 @@ namespace docbox.Controllers
 
        
         public static readonly String ADMIN_USER_ACCESS = "admin";
-
+        public static readonly String DEACTIVATED_USER_ACCESS = "deactivated";
         public static readonly String TEMP_USER_ACCESS = "temp";
         public static readonly String EMPLOYEE_USER_ACCESS = "employee";
         public static readonly String VP_USER_ACCESS = "vp";

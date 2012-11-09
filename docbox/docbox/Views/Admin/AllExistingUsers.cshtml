@@ -31,7 +31,9 @@
                                                grid.Column("AccessLevel"),
                                       
                                       grid.Column(header: "Modify", format: (item) => Html.ActionButton("", "EditAnExistingUser", "Admin", "icon-edit", new { id = item.Email} ), canSort: true),
-                                      
+                                     grid.Column(header: "Deactivate", format: (item) => Html.ActionButton("", "DeactivateAnExistingUser", "Admin", "icon-remove", new { id = item.Email }), canSort: true),
+                                     grid.Column(header: "Activate", format: (item) => Html.ActionButton("", "ActivateAnExistingUser", "Admin", "icon-user", new { id = item.Email }), canSort: true),
+
                                      grid.Column(header: "Delete User", format: (item) => Html.ActionButton("", "DeleteExistingUser", "Admin", "icon-trash", new { id = item.Email }), canSort: true)
 
         ));
