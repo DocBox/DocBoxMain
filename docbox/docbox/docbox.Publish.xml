@@ -36,14 +36,8 @@
     <file relUrl="Views/Documents/Update.cshtml" publishTime="11/08/2012 19:33:34" />
     <file relUrl="Content/themes/base/jquery.ui.slider.css" publishTime="11/08/2012 19:33:34" />
     <file relUrl="bin/System.Web.WebPages.dll" publishTime="01/05/2011 15:45:38" />
-<<<<<<< Updated upstream
     <file relUrl="Scripts/jquery.unobtrusive-ajax.min.js" publishTime="11/08/2012 19:33:34" />
     <file relUrl="Scripts/jquery-ui-1.8.11.min.js" publishTime="11/08/2012 19:33:34" />
-=======
-    <file relUrl="Scripts/bootstrap/js/bootstrap.js" publishTime="10/26/2012 23:23:25" />
-    <file relUrl="Scripts/jquery.unobtrusive-ajax.min.js" publishTime="10/26/2012 23:23:25" />
-    <file relUrl="Scripts/jquery-ui-1.8.11.min.js" publishTime="10/26/2012 23:23:25" />
->>>>>>> Stashed changes
     <file relUrl="bin/System.Web.Mvc.xml" publishTime="02/09/2011 11:26:24" />
     <file relUrl="bin/System.Web.Helpers.xml" publishTime="12/19/2010 23:59:38" />
     <file relUrl="Views/Shared/_LogOnPartial.cshtml" publishTime="11/08/2012 19:33:34" />

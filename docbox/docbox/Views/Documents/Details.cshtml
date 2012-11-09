@@ -10,15 +10,16 @@
 <script type="text/javascript">
     function isEncrypted(encrypted) {
         var selected = document.getElementById("dropdown").value;
-        var index = selected.indexOf("_");
-        var encryptedVar = selected.substring(0, index);
-        if (encryptedVar == "True") {
-            document.getElementById("keyFile").disabled = false
+
+        if (selected == "True") {
+            document.getElementById("keyFile").disabled = false;
+            document.getElementById("fileVersion").value = selected;
+            document.getElementById("encStatus").value = "true";
         }
         else {
             document.getElementById("keyFile").disabled = true;
+            document.getElementById("encStatus").value = "false";
         }
-        
     }
 
 </script>
@@ -27,6 +28,8 @@
 <fieldset>
 
     <input type="hidden" name="fileId" value="@ViewData["fileId"]" />
+    <input type="hidden" name="fileVersion" value="1" />
+    <input type='hidden' name="encStatus" value="false" />
     <input type="hidden" name="originalCaller" value="@ViewData["originalCaller"]" />
     <div class="control-group">
     <label class="control-label"  for="file">File Name</label>
@@ -56,7 +59,7 @@
     @{
         int i=0;
         for(i=0;i<count;i++){
-         @Html.Raw("<option value=\"" + version[i] + "_" + i + "\">" + (i+1) + "</option>");  
+         @Html.Raw("<option value=\"" + version[i] + "\">" + (i+1) + "</option>");  
         }
     string firstEle = "";
     if (!version[0])
