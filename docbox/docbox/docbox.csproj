@@ -132,6 +132,7 @@
     <Content Include="Content\bootstrap\img\glyphicons-halflings-white.png" />
     <Content Include="Content\bootstrap\img\glyphicons-halflings.png" />
     <Content Include="Content\webgrid.css" />
+    <Content Include="Scripts\bootstrap\js\bootstrap-dropdown.js" />
     <Content Include="Scripts\bootstrap\js\bootstrap-tab.js" />
     <Content Include="Scripts\bootstrap\js\bootstrap-toggle.js" />
     <Content Include="Scripts\bootstrap\js\bootstrap.js" />

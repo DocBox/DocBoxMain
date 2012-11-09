@@ -12,6 +12,11 @@ body {
     color: #696969;
 }
 
+.filename {
+ width: 30px;
+font-weight:bold;
+}
+
 a:link {
     color: #034af3;
     text-decoration: underline;

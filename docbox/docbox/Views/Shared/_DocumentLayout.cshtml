@@ -16,6 +16,7 @@
     <script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap.min.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap.js")" type="text/javascript"></script>
     <script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap-toggle.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap/js/bootstrap-dropdown.js")" type="text/javascript"></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -31,12 +32,12 @@
         </div>
     </div>
     <div class="container-fluid">   
-    <div class="span2">
+    <div class="span3">
          <div id="main" class="sidebar-nav">
               @Html.Partial("LeftMenu")
         </div>
         </div> 
-        <div class="span11">
+        <div class="span12">
        
         <div class="hero-unit">
         @Html.ValidationSummary(true, "")

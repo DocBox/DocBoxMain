@@ -118,13 +118,25 @@ namespace docbox.Controllers
         }
 
         [Authorize(Roles = "manager,ceo,vp")]
-        public ActionResult DepartmentFiles(List<FileModel> model)
+        //public ActionResult DepartmentFiles(List<FileModel> model)
+        //{
+        //    if (null != model)
+        //    {
+        //        return View("DepartmentFiles", model);
+        //    }
+        //    string dept = TempData["dept"] as string;
+        //    return View("DepartmentFiles", getDeptDocsModel(dept));
+        //}
+
+        [Authorize(Roles = "manager,ceo,vp")]
+        public ActionResult DepartmentFiles(string dept, List<FileModel> model)
         {
             if (null != model)
             {
                 return View("DepartmentFiles", model);
             }
-            return View("DepartmentFiles", getDeptDocsModel());
+            TempData["dept"] = dept;
+            return View("DepartmentFiles", getDeptDocsModel(dept));
         }
 
         private List<string> getRoleHierarchy(string designation)
@@ -156,14 +168,17 @@ namespace docbox.Controllers
             return accessibleRole;
         }
 
-        private List<FileModel> getDeptDocsModel()
+        private List<FileModel> getDeptDocsModel(string dept)
         {
-            
+            int deptid = DbCommonQueries.getDepartmentId(dept, db);
             List<FileModel> modelList = new List<FileModel>();
             try
             {
                 //get all the files for the current user which he has inherited.
-                var allFiles = from filetable in db.DX_FILES join userprev in db.DX_PRIVILEGE on filetable.fileid equals userprev.fileid where userprev.userid == SessionKeyMgmt.UserId && userprev.reason=="inherit" select filetable;
+                var files = from filetable in db.DX_FILES join userprev in db.DX_PRIVILEGE on filetable.fileid equals userprev.fileid where userprev.userid == SessionKeyMgmt.UserId && userprev.reason=="inherit" select filetable;
+
+                //filter the files based the department requested
+                var allFiles = from fileTable in files join userdept in db.DX_USERDEPT on fileTable.ownerid equals userdept.userid where userdept.deptid == deptid select fileTable;
                 
                 //if no files exist, throw an error.
                 if (null != allFiles && allFiles.ToList().Count >= 1)
@@ -276,23 +291,6 @@ namespace docbox.Controllers
             }
             return docs;
         }
-
-        private List<FileModel> getPublicFilesModel()
-        {
-            List<FileModel> model = new List<FileModel>();
-
-            return model;
-        }
-
-        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
-        public ActionResult PublicFiles(List<FileModel> model)
-        {
-            if (null != model)
-            {
-                return View("PublicFiles", model);
-            }
-            return View("PublicFiles", getDeptDocsModel());
-        }
         
         public ViewResult Index()
         {
@@ -320,22 +318,12 @@ namespace docbox.Controllers
             {
                 filename = Request["fileName"];
             }
-            List<FileModel> model = Search(filename, getDeptDocsModel());
+            //this.TempData.TryGetValue("", out dept);
+            string dept = TempData["dept"] as string;
+            List<FileModel> model = Search(filename, getDeptDocsModel(dept));
             return View("DepartmentFiles", model);
         }
-
-        [MultipleButton(Name = "action", Argument = "SearchPublicDocs")]
-        public ActionResult SearchPublicDocs()
-        {
-            string filename = "";
-            if (this.Request.Form.AllKeys.Length > 0)
-            {
-                filename = Request["fileName"];
-            }
-            List<FileModel> model = Search(filename, getPublicFilesModel());
-            return View("PublicFiles", model);
-        }
-
+        
         [MultipleButton(Name = "action", Argument = "SearchArchivedDocs")]
         public ActionResult SearchArchivedDocs()
         {
@@ -626,7 +614,7 @@ namespace docbox.Controllers
                 {
                     case "ListDocuments": return RedirectToAction("ListDocuments");
                     case "SharedFiles": return RedirectToAction("SharedFiles");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -740,7 +728,7 @@ namespace docbox.Controllers
                 {
                     case "ListDocuments": return RedirectToAction("ListDocuments");
                     case "SharedFiles": return RedirectToAction("SharedFiles");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1289,7 +1277,7 @@ namespace docbox.Controllers
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeleteDepartmentDocument(long fileId)
         {
-            return DeleteDocumentDetails(fileId, "DepartmentDocuments");
+            return DeleteDocumentDetails(fileId, "DepartmentFiles");
         }
 
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
@@ -1344,7 +1332,7 @@ namespace docbox.Controllers
                 switch (callerName)
                 {
                     case "ListDocuments": return RedirectToAction("ListDocuments");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1411,7 +1399,7 @@ namespace docbox.Controllers
             switch (originalCaller)
             {
                 case "ListDocuments": return RedirectToAction("ListDocuments");
-                case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                 default: return RedirectToAction("ListDocuments");
             }
         }
@@ -1815,7 +1803,7 @@ namespace docbox.Controllers
                 {
                     case "ListDocuments": return RedirectToAction("ListDocuments");
                     case "SharedFiles": return RedirectToAction("SharedFiles");
-                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                    case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                     default: return RedirectToAction("ListDocuments");
                 }
             }
@@ -1992,7 +1980,7 @@ namespace docbox.Controllers
             {
                 case "ListDocuments": return RedirectToAction("ListDocuments");
                 case "SharedFiles": return RedirectToAction("SharedFiles");
-                case "DepartmentFiles": return RedirectToAction("DepartmentFiles");
+                case "DepartmentFiles": return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
                 default: return RedirectToAction("ListDocuments");
             }
         }

@@ -19,13 +19,6 @@
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 
-@helper Disable(bool isLocked, string lockedBy){
-    if (isLocked && lockedBy == docbox.Utilities.SessionKeyMgmt.UserId)
-   {
-      @:'disabled'
-   }
-}
-
 <div class="navbar">
     <div>
         @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
@@ -61,7 +54,7 @@
                         columns: grid.Columns(
                               grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
                               grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
-                                     "MyDocDetails", "Documents", new { @fileId = item.FileId}, null)</text>),
+                              "MyDocDetails", "Documents", new { @fileId = item.FileId})</text>, style:"width='20px'"),
                               grid.Column("Description", header: "Description"),
                               grid.Column("FileVersion", header: "Version"),
                               grid.Column("Owner", header: "Created By"),

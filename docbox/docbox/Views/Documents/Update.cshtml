@@ -82,7 +82,14 @@
  <div>
  <div class="control-group">
             <div class="controls">
-    @Html.ActionLink("Back to List", @ViewData["originalCaller"].ToString())
+        @if (@Html.ViewData["originalCaller"].ToString() == "DepartmentFiles")
+    {
+        @Html.ActionLink("Back to List", @Html.ViewData["originalCaller"].ToString(), new { dept = TempData["dept"] as string })
+    }
+    else
+    {
+        @Html.ActionLink("Back to List", @Html.ViewData["originalCaller"].ToString())
+    }
     </div>
 </div>
     

@@ -19,7 +19,7 @@
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
-    <div class="navbar-inner">
+    <div>
         @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
         {
             IDictionary<string, string> searchConditions = new Dictionary<string, string>();
@@ -48,9 +48,8 @@
                         rowStyle: "webgrid-row-style",
                         htmlAttributes: new { id = "myGrid", name = "myGrid" },
                         columns: grid.Columns(
-                        grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" hidden="hidden" value=@item.FileID  /></text>),
                         grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
-                        "SharedDocDetails", "Documents", new { @fileId = item.FileId }, null)</text>),
+                        "SharedDocDetails", "Documents", new { @fileId = item.FileId }, null)</text>, style:"width='20px'"),
                         grid.Column(header: "Description", columnName: "Description"),
                         grid.Column(header: "File Version", columnName: "FileVersion"),
                         grid.Column(header: "Created By", columnName: "Owner"),
@@ -70,9 +69,9 @@
                                 else
                                 {
                                     @Html.Raw("NA");
-                                }  </text>),
-                         grid.Column("Update", format: (item) => item.check == true ? Html.ActionButton("", "UpdateSharedDocs", "Documents", "icon-refresh", new { fileId = item.FileID }) : Html.Raw("NA")),
-                         grid.Column("Edit", format: (item) => item.update == true ? Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID }) : Html.Raw("NA"))
+                                }  </text>), 
+                         grid.Column(header: "Update", format: (item) => item.check == true ? Html.ActionButton("", "UpdateSharedDocs", "Documents", "icon-refresh", new { fileId = item.FileID }) : Html.Raw("NA")),
+                         grid.Column(header: "Edit", format: (item) => item.update == true ? Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID }) : Html.Raw("NA"))
                                 ))
     </div>
         }

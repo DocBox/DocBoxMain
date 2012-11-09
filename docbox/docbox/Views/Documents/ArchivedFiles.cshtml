@@ -39,7 +39,7 @@
                 htmlAttributes: new { id = "myGrid", name = "myGrid" },
                 columns: grid.Columns(
                                     grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID  /></text>),
-                                                          grid.Column("FileName"),
+                grid.Column("FileName", style: "width='20px'"),
                                                           grid.Column("Description"),
                                                           grid.Column("FileVersion", header: "File Version"),
                                                           grid.Column("Owner", header: "Created By"),

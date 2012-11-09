@@ -18,7 +18,7 @@
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
-    <div class="navbar-inner">
+    <div>
         @using (Html.BeginForm("DocAction", "Documents", FormMethod.Post))
         {
             IDictionary<string, string> searchConditions = new Dictionary<string, string>();
@@ -34,7 +34,6 @@
             <div class="container">
                 <ul class="nav">
                     <li class="active"><a class="brand" href="#">DepartmentFiles</a> </li>
-                    <li class="divider-vertical">@Html.ActionButton("Upload", "Create", "Documents", "icon-upload", null)</li>
                     <li class="divider-vertical"><label for="share" class="btn btn-link"><i class="icon-share"></i>Share</label>
                         <input id="share" type="submit" name="action:Share" value="Go" class="hidden" /></li>
                     <li class="divider-vertical"><label for="archive" class="btn btn-link"><i class="icon-move"></i>Archive</label>
@@ -54,7 +53,7 @@
                         columns: grid.Columns(
                             grid.Column(format: @<text><input class="check-box" name="Select" type="checkbox" value=@item.FileID /></text>),
                             grid.Column("FileName", header: "File Name", format: @<text>@Html.ActionLink((string)item.FileName,
-                                        "DeptDocDetails", "Documents", new { @fileId = item.FileId }, null)</text>),
+                                        "DeptDocDetails", "Documents", new { @fileId = item.FileId }, null)</text>, style:"width='20px'"),
                             grid.Column("Description"),
                             grid.Column("FileVersion", header: "File Version"),
                             grid.Column("Owner", header: "Created By"),

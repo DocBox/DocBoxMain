@@ -1,18 +1,35 @@
-﻿    <div class="sidebar-nav">
+﻿    
+    <div class="sidebar-nav">
     <div class="well" style="width:200px; padding: 8px 0;">
     <ul class="nav nav-list">
     <li class="nav-header"></li>
     @if (User.IsInRole("employee") || User.IsInRole("manager") || User.IsInRole("vp") || User.IsInRole("ceo"))
-        {
-    <li>@Html.ActionButton("My Docs", "ListDocuments", "Documents", "icon-home",null)</li>
-    <li>@Html.ActionButton("Archived","ArchivedFiles","Documents","icon-briefcase",null)</li>
+    {
+        <li>@Html.ActionButton("My Docs", "ListDocuments", "Documents", "icon-home",null)</li>
+        <li>@Html.ActionButton("Archived","ArchivedFiles","Documents","icon-briefcase",null)</li>
     }
     <li>@Html.ActionButton("Shared","SharedFiles","Documents","icon-share",null)</li>
+    @if (User.IsInRole("manager") || User.IsInRole("vp") || User.IsInRole("ceo"))
+    {
+        <li class="nav-header">
+        <span>
+            <i class="icon-book"></i>Department Files
+            <span class="icon-chevron-down pull-right" data-target="#deptlist" data-toggle="collapse"></span>
+        </span>
+        <ul class="nav nav-list collapse in" id="deptlist" >
+            <li class="divider"></li>
+                        @foreach (string dept in docbox.Utilities.SessionKeyMgmt.UserDept)
+                        {
+                        <li>@Html.ActionButton(dept, "DepartmentFiles", "Documents", null, new { dept = dept })</li>
+                        }
+                        <li class="divider"></li>
+        </ul>
+        </li>
+    }
     @if (User.IsInRole("employee") || User.IsInRole("manager") || User.IsInRole("vp") || User.IsInRole("ceo"))
-        {
-    <li>@Html.ActionButton("Department Files", "DepartmentFiles", "Documents", "icon-book", null)</li>
-    <li>@Html.ActionButton("Get Key","GenerateKey","Security","icon-folder-close",null)</li>
-        }
+    {
+        <li>@Html.ActionButton("Get Key", "GenerateKey", "Security", "icon-folder-close", null)</li>
+    }
     </ul>
     </div>
     </div>

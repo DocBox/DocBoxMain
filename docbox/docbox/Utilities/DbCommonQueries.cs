@@ -67,5 +67,25 @@ namespace docbox.Utilities
             return departmentIdsUser;
         }
 
+        public static int getDepartmentId(string deptname, dx_docboxEntities database)
+        {
+            if (database != null && deptname != null)
+            {
+                try
+                {
+                    var deptid = database.DX_DEPARTMENT.Single(department => department.name == deptname).deptid;
+
+                    if (deptid != null)
+                    {
+                        return Convert.ToInt32(deptid);
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            return 0;
+        }
     }
 }

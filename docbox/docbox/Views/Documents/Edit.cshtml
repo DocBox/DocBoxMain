@@ -33,7 +33,14 @@
 
 
 <div>
-    @Html.ActionLink("Back to List", "ListDocuments")
+           @if (@Html.ViewData["originalCaller"].ToString() == "DepartmentFiles")
+           {
+        @Html.ActionLink("Back to List", @Html.ViewData["originalCaller"].ToString(), new { dept = TempData["dept"] as string })
+           }
+           else
+           {
+        @Html.ActionLink("Back to List", @Html.ViewData["originalCaller"].ToString())
+           }
     
 </div>
 
