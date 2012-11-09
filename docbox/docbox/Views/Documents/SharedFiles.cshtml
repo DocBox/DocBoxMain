@@ -7,7 +7,7 @@
     function updateChk(parameter) {
         $.ajax({
             type: "POST",
-            url: '@Url.Action("CheckInOutShared","Documents")',
+            url: '@Url.Action("CheckInOutShared", "Documents")',
             data: { fileid: parameter },
             success: function () {
             }
@@ -15,7 +15,7 @@
     }
 </script>
 
-@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage:10);
+@{ var grid = new WebGrid(Model, canPage: true, rowsPerPage: 10);
    grid.Pager(WebGridPagerModes.NextPrevious); 
 }
 <div class="navbar">
@@ -55,11 +55,26 @@
                         grid.Column(header: "File Version", columnName: "FileVersion"),
                         grid.Column(header: "Created By", columnName: "Owner"),
                         grid.Column(header: "Created On", columnName: "CreationDate"),
-                        grid.Column("Check-in/Out", format: (item) => item.check == true ? Html.CheckBox("checkLock", item.check == true ? false : true, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" }) : Html.Raw("NA")),
-                        grid.Column("Update", format: (item) => item.check == true ? Html.ActionButton("", "UpdateSharedDocs", "Documents", "icon-refresh", null) : Html.Raw("NA")),
-                        grid.Column("Edit", format: (item) => item.update == true ? Html.ActionButton("", "SharedDocEdit", "Documents", "icon-pencil", new { @fileId = item.FileID }) : Html.Raw("NA"))
-                        ))
+                        grid.Column(header: "CheckIn/Out", format: @<text> 
+                                @if (item.check == true)
+                                {
+                                   if (item.isLocked == true && item.LockedBy != docbox.Utilities.SessionKeyMgmt.UserId)
+                                   {
+                                    @Html.CheckBox("checkLock", true, new { name = "checkLock", id = "checkLock", value = item.FileID, disabled = "disabled", onchange = "updateChk('" + item.FileID + "')" });
+                                   }
+                                   else
+                                   { 
+                                    @Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" });
+                                   }
+                                }
+                                else
+                                {
+                                    @Html.Raw("NA");
+                                }  </text>),
+                         grid.Column("Update", format: (item) => item.check == true ? Html.ActionButton("", "UpdateSharedDocs", "Documents", "icon-refresh", new { fileId = item.FileID }) : Html.Raw("NA")),
+                         grid.Column("Edit", format: (item) => item.update == true ? Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID }) : Html.Raw("NA"))
+                                ))
     </div>
-}
+        }
 </div>
 </div>

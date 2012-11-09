@@ -7,7 +7,7 @@
     function updateChk(parameter) {
         $.ajax({
             type: "POST",
-            url: '@Url.Action("CheckInOutDept","Documents")',
+            url: '@Url.Action("CheckInOutDept", "Documents")',
             data: { fileid: parameter },
             success: function () {
             }
@@ -59,12 +59,20 @@
                             grid.Column("FileVersion", header: "File Version"),
                             grid.Column("Owner", header: "Created By"),
                             grid.Column("CreationDate", header: " Created On"),
-                            grid.Column(header: "CheckIn/Out", format: (item) => Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" })),
+                            grid.Column(header: "CheckIn/Out", format: @<text> 
+                                @if (item.isLocked == true && item.LockedBy != docbox.Utilities.SessionKeyMgmt.UserId)
+                                {
+                                    @Html.CheckBox("checkLock", true, new { name = "checkLock", id = "checkLock", value = item.FileID, disabled = "disabled", onchange = "updateChk('" + item.FileID + "')" });
+                                }
+                                else
+                                { 
+                                    @Html.CheckBox("checkLock", item.IsLocked == true ? true : false, new { name = "checkLock", id = "checkLock", value = item.FileID, onchange = "updateChk('" + item.FileID + "')" });
+                                }  </text>), 
                             grid.Column(format: (item) => Html.ActionButton("", "UpdateDepartmentDocs", "Documents", "icon-refresh", new { @fileId = item.FileID })),
                             grid.Column(format: (item) => Html.ActionButton("", "DeptDocEdit", "Documents", "icon-pencil", new { @fileId = item.FileID })),
                             grid.Column(format: (item) => Html.ActionButton("", "DeleteDepartmentDocument", "Documents", "icon-trash", new { @fileId = item.FileID }))
                                     ))
     </div>
-}
+        }
 </div>
 </div>

@@ -83,7 +83,7 @@ namespace docbox.Controllers
             try
             {
                 var allFiles = from filetabel in db.DX_FILES where filetabel.ownerid == SessionKeyMgmt.UserId && filetabel.isarchived == false select filetabel;
-
+                
                 if (null != allFiles && allFiles.ToList().Count >= 1)
                 {
                     foreach (DX_FILES file in allFiles)
@@ -98,10 +98,11 @@ namespace docbox.Controllers
                         filemodel.CreationDate = file.creationdate.ToString();
                         filemodel.Description = fileversion.description;
                         filemodel.FileVersion = file.latestversion;
-                        filemodel.IsLocked = Convert.ToBoolean(file.islocked);
                         filemodel.LockedBy = file.lockedby;
+                        filemodel.IsLocked = (bool)file.islocked;
                         modelList.Add(filemodel);
                     }
+
                 }
                 else
                 {
@@ -1697,20 +1698,19 @@ namespace docbox.Controllers
             
             if (files != null && files.ToList().Count > 0)
             {
-                
                 foreach(var sharedfile in files)
                 {
                     if (sharedfile.filetable.isarchived == true)
                     {
                         ModelState.AddModelError("", "Permission Denied: The file is in archived state");
                     }
-                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId)
+                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId && sharedfile.filetable.latestversion==sharedfile.versiontable.versionnumber)
                     {
                         FileShared share = new FileShared();
                         share.FileID = (sharedfile.filetable.fileid).ToString();
                         share.FileName = sharedfile.filetable.filename;
                         share.Description = sharedfile.versiontable.description;
-                        share.FileVersion = sharedfile.versiontable.versionnumber;
+                        share.FileVersion = sharedfile.filetable.latestversion;
                         share.CreationDate = (sharedfile.filetable.creationdate).ToString();
                         share.Owner = sharedfile.filetable.ownerid;
                         share.read = sharedfile.privilegetable.read;
@@ -1718,8 +1718,9 @@ namespace docbox.Controllers
                         share.update = sharedfile.privilegetable.update;
                         share.check = sharedfile.privilegetable.check;
                         share.islocked = Convert.ToBoolean(sharedfile.filetable.islocked);
+                        share.lockedby = sharedfile.filetable.lockedby;
                         docs.Add(share);
-                    }
+                     }
                 }
                 return View("SharedFiles",docs);
             }

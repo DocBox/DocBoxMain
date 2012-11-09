@@ -56,6 +56,9 @@ namespace docbox.Models
         [DataType(DataType.DateTime)]
         [Display(Name = "Creation Date")]
         public string CreationDate { get; set; }
+
+        [Display(Name = "Locked By")]
+        public string lockedby { get; set; }
        
         [Display(Name = "Read Access")]
         public bool read { get; set; }
