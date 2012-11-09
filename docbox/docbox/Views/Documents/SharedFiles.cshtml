@@ -71,7 +71,7 @@
                                     @Html.Raw("NA");
                                 }  </text>), 
                          grid.Column(header: "Update", format: (item) => item.check == true ? Html.ActionButton("", "UpdateSharedDocs", "Documents", "icon-refresh", new { fileId = item.FileID }) : Html.Raw("NA")),
-                         grid.Column(header: "Edit", format: (item) => item.update == true ? Html.ActionButton("", "Edit", "Documents", "icon-pencil", new { id = item.FileID }) : Html.Raw("NA"))
+                         grid.Column(header: "Edit", format: (item) => item.update == true ? Html.ActionButton("", "SharedDocEdit", "Documents", "icon-pencil", new { @fileId = item.FileID }) : Html.Raw("NA"))
                                 ))
     </div>
         }

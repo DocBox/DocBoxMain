@@ -16,12 +16,13 @@
             if (document.getElementById("encCheck").checked) {
                 document.getElementById("keyFile").disabled = false;
                 document.getElementById("encryptionStatus").value = "true";
+                document.getElementById("keyFile").value = "";
             }
             else {
                 document.getElementById("keyFile").disabled = true;
                 document.getElementById("encryptionStatus").value = "false";
+                document.getElementById("keyFile").value = "";
             }
-            document.getElementById("keyFile").value = "";
         }
         
         function checkSize() {
@@ -62,12 +63,12 @@
     </div>
 </div>
 <div class="control-group">
- <label class="checkbox">
+ 
             <div class="controls">
-                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"> Encrypt? </input>
-                <input type="file" name="keyFile" id="keyFile" disabled/>
+                <input type="checkbox" name="encrypted" onchange="update()" id="encCheck"/> Encrypt? 
+                <input type="file" name="keyFile" id="keyFile" disabled="disabled"/>
                 </div>
-            </label>
+ 
            
             </div>
             
