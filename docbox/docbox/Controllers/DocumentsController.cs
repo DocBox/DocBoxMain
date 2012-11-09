@@ -534,7 +534,7 @@ namespace docbox.Controllers
         }
 
         // GET: /Documents/DeptDocDetails/5
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [Authorize(Roles = "manager, ceo, vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeptDocDetails(long fileId)
         {
@@ -551,7 +551,7 @@ namespace docbox.Controllers
 
         //
         // GET: /Documents/Details/5
-        [Authorize(Roles = "employee,manager,ceo,vp")]
+        //[Authorize(Roles = "employee,manager,ceo,vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         private ActionResult Details(long fileId, string callerName)
         {
@@ -571,11 +571,10 @@ namespace docbox.Controllers
                 var privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == currentUserId && r.fileid == fileId);
                 bool hasReadAccess = privileges != null ? privileges.read : false;
 
-                // Throw an exception if document is archived/access restricted
-                if (dx_files.isarchived == true || hasReadAccess == false)
-                {
-                    throw new AccessViolationException("Insufficient privileges to access the file or file might be archived!");
-                }
+                if (hasReadAccess == false)
+                    throw new AccessViolationException("Insufficient privileges to access the document");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is currently archived and cannot be downloaded.");
 
                 // Construct an array of boolean values indicating if every version 
                 // is encrypted/decrypted
@@ -651,9 +650,7 @@ namespace docbox.Controllers
                 // Check if the given fileId is valid
                 DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
                 if (dx_files == null)
-                {
                     throw new FileNotFoundException("File not found!");
-                }
 
                 // Get the current user 
                 string currentUserId = SessionKeyMgmt.UserId;
@@ -663,10 +660,10 @@ namespace docbox.Controllers
                 bool hasReadAccess = privileges != null ? privileges.read : false;
 
                 // Throw an exception if document is locked/archived/access restricted
-                if (dx_files.isarchived == true || hasReadAccess == false)
-                {
-                    throw new AccessViolationException("Insufficient access privileges or file might be archived!");
-                }
+                if (hasReadAccess == false)
+                    throw new AccessViolationException("Insufficient privileges to access the document");
+                else if (dx_files.isarchived)
+                    throw new AccessViolationException("Document is currently archived and cannot be downloaded.");
 
                 // Get the file data
                 DX_FILEVERSION selectedVersion = db.DX_FILEVERSION.SingleOrDefault(d => d.fileid == fileId && d.versionnumber == versionNumber);
@@ -1283,13 +1280,14 @@ namespace docbox.Controllers
             return DeleteDocumentDetails(fileId, "ListDocuments");
         }
 
-        [Authorize(Roles = "employee,manager,ceo,vp")]
+        [Authorize(Roles = "manager,ceo,vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult DeleteDepartmentDocument(long fileId)
         {
             return DeleteDocumentDetails(fileId, "DepartmentDocuments");
         }
 
+        [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         private ActionResult DeleteDocumentDetails(long fileId, string callerName)
         {
             try
@@ -1311,14 +1309,14 @@ namespace docbox.Controllers
                 else if (dx_files.isarchived)
                     throw new AccessViolationException("Document is archived and cannot be deleted");
 
-                // Check if document is checked out by current user
+                // Check if document is checked out
                 bool isFileLocked = true;
                 if (dx_files.islocked.HasValue)
                     isFileLocked = (bool)dx_files.islocked;
 
                 // Do not delete if file is locked
                 if (isFileLocked)
-                    throw new AccessViolationException("Document is currently checkedout and cannot be deleted.");
+                    throw new AccessViolationException("Document is currently checked out and cannot be deleted.");
 
                 ViewBag.originalCaller = callerName;
                 ViewBag.fileId = fileId;
@@ -1747,14 +1745,14 @@ namespace docbox.Controllers
             return UpdateDocumentDetails(fileId, "SharedFiles");
         }
 
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        [Authorize(Roles = "manager, ceo, vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         public ActionResult UpdateDepartmentDocs(long fileId)
         {
             return UpdateDocumentDetails(fileId, "DepartmentFiles");
         }
 
-        [Authorize(Roles = "employee, manager, ceo, vp")]
+        //[Authorize(Roles = "employee, manager, ceo, vp")]
         [AcceptVerbs(HttpVerbs.Get), ExportToTempData]
         private ActionResult UpdateDocumentDetails(long fileId, string calledFrom)
         {
@@ -1836,9 +1834,7 @@ namespace docbox.Controllers
                 // Check if the fileId to be updated is still valid
                 DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == fileId);
                 if (dx_files == null)
-                {
                     throw new FileNotFoundException("File not found!");
-                }
 
                 // Get the current userId
                 string userId = SessionKeyMgmt.UserId;
@@ -1961,7 +1957,7 @@ namespace docbox.Controllers
                 fileVersion.versionnumber = newVersionNumber;
                 fileVersion.updatedate = System.DateTime.Now;
                 fileVersion.description = fileDescription;
-                fileVersion.size = Convert.ToInt32(inputFileLength);
+                fileVersion.size = inputFileData.Length;
                 fileVersion.filedata = inputFileData;
                 fileVersion.updatedby = userId;
 
