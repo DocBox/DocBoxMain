@@ -1557,7 +1557,7 @@ namespace docbox.Controllers
 
         private void populateUsersList()
         {
-            var allusers = from usertabel in db.DX_USER where usertabel.userid!=SessionKeyMgmt.UserId select new { usertabel.userid };
+            var allusers = from usertabel in db.DX_USER where usertabel.userid != SessionKeyMgmt.UserId && usertabel.role != "admin" && usertabel.role != "adminless" && usertabel.role != "deactivated" select new { usertabel.userid };
             ViewBag.UsersList = allusers != null ? allusers.ToList() : null;
         }
 
@@ -1577,7 +1577,7 @@ namespace docbox.Controllers
                 foreach (var file in fileselected)
                     listoffiles.Add(Convert.ToInt64(file));
                 var shareFiles = from filetable in db.DX_FILES where listoffiles.Contains(filetable.fileid) && filetable.ownerid == SessionKeyMgmt.UserId select filetable;
-
+                
                 if (shareFiles != null && shareFiles.ToList().Count > 0)
                 {
                     foreach (DX_FILES file in shareFiles)
@@ -1621,6 +1621,7 @@ namespace docbox.Controllers
             if (files != null && files.shareWithUsers != null)
             {
                 files.Files = SessionKeyMgmt.SharedFiles;
+                
                 try
                 {
                     List<Int64> fileIdList = new List<Int64>();
@@ -1633,6 +1634,7 @@ namespace docbox.Controllers
                         foreach (Int64 fileId in fileIdList)
                         {
                             var listofsharedfiles = from privilegetable in db.DX_PRIVILEGE where privilegetable.fileid == fileId && privilegetable.userid == user select privilegetable;
+                            
                             if (listofsharedfiles.ToList().Count > 0)
                             {
                                 foreach (DX_PRIVILEGE existingfile in listofsharedfiles)
@@ -1696,7 +1698,7 @@ namespace docbox.Controllers
                     {
                         ModelState.AddModelError("", "Permission Denied: The file is in archived state");
                     }
-                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId && sharedfile.filetable.latestversion==sharedfile.versiontable.versionnumber)
+                    if (sharedfile.filetable.ownerid != SessionKeyMgmt.UserId && sharedfile.filetable.latestversion==sharedfile.versiontable.versionnumber && sharedfile.privilegetable.reason=="shared")
                     {
                         FileShared share = new FileShared();
                         share.FileID = (sharedfile.filetable.fileid).ToString();
