@@ -235,9 +235,6 @@
     <Content Include="Views\Account\Invalid.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Documents\Index.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\Documents\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -250,13 +247,11 @@
     <Content Include="Views\Documents\Delete.cshtml" />
     <Content Include="Views\Account\ForgetPassword.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Documents\Upload.cshtml" />
-  </ItemGroup>
+ 
   <ItemGroup>
     <Content Include="Views\Security\GenerateKey.cshtml" />
   </ItemGroup>
-   <ItemGroup>
+  <ItemGroup>
     <Content Include="Views\Shared\_DocumentLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
