@@ -10,15 +10,14 @@
 <script type="text/javascript">
     function isEncrypted(encrypted) {
         var selected = document.getElementById("dropdown").value;
+        var index = selected.indexOf("_");
+        var encryptedVar = selected.substring(0, index);
 
-        if (selected == "True") {
+        if (encryptedVar == "True") {
             document.getElementById("keyFile").disabled = false;
-            document.getElementById("fileVersion").value = selected;
-            document.getElementById("encStatus").value = "true";
         }
         else {
             document.getElementById("keyFile").disabled = true;
-            document.getElementById("encStatus").value = "false";
         }
     }
 
@@ -59,7 +58,7 @@
     @{
         int i=0;
         for(i=0;i<count;i++){
-         @Html.Raw("<option value=\"" + version[i] + "\">" + (i+1) + "</option>");  
+         @Html.Raw("<option value=\"" + version[i] + "_"+i + "\">" + (i+1) + "</option>");  
         }
     string firstEle = "";
     if (!version[0])

@@ -643,9 +643,13 @@ namespace docbox.Controllers
             {
                 // Get the parameters from request
                 long fileId = long.Parse(Request.Params.Get("fileId"));
-                int versionNumber = Convert.ToInt32(Request.Params.Get("fileVersion"));
                 string encryptionStatus = Request.Params.Get("selectdrop");
-                bool isEncrypted = encryptionStatus.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
+                int index = encryptionStatus.IndexOf('_');
+                string isEncryptedStr = encryptionStatus.Substring(0, index);
+                int versionNumber = int.Parse(encryptionStatus.Substring(index + 1))+1;
+
+                bool isEncrypted = isEncryptedStr.Equals("true", StringComparison.OrdinalIgnoreCase) ? true : false;
+
                 originalView = Request.Params.Get("originalCaller");
 
                 // Check if the given fileId is valid
@@ -1220,7 +1224,7 @@ namespace docbox.Controllers
                         ModelState.AddModelError("", "You do not have sufficient privileges to edit this file");
                     }
 
-                    if (userPriv.update == false || userPriv.update == null)
+                    if (userPriv.update == false)
                     {
                         ModelState.AddModelError("", "You do not have sufficient privileges to edit this file");
                     }
