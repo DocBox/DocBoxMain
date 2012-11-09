@@ -1852,7 +1852,7 @@ namespace docbox.Controllers
 
                 // Check if document is not archived
                 if (isDocumentCheckedOutByUser == false)
-                    throw new AccessViolationException("Document cannot be updated. Please check out the document before updating.");
+                    throw new AccessViolationException("Document cannot be updated now. Some one else has currently checked out the document. Please try later.");
 
                 // Validate the input file length
                 Int64 inputFileLength = Request.Files[0].InputStream.Length;
