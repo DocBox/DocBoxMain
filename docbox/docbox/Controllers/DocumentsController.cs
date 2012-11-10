@@ -955,8 +955,8 @@ namespace docbox.Controllers
 
                                         //Getting the user id of manager
                                         var managers = from usersTable in db.DX_USER
-                                                       where usersTable.accesslevel == "manager"
                                                        join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                       where usersTable.accesslevel == "manager" && userdepts.deptid == deptid
                                                        select usersTable;
                                         if (managers.Count() != 0)
                                         {
@@ -986,8 +986,8 @@ namespace docbox.Controllers
                                         int deptid = userdept.deptid;
 
                                         var vp = from usersTable in db.DX_USER
-                                                 where usersTable.accesslevel == "vp"
                                                  join userdepts in db.DX_USERDEPT on usersTable.userid equals userdepts.userid
+                                                 where usersTable.accesslevel == "vp" && userdepts.deptid == deptid
                                                  select usersTable;
                                         if (vp.Count() != 0)
                                         {
@@ -1204,16 +1204,15 @@ namespace docbox.Controllers
 
                     DX_FILEVERSION fileObj = db.DX_FILEVERSION.Single(d => d.fileid == fileId && d.versionnumber == mainFile.latestversion);
 
-                    if (description.Length != 0 && description.Length < 75)
+                    if (fileObj == null)
+                    {
+                        ModelState.AddModelError("", "The file does not exist anymore");
+
+                    }
+
+                    if (description.Length != 0 && description.Length <= 75)
                     {
                     
-
-                        if (fileObj == null)
-                        {
-                            ModelState.AddModelError("", "The file does not exist anymore");
-                            
-                        }
-
                         if (fileObj.description != description)
                         {
                             fileObj.updatedate = System.DateTime.Now;
@@ -1231,7 +1230,7 @@ namespace docbox.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError("", "You do not have edit permissions on this file");
+                        ModelState.AddModelError("", "Invalid file description");
                         
                     }
                

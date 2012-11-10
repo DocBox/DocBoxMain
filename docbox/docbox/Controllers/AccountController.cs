@@ -304,7 +304,7 @@ namespace docbox.Controllers
                 List<DX_DEPARTMENT> depList = departments == null ? new List<DX_DEPARTMENT>() : departments.ToList();
                 ViewBag.Departments = depList;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ViewBag.Departments = new List<DX_DEPARTMENT>();
                 ModelState.AddModelError("","Some error occured please try after some time");
