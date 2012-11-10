@@ -333,15 +333,21 @@ namespace docbox.Controllers
                                            where userdepttable.userid == id 
                                            select userdepttable;
                             if (userdept == null) { throw new Exception("error while retrieving user department"); }
+                            List<string> usersList = new List<string>();
                             foreach (DX_USERDEPT dept in userdept) {
                                 var deptmembers = from userdepttable in database.DX_USERDEPT
                                                   where userdepttable.deptid == dept.deptid && userdepttable.userid!=id
                                                   select userdepttable;
                                 if (deptmembers != null)
                                 {
-
+                                    
                                     foreach (DX_USERDEPT deptuser in deptmembers)
                                     {
+                                        string deptUserid = deptuser.userid;
+                                        if (!usersList.Contains(deptUserid))
+                                            usersList.Add(deptUserid);
+                                        else
+                                            continue;
                                         var useraccess = database.DX_USER.SingleOrDefault(x => x.userid == deptuser.userid);
                                         switch (user.accesslevel)
                                         {
