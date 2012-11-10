@@ -1542,7 +1542,7 @@ namespace docbox.Controllers
 
         private void populateUsersList()
         {
-            var allusers = from usertabel in db.DX_USER where usertabel.userid != SessionKeyMgmt.UserId && usertabel.role != "admin" && usertabel.role != "adminless" && usertabel.role != "deactivated" select new { usertabel.userid };
+            var allusers = from usertabel in db.DX_USER where usertabel.userid != SessionKeyMgmt.UserId && usertabel.accesslevel != "admin" && usertabel.accesslevel != "adminless" && usertabel.accesslevel != "deactivated" select new { usertabel.userid };
             ViewBag.UsersList = allusers != null ? allusers.ToList() : null;
         }
 
