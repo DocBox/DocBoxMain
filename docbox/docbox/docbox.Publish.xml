@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <publishData>
-  <publishProfile publishUrl="C:\Users\aditya\Documents\GitHub\DocboxDeployments\11_9_11PM" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Profile1" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+  <publishProfile publishUrl="C:\Users\aditya\Documents\GitHub\DocboxDeployments\11_9_11.2PM" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Profile1" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
     <file relUrl="Scripts/jquery.validate.unobtrusive.js" publishTime="11/08/2012 19:33:34" />
     <file relUrl="Content/themes/base/jquery.ui.resizable.css" publishTime="11/08/2012 19:33:34" />
-    <file relUrl="bin/docbox.dll" publishTime="11/09/2012 22:51:43" />
+    <file relUrl="bin/docbox.dll" publishTime="11/09/2012 23:35:09" />
     <file relUrl="Views/Account/Register.cshtml" publishTime="11/08/2012 19:33:34" />
     <file relUrl="Content/themes/base/images/ui-bg_flat_75_ffffff_40x100.png" publishTime="11/08/2012 19:33:33" />
     <file relUrl="Views/Account/IndexOfDeactivatedUser.cshtml" publishTime="11/08/2012 23:00:27" />
@@ -57,7 +57,7 @@
     <file relUrl="Views/Home/Index.cshtml" publishTime="11/08/2012 19:33:34" />
     <file relUrl="Views/Account/LogOn.cshtml" publishTime="11/08/2012 19:35:37" />
     <file relUrl="Content/themes/base/jquery.ui.selectable.css" publishTime="11/08/2012 19:33:34" />
-    <file relUrl="bin/docbox.pdb" publishTime="11/09/2012 22:51:43" />
+    <file relUrl="bin/docbox.pdb" publishTime="11/09/2012 23:35:09" />
     <file relUrl="Views/Documents/Create.cshtml" publishTime="11/08/2012 22:45:51" />
     <file relUrl="Content/themes/base/images/ui-icons_222222_256x240.png" publishTime="11/08/2012 19:33:33" />
     <file relUrl="Content/bootstrap/css/bootstrap-toggle.css" publishTime="11/08/2012 19:33:33" />
