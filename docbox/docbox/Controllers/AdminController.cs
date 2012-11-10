@@ -229,7 +229,7 @@ namespace docbox.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var allUsersNeeded = from usertable in database.DX_USER where usertable.accesslevel != Constants.TEMP_USER_ACCESS select usertable;
+                    var allUsersNeeded = from usertable in database.DX_USER where usertable.accesslevel != Constants.TEMP_USER_ACCESS && usertable.accesslevel!=Constants.ADMIN_USER_ACCESS && usertable.accesslevel!=Constants.ADMINLESS_USER_ACCESS select usertable;
 
                     if (allUsersNeeded != null && allUsersNeeded.ToList().Count >= 1)
                     {
