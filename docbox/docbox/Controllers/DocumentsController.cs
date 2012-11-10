@@ -1761,6 +1761,9 @@ namespace docbox.Controllers
                 if (dx_files.islocked.HasValue)
                     isFileLocked = (bool)dx_files.islocked;
 
+                if (isFileLocked == false)
+                    throw new AccessViolationException("Document cannot be updated. Please check out the file before updating.");
+
                 bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
 
                 // Check if document is not archived
@@ -1831,6 +1834,9 @@ namespace docbox.Controllers
                 bool isFileLocked = false;
                 if (dx_files.islocked.HasValue)
                     isFileLocked = (bool)dx_files.islocked;
+
+                if (isFileLocked == false)
+                    throw new AccessViolationException("Document cannot be updated. Please check out the file before updating.");
 
                 bool isDocumentCheckedOutByUser = isFileLocked && (dx_files.lockedby == userId);
 
