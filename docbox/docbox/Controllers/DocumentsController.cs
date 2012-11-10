@@ -12,6 +12,7 @@ using System.IO;
 using docbox.Utilities;
 using System.Reflection;
 using docbox.Filters;
+using System.Text.RegularExpressions;
 
 namespace docbox.Controllers
 {
@@ -362,7 +363,7 @@ namespace docbox.Controllers
                 this.TempData["SearchConditions"] = searchConditions;
                 string fileName = GetConditionValue(searchConditions, "fileName");
                 var result = (from s in model
-                              where (string.IsNullOrEmpty(fileTitle) || s.FileName.Contains(fileTitle))
+                              where (string.IsNullOrEmpty(fileTitle) || s.FileName.IndexOf(fileTitle, StringComparison.InvariantCultureIgnoreCase) != -1)
                               select s).ToList();
                 model = result;
             }
@@ -393,7 +394,7 @@ namespace docbox.Controllers
                 this.TempData["SearchConditions"] = searchConditions;
                 string fileName = GetConditionValue(searchConditions, "fileName");
                 var result = (from s in model
-                                where (string.IsNullOrEmpty(fileTitle) || s.FileName.Contains(fileTitle))
+                                where (string.IsNullOrEmpty(fileTitle) || s.FileName.IndexOf(fileTitle,StringComparison.InvariantCultureIgnoreCase) != -1)
                                 select s).ToList();
                 model = result;
             }
