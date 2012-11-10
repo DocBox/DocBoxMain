@@ -117,17 +117,7 @@ namespace docbox.Controllers
             return modelList;
         }
 
-        [Authorize(Roles = "manager,ceo,vp")]
-        //public ActionResult DepartmentFiles(List<FileModel> model)
-        //{
-        //    if (null != model)
-        //    {
-        //        return View("DepartmentFiles", model);
-        //    }
-        //    string dept = TempData["dept"] as string;
-        //    return View("DepartmentFiles", getDeptDocsModel(dept));
-        //}
-
+        [ImportFromTempData]
         [Authorize(Roles = "manager,ceo,vp")]
         public ActionResult DepartmentFiles(string dept, List<FileModel> model)
         {
@@ -168,6 +158,7 @@ namespace docbox.Controllers
             return accessibleRole;
         }
 
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         private List<FileModel> getDeptDocsModel(string dept)
         {
             int deptid = DbCommonQueries.getDepartmentId(dept, db);
@@ -378,6 +369,7 @@ namespace docbox.Controllers
             return model;
         }
 
+        [AcceptVerbs(HttpVerbs.Post), ExportToTempData]
         private List<FileModel> Search(string fileTitle, List<FileModel> model)
         {
             if (ModelState.IsValid)
@@ -425,25 +417,25 @@ namespace docbox.Controllers
             long intID = Convert.ToInt64(fileid);
             if (ModelState.IsValid)
             {
-                // Check if the given fileId is valid
-                DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == intID);
-                if (dx_files == null)
-                {
-                    throw new FileNotFoundException("File not found!");
-                }
-                
-                // Check if the user has checkInOut privileges for the document
-                var privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == SessionKeyMgmt.UserId && r.fileid == intID);
-                bool hasAccess = privileges != null ? privileges.check : false;
-
-                // Throw an exception if document is locked/archived/access restricted
-                if (dx_files.isarchived == true || !hasAccess)
-                {
-                    ModelState.AddModelError("Permission Denied:", "Cannot access the file. File not found or access denied!");
-                }
-
                 try
                 {
+                    // Check if the given fileId is valid
+                    DX_FILES dx_files = db.DX_FILES.SingleOrDefault(d => d.fileid == intID);
+                    if (dx_files == null)
+                    {
+                        throw new FileNotFoundException("File not found!");
+                    }
+
+                    // Check if the user has checkInOut privileges for the document
+                    var privileges = db.DX_PRIVILEGE.SingleOrDefault(r => r.userid == SessionKeyMgmt.UserId && r.fileid == intID);
+                    bool hasAccess = privileges != null ? privileges.check : false;
+
+                    // Throw an exception if document is locked/archived/access restricted
+                    if (dx_files.isarchived == true || !hasAccess)
+                    {
+                        ModelState.AddModelError("Permission Denied:", "Cannot access the file. File not found or access denied!");
+                    }
+
                     //check if file is locked.
                     if (dx_files.islocked == true)
                     {
@@ -465,23 +457,23 @@ namespace docbox.Controllers
                         dx_files.islocked = true;
                         dx_files.lockedby = SessionKeyMgmt.UserId;
                     }
-                }catch(Exception ex){
-                    ModelState.AddModelError("", "Failed to lock the file: "+ex);
+                }catch(Exception){
+                    ModelState.AddModelError("", "Failed to lock the file: ");
                 }
                 try
                 {
                     db.SaveChanges();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    var status = e.StackTrace;
-                    ModelState.AddModelError("Failed to update the database with new values", status);
+                    ModelState.AddModelError("","Failed to update the database with new values");
                 }
             }
         }
 
         [Authorize(Roles = "employee,manager,ceo,vp")]
-        [AcceptVerbs(HttpVerbs.Post), ImportFromTempData]
+        [AcceptVerbs(HttpVerbs.Post)]
+        [ImportFromTempData]
         public ActionResult CheckInOut(string fileid)
         {
             SaveCheckInOut(fileid);
@@ -503,7 +495,7 @@ namespace docbox.Controllers
         public ActionResult CheckInOutDept(string fileid)
         {
             SaveCheckInOut(fileid);
-            return RedirectToAction("DepartmentFiles");
+            return RedirectToAction("DepartmentFiles", new { dept = TempData["dept"] as string });
         }
 
         // GET: /Documents/MyDocDetails/5
@@ -528,14 +520,6 @@ namespace docbox.Controllers
         public ActionResult DeptDocDetails(long fileId)
         {
             return Details(fileId, "DepartmentFiles");
-        }
-
-        [AcceptVerbs(HttpVerbs.Post)]
-        [Authorize(Roles = "guest,employee,manager,ceo,vp")]
-        public ActionResult CheckInOutPublic(string fileid)
-        {
-            SaveCheckInOut(fileid);
-            return RedirectToAction("PublicFiles");
         }
 
         //
