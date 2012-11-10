@@ -304,15 +304,15 @@ namespace docbox.Controllers
         {
             try
             {
-
+                
                 if (id != null)
                 {
                     var allusers = from usertabel in database.DX_USER where usertabel.userid == id select usertabel;
+                   
                     if (allusers != null && allusers.ToList().Count == 1)
                     {
                         DX_USER user = allusers.ToList().First();
-
-
+                     
                         switch (user.role)
                         {
                             case "ceo": user.accesslevel = Constants.CEO_USER_ACCESS;
@@ -328,6 +328,66 @@ namespace docbox.Controllers
                                 break;
                         }
                         database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                        if (user.accesslevel != Constants.EMPLOYEE_USER_ACCESS) {
+                            var userdept = from userdepttable in database.DX_USERDEPT 
+                                           where userdepttable.userid == id 
+                                           select userdepttable;
+                            if (userdept == null) { throw new Exception("error while retrieving user department"); }
+                            foreach (DX_USERDEPT dept in userdept) {
+                                var deptmembers = from userdepttable in database.DX_USERDEPT
+                                                  where userdepttable.deptid == dept.deptid && userdepttable.userid!=id
+                                                  select userdepttable;
+                                if (deptmembers != null)
+                                {
+
+                                    foreach (DX_USERDEPT deptuser in deptmembers)
+                                    {
+                                        var useraccess = database.DX_USER.SingleOrDefault(x => x.userid == deptuser.userid);
+                                        switch (user.accesslevel)
+                                        {
+                                            case "manager":
+                                                {
+                                                    if (useraccess.accesslevel.Equals("ceo") || useraccess.accesslevel.Equals("vp"))
+                                                    {
+                                                        continue;
+                                                    }
+                                                    break;
+                                                }
+                                            case "vp":
+                                                {
+                                                    if (useraccess.accesslevel.Equals("ceo")) { continue; }
+                                                    break;
+                                                }
+                                        }
+
+                                        var employeeFiles = from files in database.DX_FILES
+                                                            where files.ownerid == useraccess.userid
+                                                            select files;
+                                        if (employeeFiles != null)
+                                        {
+                                            foreach (DX_FILES employeeFile in employeeFiles)
+                                            {
+                                                var file = from prev in database.DX_PRIVILEGE where prev.userid == id && prev.fileid == employeeFile.fileid select prev;
+                                                if (file != null && file.Count() < 1)
+                                                {
+                                                    DX_PRIVILEGE filePriv = new DX_PRIVILEGE();
+                                                    filePriv.fileid = employeeFile.fileid;
+                                                    filePriv.userid = id;
+                                                    filePriv.read = true;
+                                                    filePriv.update = true;
+                                                    filePriv.delete = true;
+                                                    filePriv.check = true;
+                                                    filePriv.reason = "inherit";
+                                                    database.DX_PRIVILEGE.AddObject(filePriv);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            
+                            }
+                        }
+                        
                         int success = database.SaveChanges();
                         if (success > 0)
                         {
