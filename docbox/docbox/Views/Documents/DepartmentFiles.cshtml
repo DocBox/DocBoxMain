@@ -54,7 +54,7 @@
                             grid.Column("FileVersion", header: "File Version"),
                             grid.Column("Owner", header: "Created By"),
                             grid.Column("CreationDate", header: " Created On"),
-                            grid.Column(header: "CheckIn/Out", format: @<text> 
+                            grid.Column(header: "Checked Out", format: @<text> 
                                 @if (item.isLocked == true && item.LockedBy != docbox.Utilities.SessionKeyMgmt.UserId)
                                 {
                                     @Html.CheckBox("checkLock", true, new { name = "checkLock", id = "checkLock", value = item.FileID, disabled = "disabled", onchange = "updateChk('" + item.FileID + "')" });

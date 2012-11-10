@@ -44,7 +44,7 @@ namespace docbox.Controllers
                     return View(model);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Could not get logs please try after some time!!");
                 return View(model);

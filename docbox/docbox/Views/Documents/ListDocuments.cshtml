@@ -59,7 +59,7 @@
                               grid.Column("FileVersion", header: "Version"),
                               grid.Column("Owner", header: "Created By"),
                               grid.Column("CreationDate", header:" Created On"),
-                              grid.Column(header:"CheckIn/Out"  ,format: @<text> 
+                              grid.Column(header:"Checked Out"  ,format: @<text> 
                               
                                 @if (item.isLocked == true && item.LockedBy != docbox.Utilities.SessionKeyMgmt.UserId) 
                                 {

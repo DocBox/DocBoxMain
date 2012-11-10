@@ -32,7 +32,7 @@ namespace docbox.Filters
 
                 base.OnException(filterContext);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
