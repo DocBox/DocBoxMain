@@ -12,22 +12,42 @@ namespace docbox.Controllers
 {
 
     [DeleteBrowserHistory]
+    [AuditLogAttribute]
     public class AdminController : Controller
     {
         private dx_docboxEntities database = new dx_docboxEntities();
         private DX_LOGGEREntities auditDatabase = new DX_LOGGEREntities();
+        static System.Configuration.Configuration webConfig =
+                System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/docbox/web.config");
+        static System.Configuration.KeyValueConfigurationElement subtractTime =
+                    webConfig.AppSettings.Settings["datetimesubtractlog"];
         // GET: /Admin/
-        [Authorize(Roles="admin,adminless")]
+        [Authorize(Roles = "admin,adminless")]
         public ActionResult ViewAudit()
         {
-            List<adminlog> logs = auditDatabase.adminlogs.ToList();
-            if (logs == null)
+            // List<adminlog> logs = auditDatabase.adminlogs.ToList();
+            List<adminlog> model = new List<adminlog>();
+            try
             {
-                return View();
+                double lastXhrs = Convert.ToDouble(subtractTime.Value);
+                var lastXhrTime = DateTime.Now.AddHours(-lastXhrs);
+                var logs = from adminlogs in auditDatabase.adminlogs where adminlogs.datetime > lastXhrTime select adminlogs;
+
+
+                if (logs == null)
+                {
+                    return View(model);
+                }
+                else
+                {
+                    model = logs.ToList();
+                    return View(model);
+                }
             }
-            else
+            catch (Exception e)
             {
-                return View(logs);
+                ModelState.AddModelError("", "Could not get logs please try after some time!!");
+                return View(model);
             }
         }
 
@@ -45,7 +65,7 @@ namespace docbox.Controllers
                 ModelState.AddModelError("", "error while populating Department");
             }
         }
-          [Authorize(Roles = "admin,adminless")]
+        [Authorize(Roles = "admin,adminless")]
         public ActionResult DeactivateAnExistingUser(string id)
         {
             try
@@ -69,7 +89,7 @@ namespace docbox.Controllers
                         default:
                             break;
                     }
-                     database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                    database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
                     int success = database.SaveChanges();
 
                 }
@@ -95,7 +115,7 @@ namespace docbox.Controllers
                     user.accesslevel = model.AccessLevel;
                     user.role = model.Position;
                     database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
-                      
+
                 }
                 var userCurrentdepartments = from usertable in database.DX_USERDEPT where usertable.userid == model.Email select usertable;
 
@@ -291,14 +311,14 @@ namespace docbox.Controllers
                     if (allusers != null && allusers.ToList().Count == 1)
                     {
                         DX_USER user = allusers.ToList().First();
-                        
+
 
                         switch (user.role)
                         {
                             case "ceo": user.accesslevel = Constants.CEO_USER_ACCESS;
                                 break;
                             case "manager": user.accesslevel = Constants.MANAGER_USER_ACCESS;
-                                
+
                                 break;
                             case "employee": user.accesslevel = Constants.EMPLOYEE_USER_ACCESS;
                                 break;
@@ -376,7 +396,7 @@ namespace docbox.Controllers
             catch { ModelState.AddModelError("", "Error occured while populating all user requests"); }
             return View(AllUsersNeedingApproval);
         }
-          [Authorize(Roles = "admin,adminless")]
+        [Authorize(Roles = "admin,adminless")]
         public ActionResult ActivateAnExistingUser(string id)
         {
             try
@@ -387,16 +407,16 @@ namespace docbox.Controllers
                 if (allusers != null && allusers.ToList().Count == 1)
                 {
                     DX_USER user = allusers.ToList().First();
-                                         
+
                     if (user.accesslevel == Constants.DEACTIVATED_USER_ACCESS)
                     {
                         user.accesslevel = user.role;
 
                     }
 
-                     database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
-                     
-                        int success = database.SaveChanges();
+                    database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+
+                    int success = database.SaveChanges();
 
 
                 }

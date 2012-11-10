@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
+using docbox.Filters;
 
 namespace docbox
 {
@@ -10,7 +11,7 @@ namespace docbox
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            filters.Add(new HandleDocboxAttribute());
         }
 
         public static void RegisterRoutes(RouteCollection routes)

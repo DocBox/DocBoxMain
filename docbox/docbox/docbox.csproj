@@ -96,6 +96,7 @@
     <Compile Include="Controllers\TempUserController.cs" />
     <Compile Include="Filters\AuditLogAttribute.cs" />
     <Compile Include="Filters\DeleteBrowserHistory.cs" />
+    <Compile Include="Filters\HandleDocboxAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

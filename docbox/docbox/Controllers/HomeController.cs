@@ -8,6 +8,7 @@ using docbox.Filters;
 namespace docbox.Controllers
 {
     [DeleteBrowserHistory]
+    [AuditLogAttribute]
     public class HomeController : Controller
     {
         [Authorize (Roles="employee,manager,ceo,vp,guest")] 

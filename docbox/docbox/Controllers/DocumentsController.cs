@@ -49,6 +49,7 @@ namespace docbox.Controllers
     }
 
     [DeleteBrowserHistory]
+    [AuditLogAttribute]
     public class DocumentsController : Controller
     {
         private dx_docboxEntities db = new dx_docboxEntities();

@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 namespace docbox.Controllers
 {
     [DeleteBrowserHistory]
+    [AuditLogAttribute]
     public class SecurityController : Controller
     {
         //

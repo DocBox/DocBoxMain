@@ -8,6 +8,7 @@ using docbox.Filters;
 namespace docbox.Controllers
 {
     [DeleteBrowserHistory]
+    [AuditLogAttribute]
     public class TempUserController : Controller
     {
         //
