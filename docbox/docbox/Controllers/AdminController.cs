@@ -38,32 +38,32 @@ namespace docbox.Controllers
                 ModelState.AddModelError("", "error while populating Department");
             }
         }
-         public ActionResult DeactivateAnExistingUser(string id)
+          [Authorize(Roles = "admin,adminless")]
+        public ActionResult DeactivateAnExistingUser(string id)
         {
             try
             {
 
-                
-                    var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
-                    if (allusers != null && allusers.ToList().Count == 1)
-                    {
-                        DX_USER user = allusers.ToList().First();
+                var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
+                if (allusers != null && allusers.ToList().Count == 1)
+                {
+                    DX_USER user = allusers.ToList().First();
 
-                        switch (user.role)
-                        {
-                            case "ceo": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
-                                break;
-                            case "manager": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
-                                break;
-                            case "employee": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
-                                break;
-                            case "vp": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
-                                break;
-                            default:
-                                break;
-                        }
-                        database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
-                        int success = database.SaveChanges();
+                    switch (user.role)
+                    {
+                        case "ceo": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                            break;
+                        case "manager": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                            break;
+                        case "employee": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                            break;
+                        case "vp": user.accesslevel = Constants.DEACTIVATED_USER_ACCESS;
+                            break;
+                        default:
+                            break;
+                    }
+                     database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                    int success = database.SaveChanges();
 
                 }
             }
@@ -132,7 +132,7 @@ namespace docbox.Controllers
             try
             {
 
-                
+
                 if (id != null)
                 {
                     var presentUserToBeEdited = from usertable in database.DX_USER where usertable.userid == id select usertable;
@@ -160,9 +160,9 @@ namespace docbox.Controllers
                 populateDepartmenetsList();
 
             }
-            catch 
+            catch
             {
-                ModelState.AddModelError("","Error occured while editing existing user");
+                ModelState.AddModelError("", "Error occured while editing existing user");
             }
             return View(UserToBeEdited);
         }
@@ -193,7 +193,7 @@ namespace docbox.Controllers
         }
 
         //view all existing users
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,adminless")]
         public ActionResult AllExistingUsers()
         {
 
@@ -234,7 +234,7 @@ namespace docbox.Controllers
         }
 
         //reject a user registration request
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,adminless")]
         public ActionResult RejectRequest(string id)
         {
             try
@@ -284,12 +284,14 @@ namespace docbox.Controllers
                     if (allusers != null && allusers.ToList().Count == 1)
                     {
                         DX_USER user = allusers.ToList().First();
+                        
 
                         switch (user.role)
                         {
                             case "ceo": user.accesslevel = Constants.CEO_USER_ACCESS;
                                 break;
                             case "manager": user.accesslevel = Constants.MANAGER_USER_ACCESS;
+                                
                                 break;
                             case "employee": user.accesslevel = Constants.EMPLOYEE_USER_ACCESS;
                                 break;
@@ -367,26 +369,28 @@ namespace docbox.Controllers
             catch { ModelState.AddModelError("", "Error occured while populating all user requests"); }
             return View(AllUsersNeedingApproval);
         }
-
-         public ActionResult ActivateAnExistingUser(string id)
+          [Authorize(Roles = "admin,adminless")]
+        public ActionResult ActivateAnExistingUser(string id)
         {
             try
             {
 
-                
-                    var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
-                    if (allusers != null && allusers.ToList().Count == 1)
+
+                var allusers = from usertable in database.DX_USER where usertable.userid == id select usertable;
+                if (allusers != null && allusers.ToList().Count == 1)
+                {
+                    DX_USER user = allusers.ToList().First();
+                                         
+                    if (user.accesslevel == Constants.DEACTIVATED_USER_ACCESS)
                     {
-                        DX_USER user = allusers.ToList().First();
+                        user.accesslevel = user.role;
 
-                        if (user.accesslevel==Constants.DEACTIVATED_USER_ACCESS)
-                        {
-                            user.accesslevel = user.role;
+                    }
 
-                        }
-                        database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
+                     database.ObjectStateManager.ChangeObjectState(user, EntityState.Modified);
                      
                         int success = database.SaveChanges();
+
 
                 }
             }
@@ -395,7 +399,7 @@ namespace docbox.Controllers
         }
 
 
-       // public ICollection<int> dept { get; set; }
+        // public ICollection<int> dept { get; set; }
     }
 }
 

@@ -15,8 +15,9 @@
             </ul>
         </div>
     </div>
-    
-        @grid.GetHtml(tableStyle: "adminwebgrid",
+   if(User.IsInRole("adminless")){
+   
+    @grid.GetHtml(tableStyle: "adminwebgrid",
           headerStyle: "webgrid-header",
         footerStyle: "webgrid-footer",
          alternatingRowStyle: "webgrid-alternating-row",
@@ -30,14 +31,40 @@
                                       grid.Column("Email"),
                                                grid.Column("AccessLevel"),
                                       
-                                      grid.Column(header: "Modify", format: (item) => Html.ActionButton("", "EditAnExistingUser", "Admin", "icon-edit", new { id = item.Email} ), canSort: true),
                                      grid.Column(header: "Deactivate", format: (item) => Html.ActionButton("", "DeactivateAnExistingUser", "Admin", "icon-remove", new { id = item.Email }), canSort: true),
-                                     grid.Column(header: "Activate", format: (item) => Html.ActionButton("", "ActivateAnExistingUser", "Admin", "icon-user", new { id = item.Email }), canSort: true),
+
+                                           grid.Column(header: "Activate", format: (item) => Html.ActionButton("", "ActivateAnExistingUser", "Admin", "icon-user", new { id = item.Email }), canSort: true)
+
+                                     
+
+        ));
+   }
+   else
+   {
+       @grid.GetHtml(tableStyle: "adminwebgrid",
+          headerStyle: "webgrid-header",
+        footerStyle: "webgrid-footer",
+         alternatingRowStyle: "webgrid-alternating-row",
+         selectedRowStyle: "webgrid-selected-row",
+         rowStyle: "webgrid-row-style",
+                htmlAttributes: new { id = "DataTable" },
+                columns: grid.Columns(
+                                      grid.Column("Name", "Name"),
+                                      grid.Column("Department"),
+                                      grid.Column("Position"),
+                                      grid.Column("Email"),
+                                               grid.Column("AccessLevel"),
+                                      grid.Column(header: "Modify", format: (item) => Html.ActionButton("", "EditAnExistingUser", "Admin", "icon-edit", new { id = item.Email }), canSort: true),
+                                     grid.Column(header: "Deactivate", format: (item) => Html.ActionButton("", "DeactivateAnExistingUser", "Admin", "icon-remove", new { id = item.Email }), canSort: true),
+
+                                           grid.Column(header: "Activate", format: (item) => Html.ActionButton("", "ActivateAnExistingUser", "Admin", "icon-user", new { id = item.Email }), canSort: true),
 
                                      grid.Column(header: "Delete User", format: (item) => Html.ActionButton("", "DeleteExistingUser", "Admin", "icon-trash", new { id = item.Email }), canSort: true)
 
         ));
         
-  
+          
+          }
+        
     }
 </div>

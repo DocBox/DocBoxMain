@@ -2,8 +2,11 @@
     <div class="well" style="width:200px; padding: 8px 0;">
     <ul class="nav nav-list">
     <li class="nav-header"></li>
+       @if (User.IsInRole("admin") || User.IsInRole("adminless"))
+       { 
     <li>@Html.ActionButton("Requests", "Index", "Admin", null, null)</li>
     <li>@Html.ActionButton("Existing Users", "AllExistingUsers", "Admin", null, null)</li>
+       }
     </ul>
     </div>
     </div>
