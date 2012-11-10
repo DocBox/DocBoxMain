@@ -17,11 +17,18 @@ namespace docbox.Controllers
         private dx_docboxEntities database = new dx_docboxEntities();
         private DX_LOGGEREntities auditDatabase = new DX_LOGGEREntities();
         // GET: /Admin/
-
+        [Authorize(Roles="admin,adminless")]
         public ActionResult ViewAudit()
         {
             List<adminlog> logs = auditDatabase.adminlogs.ToList();
-            return View(logs);
+            if (logs == null)
+            {
+                return View();
+            }
+            else
+            {
+                return View(logs);
+            }
         }
 
         //populate department list

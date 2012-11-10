@@ -12,7 +12,7 @@ namespace docbox.Controllers
     {
         //
         // GET: /TempUser/
-
+        [Authorize(Roles="temp")]
         public ActionResult Index()
         {
             return View();
